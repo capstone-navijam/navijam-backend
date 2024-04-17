@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Member {
+  id                BigInt             @id @default(autoincrement())
+  email             String
+  nickname          String
+  password          String
+  phoneNumber       String?
+  profile           String
+  address           String?
+  name              String?
+  career            String?
+  description       String?
+  role              String             @default("ROLE_MEMBER")
+  consoleBoards     ConsoleBoard[]
+  communityBoards   CommunityBoard[]
+  consoleComments   ConsoleComment[]
+  communityComments CommunityComment[]
+  likes             Likes[]
+}
+
+model ConsoleBoard {
+  id              BigInt           @id @default(autoincrement())
+  title           String
+  content         String
+  createdAt       DateTime         @map(name: "create_at")
+  updatedAt       DateTime         @map(name: "updated_at")
+  memberId        BigInt?
+  member          Member?          @relation(fields: [memberId], references: [id])
+  consoleComments ConsoleComment[]
+}
+
+model CommunityBoard {
+  id                BigInt             @id @default(autoincrement())
+  title             String
+  content           String
+  createdAt         DateTime           @map(name: "created_at")
+  updatedAt         DateTime           @map(name: "updated_at")
+  memberId          BigInt?
+  member            Member?            @relation(fields: [memberId], references: [id])
+  communityComments CommunityComment[]
+  likes             Likes[]
+}
+
+model ConsoleComment {
+  id        BigInt       @id @default(autoincrement())
+  content   String
+  createdAt DateTime
+  postId    BigInt       @map(name: "post_id")
+  memberId  BigInt
+  post      ConsoleBoard @relation(fields: [postId], references: [id])
+  member    Member       @relation(fields: [memberId], references: [id])
+}
+
+model CommunityComment {
+  id        BigInt         @id @default(autoincrement())
+  content   String
+  createdAt DateTime
+  postId    BigInt         @map(name: "post_id")
+  memberId  BigInt
+  post      CommunityBoard @relation(fields: [postId], references: [id])
+  member    Member         @relation(fields: [memberId], references: [id])
+}
+
+model Likes {
+  memberId BigInt
+  postId   BigInt
+  member   Member         @relation(fields: [memberId], references: [id])
+  post     CommunityBoard @relation(fields: [postId], references: [id])
+
+  @@id([memberId, postId])
+}

@@ -3,10 +3,10 @@ import {
 } from "@nestjs/testing";
 import {
     AppController,
-} from "./app.controller";
+} from "@main/app.controller";
 import {
     AppService,
-} from "./app.service";
+} from "@main/app.service";
 
 describe("AppController", () => {
     let appController: AppController;

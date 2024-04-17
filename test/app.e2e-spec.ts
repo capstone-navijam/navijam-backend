@@ -7,7 +7,7 @@ import {
 import * as request from "supertest";
 import {
     AppModule,
-} from "./../src/app.module";
+} from "@main/app.module";
 
 describe("AppController (e2e)", () => {
     let app: INestApplication;

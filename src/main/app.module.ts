@@ -7,11 +7,30 @@ import {
 import {
     AppService,
 } from "./app.service";
+import {
+    MembersModule,
+} from "@main/members/members.module";
+import {
+    MembersController,
+} from "@main/members/members.controller";
+import {
+    MembersService,
+} from "@main/members/members.service";
+import {
+    ConfigModule,
+} from "@nestjs/config";
+import {
+    PrismaModule,
+} from "@main/configure/prisma.module";
 
 @Module({
-    imports: [],
-    controllers: [AppController,],
-    providers: [AppService,],
+    imports: [MembersModule,
+        ConfigModule.forRoot(),
+        PrismaModule,],
+    controllers: [AppController,
+        MembersController,],
+    providers: [AppService,
+        MembersService,],
 })
 export class AppModule {
 }

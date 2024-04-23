@@ -2,12 +2,6 @@ import {
     Module,
 } from "@nestjs/common";
 import {
-    AppController,
-} from "./app.controller";
-import {
-    AppService,
-} from "./app.service";
-import {
     MembersModule,
 } from "@main/members/members.module";
 import {
@@ -27,9 +21,9 @@ import {
     imports: [MembersModule,
         ConfigModule.forRoot(),
         PrismaModule,],
-    controllers: [AppController,
+    controllers: [
         MembersController,],
-    providers: [AppService,
+    providers: [
         MembersService,],
 })
 export class AppModule {

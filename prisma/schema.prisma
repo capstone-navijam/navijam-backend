@@ -9,37 +9,41 @@ generator client {
 
 model Member {
   id                BigInt             @id @default(autoincrement())
-  email             String
-  nickname          String
-  password          String
-  phoneNumber       String?            @map(name: "phone_number")
-  profile           String
-  address           String?
-  name              String?
-  career            String?
-  description       String?
-  role              String             @default("ROLE_MEMBER")
+  email             String             @unique @db.VarChar(50)
+  nickname          String             @unique @db.VarChar(20)
+  password          String             @db.VarChar(100)
+  phoneNumber       String?            @map(name: "phone_number") @db.VarChar(20)
+  profile           String             @db.VarChar(100)
+  address           String?            @db.VarChar(50)
+  name              String?            @db.VarChar(10)
+  career            String?            @db.VarChar(50)
+  description       String?            @db.VarChar(100)
+  role              Role               @default(MEMBER)
   consoleBoards     ConsoleBoard[]
   communityBoards   CommunityBoard[]
   consoleComments   ConsoleComment[]
   communityComments CommunityComment[]
   likes             Likes[]
+
+  @@map("member")
 }
 
 model ConsoleBoard {
   id              BigInt           @id @default(autoincrement())
-  title           String
+  title           String           @db.VarChar(50)
   content         String
   createdAt       DateTime         @map(name: "create_at")
   updatedAt       DateTime         @map(name: "updated_at")
   memberId        BigInt?          @map(name: "member_id")
   member          Member?          @relation(fields: [memberId], references: [id])
   consoleComments ConsoleComment[]
+
+  @@map("console_board")
 }
 
 model CommunityBoard {
   id                BigInt             @id @default(autoincrement())
-  title             String
+  title             String             @db.VarChar(50)
   content           String
   createdAt         DateTime           @map(name: "created_at")
   updatedAt         DateTime           @map(name: "updated_at")
@@ -47,6 +51,8 @@ model CommunityBoard {
   member            Member?            @relation(fields: [memberId], references: [id])
   communityComments CommunityComment[]
   likes             Likes[]
+
+  @@map("community_board")
 }
 
 model ConsoleComment {
@@ -57,6 +63,8 @@ model ConsoleComment {
   memberId  BigInt       @map(name: "member_id")
   post      ConsoleBoard @relation(fields: [postId], references: [id])
   member    Member       @relation(fields: [memberId], references: [id])
+
+  @@map("console_comment")
 }
 
 model CommunityComment {
@@ -67,6 +75,8 @@ model CommunityComment {
   memberId  BigInt         @map(name: "member_id")
   post      CommunityBoard @relation(fields: [postId], references: [id])
   member    Member         @relation(fields: [memberId], references: [id])
+
+  @@map("community_comment")
 }
 
 model Likes {
@@ -76,4 +86,10 @@ model Likes {
   post     CommunityBoard @relation(fields: [postId], references: [id])
 
   @@id([memberId, postId])
+  @@map("likes")
+}
+
+enum Role {
+  MEMBER
+  LISTENER
 }

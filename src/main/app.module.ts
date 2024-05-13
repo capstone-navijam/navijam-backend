@@ -2,35 +2,27 @@ import {
     Module,
 } from "@nestjs/common";
 import {
-    AppController,
-} from "./app.controller";
+    AuthModule,
+} from "@main/auth/auth.module";
 import {
-    AppService,
-} from "./app.service";
+    AuthController,
+} from "@main/auth/auth.controller";
 import {
-    MembersModule,
-} from "@main/members/members.module";
-import {
-    MembersController,
-} from "@main/members/members.controller";
-import {
-    MembersService,
-} from "@main/members/members.service";
+    AuthService,
+} from "@main/auth/auth.service";
 import {
     ConfigModule,
 } from "@nestjs/config";
 import {
     PrismaModule,
-} from "@main/configure/prisma.module";
+} from "@main/configure/prisma/prisma.module";
 
 @Module({
-    imports: [MembersModule,
+    imports: [AuthModule,
         ConfigModule.forRoot(),
         PrismaModule,],
-    controllers: [AppController,
-        MembersController,],
-    providers: [AppService,
-        MembersService,],
+    controllers: [AuthController,],
+    providers: [AuthService,],
 })
 export class AppModule {
 }

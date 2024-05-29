@@ -16,13 +16,19 @@ import {
 import {
     PrismaModule,
 } from "@main/configure/prisma/prisma.module";
+import {
+    JwtService,
+} from "@nestjs/jwt";
 
 @Module({
     imports: [AuthModule,
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
         PrismaModule,],
     controllers: [AuthController,],
-    providers: [AuthService,],
+    providers: [AuthService,
+        JwtService,],
 })
 export class AppModule {
 }

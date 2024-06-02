@@ -1,17 +1,19 @@
 import {
-    Injectable, UnauthorizedException,
+    Injectable,
 } from "@nestjs/common";
 import {
+    ListenerInfo,
     Member,
     PrismaClient,
+    Category, Role,
 } from "@prisma/client";
 import {
-    SignupRequestDto,
-} from "@main/auth/dto/req/signup.request.dto";
+    SignupMemberRequestDto,
+} from "@main/auth/dto/req/signup-member.request.dto";
 import * as bcrypt from "bcrypt";
 import {
-    SignUpResponseDto,
-} from "@main/auth/dto/res/signup.respnose.dto";
+    SignupMemberResponseDto,
+} from "@main/auth/dto/res/signup-member.response.dto";
 import {
     DuplicateEmailException,
 } from "@main/exception/duplicate-email.exception";
@@ -33,8 +35,30 @@ import {
 import {
     InvalidPasswordException,
 } from "@main/exception/invalid-password.exception";
+import {
+    SignupListenerRequestDto,
+} from "@main/auth/dto/req/signup-listener.request.dto";
+import {
+    SignupListenerResponseDto,
+} from "@main/auth/dto/res/signup-listener.response.dto";
 
 type ExistsMember = Member | null;
+type ExistsListener = Member | null;
+
+const categoryMap: { [key: string]: Category } = {
+    "자유": Category.FREE,
+    "육아": Category.PARENTING,
+    "진로": Category.CAREER,
+    "결혼": Category.MARRIAGE,
+    "외모": Category.APPEARANCE,
+    "인간관계": Category.RELATIONSHIPS,
+    "중독": Category.ADDICTION,
+    "이별": Category.BREAKUP,
+    "가족": Category.FAMILY,
+    "친구": Category.FRIEND,
+    "건강": Category.HEALTH,
+    "정신건강": Category.MENTAL_HEALTH,
+};
 
 @Injectable()
 export class AuthService {
@@ -43,11 +67,11 @@ export class AuthService {
                 private readonly configService: ConfigService) {
     }
 
-    // 회원가입
-    async signup(signupRequestDto: SignupRequestDto): Promise<SignUpResponseDto> {
+    // 일반 회원가입
+    async signupMember(signupMemberRequestDto: SignupMemberRequestDto): Promise<SignupMemberResponseDto> {
         const memberByEmail: ExistsMember = await this.prisma.member.findUnique({
             where: {
-                email: signupRequestDto.email,
+                email: signupMemberRequestDto.email,
             },
         });
 
@@ -55,9 +79,9 @@ export class AuthService {
             throw new DuplicateEmailException();
         }
 
-        const memberByNickname: ExistsMember = await this.prisma.member.findUnique({
+        const memberByNickname: ExistsMember = await this.prisma.member.findFirst({
             where: {
-                nickname: signupRequestDto.nickname,
+                nickname: signupMemberRequestDto.nickname,
             },
         });
         if (memberByNickname) {
@@ -66,14 +90,49 @@ export class AuthService {
 
         const member: Member = await this.prisma.member.create({
             data: {
-                email: signupRequestDto.email,
-                nickname: signupRequestDto.nickname,
-                password: await bcrypt.hash(signupRequestDto.password, 10),
-                profile: signupRequestDto.profile,
+                email: signupMemberRequestDto.email,
+                nickname: signupMemberRequestDto.nickname,
+                password: await bcrypt.hash(signupMemberRequestDto.password, 10),
+                profile: signupMemberRequestDto.profile,
             },
         });
 
-        return new SignUpResponseDto(member.id.toString());
+        return new SignupMemberResponseDto(member.id.toString());
+    }
+
+    // 상담사 회원가입
+    async signupListener(signupListenerRequestDto: SignupListenerRequestDto): Promise<SignupListenerResponseDto> {
+        const listenerByEmail: ExistsListener = await this.prisma.member.findUnique({
+            where: {
+                email: signupListenerRequestDto.email,
+            },
+        });
+        if (listenerByEmail) {
+            throw new DuplicateEmailException();
+        }
+
+        const listenerInfo: ListenerInfo = await this.prisma.listenerInfo.create({
+            data: {
+                phoneNumber: signupListenerRequestDto.phoneNumber,
+                address: signupListenerRequestDto.address,
+                career: signupListenerRequestDto.career,
+                description: signupListenerRequestDto.description,
+                category: signupListenerRequestDto.category.map(category => categoryMap[category.toString()]),
+            },
+        });
+
+        const listener: Member = await this.prisma.member.create({
+            data: {
+                email: signupListenerRequestDto.email,
+                password: await bcrypt.hash(signupListenerRequestDto.password, 10),
+                profile: signupListenerRequestDto.profile,
+                nickname: signupListenerRequestDto.nickname + Math.random(),
+                role: Role.LISTENER,
+                listenerInfoId: listenerInfo.id,
+            },
+        });
+
+        return new SignupListenerResponseDto(listener.id.toString());
     }
 
     // 로그인

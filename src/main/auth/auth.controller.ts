@@ -8,11 +8,11 @@ import {
     ApiCreatedResponse, ApiTags,
 } from "@nestjs/swagger";
 import {
-    SignupRequestDto,
-} from "@main/auth/dto/req/signup.request.dto";
+    SignupMemberRequestDto,
+} from "@main/auth/dto/req/signup-member.request.dto";
 import {
-    SignUpResponseDto,
-} from "@main/auth/dto/res/signup.respnose.dto";
+    SignupMemberResponseDto,
+} from "@main/auth/dto/res/signup-member.response.dto";
 import CustomResponse from "@main/response/custom-response";
 import CheckPasswordPipe from "@main/auth/pipe/check-password.pipe";
 import {
@@ -21,6 +21,12 @@ import {
 import {
     LoginResponseDto,
 } from "@main/auth/dto/res/login.response.dto";
+import {
+    SignupListenerRequestDto,
+} from "@main/auth/dto/req/signup-listener.request.dto";
+import {
+    SignupListenerResponseDto,
+} from "@main/auth/dto/res/signup-listener.response.dto";
 
 @ApiTags("인증 관련 로직")
 @Controller("/auth")
@@ -28,15 +34,29 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {
     }
 
-    @Post("/signup")
+    @Post("/members")
     @ApiCreatedResponse({
-        description: "회원가입",
-        type: SignUpResponseDto,
+        description: "일반 회원가입",
+        type: SignupMemberResponseDto,
     })
-    async signup(@Body(CheckPasswordPipe) body: SignupRequestDto): Promise<CustomResponse<SignUpResponseDto>> {
-        const data: SignUpResponseDto = await this.authService.signup(body);
+    async signupMember(@Body(CheckPasswordPipe) body: SignupMemberRequestDto): Promise<CustomResponse<SignupMemberResponseDto>> {
+        const data: SignupMemberResponseDto = await this.authService.signupMember(body);
 
-        return new CustomResponse<SignUpResponseDto>(data,"회원가입 성공");
+        return new CustomResponse<SignupMemberResponseDto>(data,"회원가입 성공");
+    }
+
+    @Post("/listeners")
+    @ApiCreatedResponse({
+        description: "상담사 회원가입",
+        type:SignupMemberResponseDto,
+    })
+
+    async signupListener(
+        @Body(CheckPasswordPipe) body: SignupListenerRequestDto
+    ): Promise<CustomResponse<SignupListenerResponseDto>> {
+        const data: SignupListenerResponseDto = await this.authService.signupListener(body);
+
+        return new CustomResponse<SignupListenerResponseDto>(data, "회원가입 성공");
     }
 
     @Post("login")

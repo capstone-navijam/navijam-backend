@@ -5,7 +5,7 @@ import {
     ApiProperty,
 } from "@nestjs/swagger";
 
-export class SignupRequestDto {
+export class SignupMemberRequestDto {
     @ApiProperty({
         description: "이메일",
     })
@@ -28,13 +28,7 @@ export class SignupRequestDto {
     @IsNotEmpty({
         message: "공백을 포함할 수 없습니다.",
     })
-    @MinLength(2, {
-        message: "닉네임은 최소 2글자 이상이어야 합니다.",
-    })
-    @MaxLength(8, {
-        message: "닉네임은 최대 8글자까지 허용됩니다.",
-    })
-    @Matches(/^[a-zA-Z0-9가-힣]*$/, {
+    @Matches(/^[a-zA-Z0-9가-힣]{2,8}$/, {
         message: "닉네임은 2~8글자의 한글 또는 영문자, 숫자여야 합니다.",
     })
     readonly nickname: string;
@@ -45,12 +39,6 @@ export class SignupRequestDto {
     @IsString({})
     @IsNotEmpty({
         message: "공백을 포함할 수 없습니다.",
-    })
-    @MinLength(8, {
-        message: "비밀번호는 최소 8글자 이상이어야 합니다.",
-    })
-    @MaxLength(14, {
-        message: "비밀번호는 최대 14글자까지 허용됩니다.",
     })
     @Matches(/^(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).{8,14}$/, {
         message: "비밀번호는 8~14글자의 영문, 숫자, 특수문자를 포함해야 합니다.",
@@ -66,7 +54,7 @@ export class SignupRequestDto {
         description: "프로필",
     })
     @IsUrl({}, {
-        message: "프로필 사진이 URL 형식과 맞지 않습니다.",
+        message: "프로필 사진이 형식에 맞지 않습니다.",
     })
     @MaxLength(100)
     readonly profile: string;

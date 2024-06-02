@@ -2,11 +2,15 @@ import {
     BadRequestException, PipeTransform,
 } from "@nestjs/common";
 import {
-    SignupRequestDto,
-} from "../dto/req/signup.request.dto";
+    SignupMemberRequestDto,
+} from "../dto/req/signup-member.request.dto";
+import {
+    SignupListenerRequestDto,
+} from "@main/auth/dto/req/signup-listener.request.dto";
 
 export default class CheckPasswordPipe implements PipeTransform {
-    transform(signupRequestDto: SignupRequestDto): SignupRequestDto {
+    transform(signupRequestDto: SignupMemberRequestDto | SignupListenerRequestDto)
+        : SignupMemberRequestDto | SignupListenerRequestDto {
         const isEqualsWithCheckPassword =
             signupRequestDto.password === signupRequestDto.checkPassword;
 

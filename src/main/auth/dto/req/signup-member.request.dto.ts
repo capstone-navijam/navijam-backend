@@ -66,7 +66,7 @@ export class SignupRequestDto {
         description: "프로필",
     })
     @IsUrl({}, {
-        message: "프로필 사진이 URL 형식과 맞지 않습니다.",
+        message: "프로필 사진이 형식에 맞지 않습니다.",
     })
     @MaxLength(100)
     readonly profile: string;

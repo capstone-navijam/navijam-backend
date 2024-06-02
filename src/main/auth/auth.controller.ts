@@ -1,5 +1,5 @@
 import {
-    Body, Controller, Post,
+    Body, Controller, HttpCode, HttpStatus, Post,
 } from "@nestjs/common";
 import {
     AuthService,
@@ -60,6 +60,7 @@ export class AuthController {
     }
 
     @Post("login")
+    @HttpCode(HttpStatus.OK)
     async login(@Body() loginRequestDto: LoginRequestDto): Promise<CustomResponse<LoginResponseDto>> {
         const data: LoginResponseDto = await this.authService.login(loginRequestDto);
 

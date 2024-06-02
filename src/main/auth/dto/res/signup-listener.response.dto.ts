@@ -2,7 +2,7 @@ import {
     ApiProperty,
 } from "@nestjs/swagger";
 
-export class SignupMemberResponseDto {
+export class SignupListenerResponseDto {
     @ApiProperty({
         type: String,
     }) id: string;

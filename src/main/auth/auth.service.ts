@@ -126,7 +126,7 @@ export class AuthService {
                 email: signupListenerRequestDto.email,
                 password: await bcrypt.hash(signupListenerRequestDto.password, 10),
                 profile: signupListenerRequestDto.profile,
-                nickname: signupListenerRequestDto.nickname + Math.random(),
+                nickname: signupListenerRequestDto.nickname,
                 role: Role.LISTENER,
                 listenerInfoId: listenerInfo.id,
             },

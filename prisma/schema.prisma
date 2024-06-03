@@ -1,0 +1,119 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Member {
+  id                BigInt             @id @default(autoincrement())
+  email             String             @unique @db.VarChar(50)
+  nickname          String             @map("nickname") @db.VarChar(20)
+  password          String             @db.VarChar(100)
+  profile           String             @default("https://noticon-static.tammolo.com/dgggcrkxq/image/upload/v1716450266/noticon/d8lxdvnbkge2boslxgqj.gif") @db.VarChar(100)
+  role              Role               @default(MEMBER)
+  listenerInfoId    BigInt?            @unique @map("listener_info_id")
+  consoleBoards     ConsoleBoard[]
+  communityBoards   CommunityBoard[]
+  consoleComments   ConsoleComment[]
+  communityComments CommunityComment[]
+  likes             Likes[]
+  listenerInfo      ListenerInfo?      @relation(fields: [listenerInfoId], references: [id])
+
+  @@map("member")
+}
+
+model ListenerInfo {
+  id          BigInt     @id @default(autoincrement())
+  phoneNumber String?    @map(name: "phone_number") @db.VarChar(20)
+  address     String?    @db.VarChar(50)
+  career      String[]   @db.VarChar(50)
+  description String     @db.VarChar(100)
+  category    Category[] @default([])
+  Member      Member?
+
+  @@map("listener_info")
+}
+
+model ConsoleBoard {
+  id              BigInt           @id @default(autoincrement())
+  title           String           @db.VarChar(50)
+  content         String
+  createdAt       DateTime         @map(name: "created_at")
+  updatedAt       DateTime         @map(name: "updated_at")
+  memberId        BigInt?          @map(name: "member_id")
+  member          Member?          @relation(fields: [memberId], references: [id])
+  consoleComments ConsoleComment[]
+
+  @@map("console_board")
+}
+
+model CommunityBoard {
+  id                BigInt             @id @default(autoincrement())
+  title             String             @db.VarChar(50)
+  content           String
+  createdAt         DateTime           @map(name: "created_at")
+  updatedAt         DateTime           @map(name: "updated_at")
+  memberId          BigInt?            @map(name: "member_id")
+  member            Member?            @relation(fields: [memberId], references: [id])
+  communityComments CommunityComment[]
+  likes             Likes[]
+
+  @@map("community_board")
+}
+
+model ConsoleComment {
+  id        BigInt       @id @default(autoincrement())
+  content   String
+  createdAt DateTime     @map(name: "created_at")
+  postId    BigInt       @map(name: "post_id")
+  memberId  BigInt       @map(name: "member_id")
+  post      ConsoleBoard @relation(fields: [postId], references: [id])
+  member    Member       @relation(fields: [memberId], references: [id])
+
+  @@map("console_comment")
+}
+
+model CommunityComment {
+  id        BigInt         @id @default(autoincrement())
+  content   String
+  createdAt DateTime       @map(name: "created_at")
+  postId    BigInt         @map(name: "post_id")
+  memberId  BigInt         @map(name: "member_id")
+  post      CommunityBoard @relation(fields: [postId], references: [id])
+  member    Member         @relation(fields: [memberId], references: [id])
+
+  @@map("community_comment")
+}
+
+model Likes {
+  memberId BigInt         @map(name: "member_id")
+  postId   BigInt         @map(name: "post_id")
+  member   Member         @relation(fields: [memberId], references: [id])
+  post     CommunityBoard @relation(fields: [postId], references: [id])
+
+  @@id([memberId, postId])
+  @@map("likes")
+}
+
+enum Role {
+  MEMBER
+  LISTENER
+}
+
+enum Category {
+  FREE          @map("자유")
+  PARENTING     @map("육아")
+  CAREER        @map("진로")
+  MARRIAGE      @map("결혼")
+  APPEARANCE    @map("외모")
+  RELATIONSHIPS @map("인간관계")
+  ADDICTION     @map("중독")
+  BREAKUP       @map("이별")
+  FAMILY        @map("가족")
+  FRIEND        @map("친구")
+  HEALTH        @map("건강")
+  MENTAL_HEALTH @map("정신건강")
+}

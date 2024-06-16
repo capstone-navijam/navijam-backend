@@ -1,5 +1,5 @@
 import {
-    IsNotEmpty, IsString, Matches, MaxLength, MinLength, IsUrl, IsEmail,
+    IsNotEmpty, IsString, Matches, MaxLength, IsUrl, IsEmail,
 } from "class-validator";
 import {
     ApiProperty,
@@ -8,6 +8,7 @@ import {
 export class SignupMemberRequestDto {
     @ApiProperty({
         description: "이메일",
+        required: true,
     })
     @IsEmail({}, {
         message: "이메일 주소 형식을 지켜주세요.",
@@ -23,6 +24,7 @@ export class SignupMemberRequestDto {
 
     @ApiProperty({
         description: "닉네임",
+        required: true,
     })
     @IsString({})
     @IsNotEmpty({
@@ -35,6 +37,7 @@ export class SignupMemberRequestDto {
 
     @ApiProperty({
         description: "비밀번호",
+        required: true,
     })
     @IsString({})
     @IsNotEmpty({
@@ -47,11 +50,13 @@ export class SignupMemberRequestDto {
 
     @ApiProperty({
         description: "비밀번호 확인",
+        required: true,
     })
     readonly checkPassword: string;
 
     @ApiProperty({
         description: "프로필",
+        required: true,
     })
     @IsUrl({}, {
         message: "프로필 사진이 형식에 맞지 않습니다.",

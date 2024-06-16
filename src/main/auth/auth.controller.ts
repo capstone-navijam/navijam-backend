@@ -1,11 +1,11 @@
 import {
-    Body, Controller, HttpCode, HttpStatus, Post,
+    Body, Controller, Get, HttpCode, HttpStatus, Post, Query,
 } from "@nestjs/common";
 import {
     AuthService,
 } from "@main/auth/auth.service";
 import {
-    ApiCreatedResponse, ApiTags,
+    ApiCreatedResponse, ApiOperation, ApiTags,
 } from "@nestjs/swagger";
 import {
     SignupMemberRequestDto,
@@ -27,6 +27,13 @@ import {
 import {
     SignupListenerResponseDto,
 } from "@main/auth/dto/res/signup-listener.response.dto";
+import {
+    ApiCustomResponseDecorator,
+} from "@main/util/decorators/api-custom-response.decorator";
+import CheckDuplicateNicknameResponseDto from "@main/auth/dto/res/check-duplicate-nickname.response.dto";
+import CheckDuplicateNicknameParamsDto from "@main/auth/dto/req/check-duplicate-nickname.params.dto";
+import CheckDuplicateEmailResponseDto from "@main/auth/dto/res/check-duplicate-email.response.dto";
+import CheckDuplicateEmailParamsDto from "@main/auth/dto/req/check-duplicate-email.params.dto";
 
 @ApiTags("인증 관련 로직")
 @Controller("/auth")
@@ -35,10 +42,10 @@ export class AuthController {
     }
 
     @Post("/members")
-    @ApiCreatedResponse({
-        description: "일반 회원가입",
-        type: SignupMemberResponseDto,
+    @ApiOperation({
+        summary: "일반 회원가입 API",
     })
+    @ApiCustomResponseDecorator(SignupMemberResponseDto)
     async signupMember(@Body(CheckPasswordPipe) body: SignupMemberRequestDto): Promise<CustomResponse<SignupMemberResponseDto>> {
         const data: SignupMemberResponseDto = await this.authService.signupMember(body);
 
@@ -46,10 +53,10 @@ export class AuthController {
     }
 
     @Post("/listeners")
-    @ApiCreatedResponse({
-        description: "상담사 회원가입",
-        type:SignupMemberResponseDto,
+    @ApiOperation({
+        summary: "상담사 회원가입 API",
     })
+    @ApiCustomResponseDecorator(SignupListenerResponseDto)
 
     async signupListener(
         @Body(CheckPasswordPipe) body: SignupListenerRequestDto
@@ -60,12 +67,46 @@ export class AuthController {
     }
 
     @Post("login")
+    @ApiOperation({
+        summary: "로그인 API",
+    })
     @HttpCode(HttpStatus.OK)
+    @ApiCustomResponseDecorator(LoginResponseDto)
     async login(@Body() loginRequestDto: LoginRequestDto): Promise<CustomResponse<LoginResponseDto>> {
         const data: LoginResponseDto = await this.authService.login(loginRequestDto);
 
         return new CustomResponse<LoginResponseDto>(
             data, "로그인 성공",
+        );
+    }
+
+    // 닉네임 중복 확인 API
+    @ApiOperation({
+        summary: "닉네임 중복 확인 API",
+        description: "닉네임 중복을 확인해주는 API를 구현한다.",
+    })
+    @ApiCustomResponseDecorator(CheckDuplicateNicknameResponseDto)
+    @Get("/nicknames")
+    async checkDuplicateNickname(@Query() params: CheckDuplicateNicknameParamsDto) {
+        const data = await this.authService.checkDuplicateNickname(params);
+
+        return new CustomResponse<CheckDuplicateNicknameResponseDto>(
+            data, "닉네임 중복 확인 성공",
+        );
+    }
+
+    // 이메일 중복 확인 API
+    @ApiOperation({
+        summary: "이메일 중복 확인 API",
+        description: "이메일 중복을 확인해주는 API를 구현한다.",
+    })
+    @ApiCustomResponseDecorator(CheckDuplicateEmailResponseDto)
+    @Get("/emails")
+    async checkDuplicateEmail(@Query() params: CheckDuplicateEmailParamsDto) {
+        const data = await this.authService.checkDuplicateEmail(params);
+
+        return new CustomResponse<CheckDuplicateEmailResponseDto>(
+            data, "이메일 중복 확인 성공"
         );
     }
 }

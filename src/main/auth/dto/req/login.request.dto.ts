@@ -3,7 +3,7 @@ import {
 } from "@nestjs/swagger";
 import {
     IsEmail,
-    IsString, Matches, MaxLength, MinLength,
+    IsString, Matches,
 } from "class-validator";
 
 export class LoginRequestDto {
@@ -24,8 +24,6 @@ export class LoginRequestDto {
         required: true,
     })
     @IsString()
-    @MinLength(8, {})
-    @MaxLength(14, {})
     @Matches(/^(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).{8,14}$/, {})
     password: string;
 }

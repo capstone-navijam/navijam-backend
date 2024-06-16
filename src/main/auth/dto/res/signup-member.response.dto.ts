@@ -5,7 +5,11 @@ import {
 export class SignupMemberResponseDto {
     @ApiProperty({
         type: String,
-    }) id: string;
+        description: "Member id",
+        example: "1",
+    })
+
+    readonly id: string;
 
     constructor(
         id: string,

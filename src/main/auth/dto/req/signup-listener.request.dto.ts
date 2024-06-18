@@ -77,6 +77,7 @@ export class SignupListenerRequestDto {
     @IsOptional()
     @ApiProperty({
         description: "주소",
+        required: false,
     })
     @MaxLength(50, {
         message: "주소는 최대 50글자까지 입력할 수 있습니다.",
@@ -114,6 +115,7 @@ export class SignupListenerRequestDto {
     // 전화번호
     @ApiProperty({
         description: "전화번호",
+        required: false,
     })
     @IsOptional()
     @Matches(/^\d{3}-\d{4}-\d{4}$/, {

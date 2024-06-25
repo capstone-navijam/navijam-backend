@@ -5,7 +5,7 @@ import {
     AuthService,
 } from "@main/auth/auth.service";
 import {
-    ApiCreatedResponse, ApiOperation, ApiTags,
+    ApiOperation, ApiTags,
 } from "@nestjs/swagger";
 import {
     SignupMemberRequestDto,

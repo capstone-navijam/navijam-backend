@@ -1,5 +1,5 @@
 import {
-    Injectable, NotFoundException,
+    Injectable,
 } from "@nestjs/common";
 import {
     ListenerInfo,
@@ -48,6 +48,7 @@ import CheckDuplicateNicknameParamsDto from "@main/auth/dto/req/check-duplicate-
 import CheckDuplicateNicknameResponseDto from "@main/auth/dto/res/check-duplicate-nickname.response.dto";
 import CheckDuplicateEmailParamsDto from "@main/auth/dto/req/check-duplicate-email.params.dto";
 import CheckDuplicateEmailResponseDto from "@main/auth/dto/res/check-duplicate-email.response.dto";
+import NotFoundMemberException from "@main/exception/not-found.member.exception";
 
 type ExistsMember = Member | null;
 type ExistsListener = Member | null;
@@ -57,6 +58,18 @@ export class AuthService {
     constructor(private readonly prisma: PrismaClient,
                 private readonly jwtService: JwtService,
                 private readonly configService: ConfigService) {
+    }
+
+    async validateMember(payload: any): Promise<Member | null> {
+        const memberId = payload.sub;
+
+        const member = await this.prisma.member.findUnique({
+            where: {
+                id: memberId,
+            },
+        });
+
+        return member || null;
     }
 
     // 암호 해싱
@@ -136,35 +149,31 @@ export class AuthService {
     }
 
     // 로그인
-    async login(loginRequestDto: LoginRequestDto):Promise<LoginResponseDto> {
-        const member = await this.prisma.member.findUnique({
+    async login(loginRequestDto: LoginRequestDto): Promise<LoginResponseDto> {
+        const member: ExistsMember = await this.prisma.member.findUnique({
             where: {
                 email: loginRequestDto.email,
             },
         });
 
-        if(!member) {
-            throw new NotFoundException("존재하지 않는 회원입니다.");
+        if (!member) {
+            throw new NotFoundMemberException();
         }
 
-        if (!await bcrypt.compare(loginRequestDto.password, member.password))
+        if (!await bcrypt.compare(loginRequestDto.password, member.password)) {
             throw new InvalidPasswordException();
+        }
 
         const payload = {
             sub: member.id.toString(),
-            role: member.role,
         };
         const accessToken = this.jwtService.sign(payload, {
             secret: this.configService.get<string>("JWT_SECRET"),
         });
 
-        return {
-            nickname: member.nickname,
-            profile: member.profile,
-            role: member.role,
-            accessToken,
-            tokenType: "Bearer",
-        };
+        return new LoginResponseDto(
+            member.nickname, accessToken, "Bearer"
+        );
     }
 
     // 닉네임 중복 확인

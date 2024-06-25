@@ -16,7 +16,7 @@ export class LoginRequestDto {
     @IsEmail({}, {
         message: "이메일 형식을 입력해주세요.",
     })
-    email: string;
+    readonly email: string;
 
     @ApiProperty({
         description: "비밀번호",
@@ -25,5 +25,5 @@ export class LoginRequestDto {
     })
     @IsString()
     @Matches(/^(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).{8,14}$/, {})
-    password: string;
+    readonly password: string;
 }

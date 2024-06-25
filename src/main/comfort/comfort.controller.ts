@@ -36,12 +36,12 @@ export class ComfortController {
     constructor(private readonly comfortService: ComfortService) {
     }
 
-    @Post("/")
-    @UseGuards(JwtAuthGuard)
     @ApiOperation({
         summary: "위로받기 작성 API",
     })
+    @UseGuards(JwtAuthGuard)
     @ApiCustomResponseDecorator(WriteComfortBoardResponseDto)
+    @Post("/")
     async writeBoard(
         @Req() req: AuthenticatedRequest,
         @Body() body: WriteComfortBoardRequestDto,

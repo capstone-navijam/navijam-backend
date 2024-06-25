@@ -16,7 +16,9 @@ export class CustomUnauthorizedExceptionFilter implements ExceptionFilter {
             .status(status)
             .json({
                 statusCode: status,
-                timestamp: new Date().toISOString(),
+                timestamp : new Date().toLocaleString("ko-KR", {
+                    timeZone: "Asia/Seoul",
+                }),
                 path: ctx.getRequest<Request>().url,
                 message: "로그인이 필요합니다",
                 error: "UnauthorizedException",

@@ -20,8 +20,8 @@ export default class CheckDuplicateNicknameParamsDto {
     @IsString({
         message: "닉네임은 문자열이어야 합니다.",
     })
-    @Matches(/^[가-힣a-zA-Z0-9]{2,8}$/, {
-        message: "닉네임 형식을 지켜주세요.",
+    @Matches(/^[a-zA-Z0-9가-힣]{2,8}$/, {
+        message: "닉네임은 2~8글자의 한글 또는 영문자, 숫자여야 합니다.",
     })
     readonly nickname: string;
 }

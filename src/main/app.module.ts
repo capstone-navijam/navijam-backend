@@ -10,15 +10,26 @@ import {
 import {
     PrismaModule,
 } from "@main/configure/prisma/prisma.module";
+import {
+    ComfortController,
+} from "./comfort/comfort.controller";
+import {
+    ComfortModule,
+} from "./comfort/comfort.module";
+import {
+    ComfortService,
+} from "@main/comfort/comfort.service";
 
 @Module({
     imports: [
+        AuthModule,
         ConfigModule.forRoot({
             isGlobal: true,
         }),
-        PrismaModule,],
-    controllers: [],
-    providers: [],
+        PrismaModule,
+        ComfortModule,],
+    controllers: [ComfortController,],
+    providers: [ComfortService,],
 })
 export class AppModule {
 }

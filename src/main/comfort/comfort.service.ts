@@ -14,12 +14,16 @@ import {
 import {
     categoryMap,
 } from "@main/global/category";
+import {
+    GetComfortBoardResponseDto,
+} from "@main/comfort/dto/res/get-comfort-board.response.dto";
 
 @Injectable()
 export class ComfortService {
     constructor(private readonly prisma: PrismaClient) {
     }
 
+    // 위로받기 작성
     async writeBoard(writeComfortBoardRequestDto: WriteComfortBoardRequestDto, member: any): Promise<WriteComfortBoardResponseDto> {
 
         const board: ComfortBoard = await this.prisma.comfortBoard.create({
@@ -32,5 +36,21 @@ export class ComfortService {
         });
 
         return new WriteComfortBoardResponseDto(board.id.toString());
+    }
+
+    // 특정 멤버 위로받기 전체 조회
+    async getAllBoards(memberId: string): Promise<GetComfortBoardResponseDto[]> {
+        const boards = await this.prisma.comfortBoard.findMany({
+            where: {
+                memberId: BigInt(memberId),
+            },
+            include: {
+                member: true,
+            },
+        });
+
+        return boards.map(board => new GetComfortBoardResponseDto(
+            board.id.toString(), board.title, board.content, board.member?.nickname || "", board.member?.profile || "", board.createdAt,
+        ));
     }
 }

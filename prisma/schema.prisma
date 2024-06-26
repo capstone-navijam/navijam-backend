@@ -15,9 +15,10 @@ model Member {
   profile           String             @default("https://noticon-static.tammolo.com/dgggcrkxq/image/upload/v1716450266/noticon/d8lxdvnbkge2boslxgqj.gif") @db.VarChar(100)
   role              Role               @default(MEMBER)
   listenerInfoId    BigInt?            @unique @map("listener_info_id")
-  consoleBoards     ConsoleBoard[]
-  communityBoards   CommunityBoard[]
+  comfortBoards     ComfortBoard[]
+  consoles          Console[]
   consoleComments   ConsoleComment[]
+  communityBoards   CommunityBoard[]
   communityComments CommunityComment[]
   likes             Likes[]
   listenerInfo      ListenerInfo?      @relation(fields: [listenerInfoId], references: [id])
@@ -27,35 +28,63 @@ model Member {
 
 model ListenerInfo {
   id          BigInt     @id @default(autoincrement())
-  phoneNumber String?    @map(name: "phone_number") @db.VarChar(20)
+  phoneNumber String?    @map(name: "phone_number") @db.VarChar(50)
   address     String?    @db.VarChar(50)
   career      String[]   @db.VarChar(50)
   description String     @db.VarChar(100)
-  category    Category[] @default([])
+  categories  Category[] @default([FREE])
   Member      Member?
 
   @@map("listener_info")
 }
 
-model ConsoleBoard {
+model ComfortBoard {
+  id         BigInt     @id @default(autoincrement())
+  title      String     @db.VarChar(50)
+  content    String
+  createdAt  DateTime   @default(dbgenerated("NOW()")) @map(name: "created_at")
+  updatedAt  DateTime   @updatedAt @map(name: "updated_at")
+  categories Category[] @default([FREE])
+  memberId   BigInt?    @map(name: "member_id")
+  member     Member?    @relation(fields: [memberId], references: [id])
+  consoles   Console[]
+
+  @@map("comfort_board")
+}
+
+model Console {
   id              BigInt           @id @default(autoincrement())
-  title           String           @db.VarChar(50)
   content         String
-  createdAt       DateTime         @map(name: "created_at")
-  updatedAt       DateTime         @map(name: "updated_at")
-  memberId        BigInt?          @map(name: "member_id")
-  member          Member?          @relation(fields: [memberId], references: [id])
+  createdAt       DateTime         @default(now()) @map(name: "created_at")
+  updatedAt       DateTime         @updatedAt @map(name: "updated_at")
+  comfortId       BigInt           @map(name: "comfort_id")
+  comfort         ComfortBoard     @relation(fields: [comfortId], references: [id])
+  memberId        BigInt           @map(name: "member_id")
+  member          Member           @relation(fields: [memberId], references: [id])
   consoleComments ConsoleComment[]
 
-  @@map("console_board")
+  @@map("console")
+}
+
+model ConsoleComment {
+  id        BigInt   @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+  memberId  BigInt?  @map(name: "member_id")
+  member    Member?  @relation(fields: [memberId], references: [id])
+  consoleId BigInt   @map(name: "console_id")
+  console   Console  @relation(fields: [consoleId], references: [id])
+
+  @@map("console_comment")
 }
 
 model CommunityBoard {
   id                BigInt             @id @default(autoincrement())
   title             String             @db.VarChar(50)
   content           String
-  createdAt         DateTime           @map(name: "created_at")
-  updatedAt         DateTime           @map(name: "updated_at")
+  createdAt         DateTime           @default(now()) @map(name: "created_at")
+  updatedAt         DateTime           @updatedAt @map(name: "updated_at")
   memberId          BigInt?            @map(name: "member_id")
   member            Member?            @relation(fields: [memberId], references: [id])
   communityComments CommunityComment[]
@@ -64,37 +93,26 @@ model CommunityBoard {
   @@map("community_board")
 }
 
-model ConsoleComment {
-  id        BigInt       @id @default(autoincrement())
-  content   String
-  createdAt DateTime     @map(name: "created_at")
-  postId    BigInt       @map(name: "post_id")
-  memberId  BigInt       @map(name: "member_id")
-  post      ConsoleBoard @relation(fields: [postId], references: [id])
-  member    Member       @relation(fields: [memberId], references: [id])
-
-  @@map("console_comment")
-}
-
 model CommunityComment {
   id        BigInt         @id @default(autoincrement())
   content   String
-  createdAt DateTime       @map(name: "created_at")
+  createdAt DateTime       @default(now()) @map(name: "created_at")
+  updatedAt DateTime       @updatedAt @map(name: "updated_at")
   postId    BigInt         @map(name: "post_id")
-  memberId  BigInt         @map(name: "member_id")
   post      CommunityBoard @relation(fields: [postId], references: [id])
+  memberId  BigInt         @map(name: "member_id")
   member    Member         @relation(fields: [memberId], references: [id])
 
   @@map("community_comment")
 }
 
 model Likes {
-  memberId BigInt         @map(name: "member_id")
-  postId   BigInt         @map(name: "post_id")
-  member   Member         @relation(fields: [memberId], references: [id])
-  post     CommunityBoard @relation(fields: [postId], references: [id])
+  memberId    BigInt         @map(name: "member_id")
+  member      Member         @relation(fields: [memberId], references: [id])
+  communityId BigInt         @map(name: "community_id")
+  community   CommunityBoard @relation(fields: [communityId], references: [id])
 
-  @@id([memberId, postId])
+  @@id([memberId, communityId])
   @@map("likes")
 }
 
@@ -116,4 +134,5 @@ enum Category {
   FRIEND        @map("친구")
   HEALTH        @map("건강")
   MENTAL_HEALTH @map("정신건강")
+  LOVE          @map("사랑")
 }

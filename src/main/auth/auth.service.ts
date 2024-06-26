@@ -5,7 +5,7 @@ import {
     ListenerInfo,
     Member,
     PrismaClient,
-    Category, Role,
+    Role,
 } from "@prisma/client";
 import {
     SignupMemberRequestDto,
@@ -41,30 +41,44 @@ import {
 import {
     SignupListenerResponseDto,
 } from "@main/auth/dto/res/signup-listener.response.dto";
+import {
+    categoryMap,
+} from "@main/global/category";
+import CheckDuplicateNicknameParamsDto from "@main/auth/dto/req/check-duplicate-nickname.params.dto";
+import CheckDuplicateNicknameResponseDto from "@main/auth/dto/res/check-duplicate-nickname.response.dto";
+import CheckDuplicateEmailParamsDto from "@main/auth/dto/req/check-duplicate-email.params.dto";
+import CheckDuplicateEmailResponseDto from "@main/auth/dto/res/check-duplicate-email.response.dto";
+import NotFoundMemberException from "@main/exception/not-found.member.exception";
 
 type ExistsMember = Member | null;
 type ExistsListener = Member | null;
-
-const categoryMap: { [key: string]: Category } = {
-    "자유": Category.FREE,
-    "육아": Category.PARENTING,
-    "진로": Category.CAREER,
-    "결혼": Category.MARRIAGE,
-    "외모": Category.APPEARANCE,
-    "인간관계": Category.RELATIONSHIPS,
-    "중독": Category.ADDICTION,
-    "이별": Category.BREAKUP,
-    "가족": Category.FAMILY,
-    "친구": Category.FRIEND,
-    "건강": Category.HEALTH,
-    "정신건강": Category.MENTAL_HEALTH,
-};
 
 @Injectable()
 export class AuthService {
     constructor(private readonly prisma: PrismaClient,
                 private readonly jwtService: JwtService,
                 private readonly configService: ConfigService) {
+    }
+
+    // 토큰
+    async validateMember(payload: any): Promise<Member | null> {
+        const memberId = payload.sub;
+
+        const member = await this.prisma.member.findUnique({
+            where: {
+                id: memberId,
+            },
+        });
+
+        return member || null;
+    }
+
+    // 암호 해싱
+    private async hashPassword(password: string): Promise<string> {
+        const saltRounds = 10;
+        const salt = await bcrypt.genSalt(saltRounds); // 솔트 생성
+
+        return await bcrypt.hash(password, salt); // 해시 생성
     }
 
     // 일반 회원가입
@@ -92,7 +106,7 @@ export class AuthService {
             data: {
                 email: signupMemberRequestDto.email,
                 nickname: signupMemberRequestDto.nickname,
-                password: await bcrypt.hash(signupMemberRequestDto.password, 10),
+                password: await this.hashPassword(signupMemberRequestDto.password), // 암호 해시 로직을 별도 메서드로 분리
                 profile: signupMemberRequestDto.profile,
             },
         });
@@ -117,7 +131,7 @@ export class AuthService {
                 address: signupListenerRequestDto.address,
                 career: signupListenerRequestDto.career,
                 description: signupListenerRequestDto.description,
-                category: signupListenerRequestDto.category.map(category => categoryMap[category.toString()]),
+                categories: signupListenerRequestDto.category.map(category => categoryMap[category.toString()]),
             },
         });
 
@@ -136,15 +150,20 @@ export class AuthService {
     }
 
     // 로그인
-    async login(loginRequestDto: LoginRequestDto):Promise<LoginResponseDto> {
-        const member = await this.prisma.member.findUnique({
+    async login(loginRequestDto: LoginRequestDto): Promise<LoginResponseDto> {
+        const member: ExistsMember = await this.prisma.member.findUnique({
             where: {
                 email: loginRequestDto.email,
             },
         });
 
-        if (!member || !(await bcrypt.compare(loginRequestDto.password, member.password)))
+        if (!member) {
+            throw new NotFoundMemberException();
+        }
+
+        if (!await bcrypt.compare(loginRequestDto.password, member.password)) {
             throw new InvalidPasswordException();
+        }
 
         const payload = {
             sub: member.id.toString(),
@@ -154,13 +173,34 @@ export class AuthService {
             secret: this.configService.get<string>("JWT_SECRET"),
         });
 
-        return {
-            nickname: member.nickname,
-            profile: member.profile,
-            role: member.role,
-            accessToken,
-            tokenType: "Bearer",
-        };
+        return new LoginResponseDto(
+            member.nickname, accessToken, "Bearer"
+        );
+    }
 
+    // 닉네임 중복 확인
+    async checkDuplicateNickname(
+        paramsDto: CheckDuplicateNicknameParamsDto
+    ): Promise<CheckDuplicateNicknameResponseDto> {
+        const memberByNickname: ExistsMember = await this.prisma.member.findFirst({
+            where: {
+                nickname: paramsDto.nickname,
+            },
+        });
+
+        return new CheckDuplicateNicknameResponseDto(!!memberByNickname);
+    }
+
+    // 이메일 중복 확인
+    async checkDuplicateEmail(
+        paramsDto: CheckDuplicateEmailParamsDto
+    ): Promise<CheckDuplicateEmailResponseDto> {
+        const memberByEmail: ExistsMember = await this.prisma.member.findUnique({
+            where: {
+                email: paramsDto.email,
+            },
+        });
+
+        return new CheckDuplicateEmailResponseDto(!!memberByEmail);
     }
 }

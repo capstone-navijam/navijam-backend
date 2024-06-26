@@ -60,6 +60,7 @@ export class AuthService {
                 private readonly configService: ConfigService) {
     }
 
+    // 토큰
     async validateMember(payload: any): Promise<Member | null> {
         const memberId = payload.sub;
 
@@ -166,6 +167,7 @@ export class AuthService {
 
         const payload = {
             sub: member.id.toString(),
+            role: member.role,
         };
         const accessToken = this.jwtService.sign(payload, {
             secret: this.configService.get<string>("JWT_SECRET"),

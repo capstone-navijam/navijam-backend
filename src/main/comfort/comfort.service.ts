@@ -1,5 +1,5 @@
 import {
-    Injectable,
+    Injectable, NotFoundException,
 } from "@nestjs/common";
 import {
     ComfortBoard,
@@ -17,6 +17,13 @@ import {
 import {
     GetComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-comfort-board.response.dto";
+import {
+    UpdateComfortBoardRequestDto,
+} from "@main/comfort/dto/req/update-comfort-board.request.dto";
+import {
+    UpdateComfortBoardResponseDto,
+} from "@main/comfort/dto/res/update-comfort-board.response.dto";
+import NotFoundBoardException from "@main/exception/not-found.board.exception";
 
 @Injectable()
 export class ComfortService {
@@ -31,7 +38,7 @@ export class ComfortService {
                 title: writeComfortBoardRequestDto.title,
                 content: writeComfortBoardRequestDto.content,
                 categories: writeComfortBoardRequestDto.category.map(category => categoryMap[category.toString()]),
-                memberId: member.id,
+                memberId: BigInt(member.id),
             },
         });
 
@@ -39,10 +46,10 @@ export class ComfortService {
     }
 
     // 특정 멤버 위로받기 전체 조회
-    async getAllBoards(memberId: string): Promise<GetComfortBoardResponseDto[]> {
+    async getAllBoards(memberId: bigint): Promise<GetComfortBoardResponseDto[]> {
         const boards = await this.prisma.comfortBoard.findMany({
             where: {
-                memberId: BigInt(memberId),
+                memberId,
             },
             include: {
                 member: true,
@@ -52,5 +59,36 @@ export class ComfortService {
         return boards.map(board => new GetComfortBoardResponseDto(
             board.id.toString(), board.title, board.content, board.member?.nickname || "", board.member?.profile || "", board.createdAt,
         ));
+    }
+
+    // 위로받기 수정
+    async updateBoard(id: bigint, memberId: bigint, updateComfortBoardRequestDto: UpdateComfortBoardRequestDto): Promise<UpdateComfortBoardResponseDto> {
+
+        const board = await this.prisma.comfortBoard.findFirst({
+            where: {
+                id,
+                memberId,
+            },
+        });
+
+        if (!board) {
+            throw new NotFoundBoardException;
+        }
+
+        const updatedBoard = await this.prisma.comfortBoard.update({
+            where: {
+                id,
+            },
+            data: {
+                title: updateComfortBoardRequestDto.title,
+                content: updateComfortBoardRequestDto.content,
+                updatedAt: new Date(),
+            },
+            include: {
+                member: true,
+            },
+        });
+
+        return new UpdateComfortBoardResponseDto(updatedBoard.id.toString());
     }
 }

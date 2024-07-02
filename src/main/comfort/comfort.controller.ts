@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Post, Req, UseFilters, UseGuards,
+    Controller, Get, Param, ParseIntPipe, Post, Put, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -31,6 +31,12 @@ import {
 import {
     GetComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-comfort-board.response.dto";
+import {
+    UpdateComfortBoardResponseDto,
+} from "@main/comfort/dto/res/update-comfort-board.response.dto";
+import {
+    UpdateComfortBoardRequestDto,
+} from "@main/comfort/dto/req/update-comfort-board.request.dto";
 
 @ApiTags("위로받기")
 @Controller("/comforts")
@@ -65,8 +71,26 @@ export class ComfortController {
     @Get("/")
     async getAllBoards(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetComfortBoardResponseDto[]>> {
         const member = req.member;
-        const data = await this.comfortService.getAllBoards(member.id.toString());
+        const data = await this.comfortService.getAllBoards(member.id);
 
         return new CustomResponse<GetComfortBoardResponseDto[]>(data, "게시글 조회 성공");
+    }
+
+    // 위로받기 수정 API
+    @ApiOperation({
+        summary: "위로받기 수정 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @ApiCustomResponseDecorator(UpdateComfortBoardResponseDto)
+    @Put("/:id")
+    async updateBoard(
+        @Req() req: AuthenticatedRequest,
+        @Param("id", ParseIntPipe) id: bigint,
+        @Body() body: UpdateComfortBoardRequestDto,
+    ): Promise<CustomResponse<UpdateComfortBoardResponseDto>> {
+        const memberId = BigInt(req.member.id);
+        const updateBoard = await this.comfortService.updateBoard(id, memberId, body);
+
+        return new CustomResponse<UpdateComfortBoardResponseDto>(updateBoard, "게시글 수정 성공");
     }
 }

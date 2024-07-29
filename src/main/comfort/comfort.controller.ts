@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Param, ParseIntPipe, Post, Put, Req, UseFilters, UseGuards,
+    Controller, Get, Param, Post, Put, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -37,6 +37,9 @@ import {
 import {
     UpdateComfortBoardRequestDto,
 } from "@main/comfort/dto/req/update-comfort-board.request.dto";
+import {
+    ParseBigIntPipe,
+} from "@main/auth/pipe/parse-bigint.pipe";
 
 @ApiTags("위로받기")
 @Controller("/comforts")
@@ -59,7 +62,7 @@ export class ComfortController {
         const member = req.member;
         const data: WriteComfortBoardResponseDto = await this.comfortService.writeBoard(body, member);
 
-        return new CustomResponse<WriteComfortBoardResponseDto>(data, "게시글이 등록되었습니다.");
+        return new CustomResponse<WriteComfortBoardResponseDto>(data, "게시글 등록 성공");
     }
 
     // 특정 멤버 위로받기 전체 조회 API
@@ -85,7 +88,7 @@ export class ComfortController {
     @Put("/:id")
     async updateBoard(
         @Req() req: AuthenticatedRequest,
-        @Param("id", ParseIntPipe) id: bigint,
+        @Param("id", ParseBigIntPipe) id: bigint,
         @Body() body: UpdateComfortBoardRequestDto,
     ): Promise<CustomResponse<UpdateComfortBoardResponseDto>> {
         const memberId = BigInt(req.member.id);

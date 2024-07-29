@@ -5,7 +5,7 @@ import {
 export class GetComfortBoardResponseDto {
     @ApiProperty({
         type: String,
-        description: "Board id",
+        description: "Board Id",
         example: "1",
     })
     readonly id: string;

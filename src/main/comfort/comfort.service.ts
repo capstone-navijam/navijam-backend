@@ -1,8 +1,8 @@
 import {
-    Injectable, NotFoundException,
+    Injectable,
 } from "@nestjs/common";
 import {
-    ComfortBoard,
+    ComfortBoard, Member,
     PrismaClient,
 } from "@prisma/client";
 import {
@@ -31,7 +31,7 @@ export class ComfortService {
     }
 
     // 위로받기 작성
-    async writeBoard(writeComfortBoardRequestDto: WriteComfortBoardRequestDto, member: any): Promise<WriteComfortBoardResponseDto> {
+    async writeBoard(writeComfortBoardRequestDto: WriteComfortBoardRequestDto, member: Member): Promise<WriteComfortBoardResponseDto> {
 
         const board: ComfortBoard = await this.prisma.comfortBoard.create({
             data: {
@@ -57,7 +57,7 @@ export class ComfortService {
         });
 
         return boards.map(board => new GetComfortBoardResponseDto(
-            board.id.toString(), board.title, board.content, board.member?.nickname || "", board.member?.profile || "", board.createdAt,
+            board.id.toString(), board.title, board.content, board.createdAt,
         ));
     }
 

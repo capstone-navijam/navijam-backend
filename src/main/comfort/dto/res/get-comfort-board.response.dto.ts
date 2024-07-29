@@ -5,24 +5,10 @@ import {
 export class GetComfortBoardResponseDto {
     @ApiProperty({
         type: String,
-        description: "Board id",
+        description: "Board Id",
         example: "1",
     })
     readonly id: string;
-
-    @ApiProperty({
-        type: String,
-        description: "작성자 프로필",
-        example: "https://example.com/profile.jpg",
-    })
-    readonly profile: string;
-
-    @ApiProperty({
-        type: String,
-        description: "작성자 닉네임",
-        example: "testing",
-    })
-    readonly nickname: string;
 
     @ApiProperty({
         type: String,
@@ -45,10 +31,8 @@ export class GetComfortBoardResponseDto {
     })
     readonly createdAt: Date;
 
-    constructor(id: string, title: string, content: string, nickname: string, profile: string, createdAt: Date) {
+    constructor(id: string, title: string, content: string, createdAt: Date) {
         this.id = id;
-        this.profile = profile;
-        this.nickname = nickname;
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;

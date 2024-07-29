@@ -19,6 +19,9 @@ import {
 import {
     ComfortService,
 } from "@main/comfort/comfort.service";
+import {
+    ConsoleModule,
+} from "@main/console/console.module";
 
 @Module({
     imports: [
@@ -27,7 +30,8 @@ import {
             isGlobal: true,
         }),
         PrismaModule,
-        ComfortModule,],
+        ComfortModule,
+        ConsoleModule,],
     controllers: [ComfortController,],
     providers: [ComfortService,],
 })

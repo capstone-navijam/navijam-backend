@@ -38,8 +38,8 @@ import {
     Role,
 } from "@prisma/client";
 import {
-    RoleGuard,
-} from "@main/auth/jwt/role.guard";
+    RolesGuard,
+} from "@main/auth/jwt/roles.guard";
 
 @ApiTags("위로하기")
 @Controller("/consoles")
@@ -52,7 +52,7 @@ export class ConsoleController {
     @ApiOperation({
         summary: "위로하기 작성 API",
     })
-    @UseGuards(JwtAuthGuard, RoleGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.LISTENER)
     @ApiCustomResponseDecorator(WriteConsoleResponseDto)
     @Post("/:comfortBoardId")

@@ -10,11 +10,19 @@ import {
 import {
     ComfortController,
 } from "@main/comfort/comfort.controller";
+import {
+    RolesGuard,
+} from "@main/auth/jwt/roles.guard";
+import {
+    AuthModule,
+} from "@main/auth/auth.module";
 
 @Module({
-    imports: [PrismaModule,],
+    imports: [PrismaModule,
+        AuthModule,],
     controllers: [ComfortController,],
-    providers: [ComfortService,],
+    providers: [ComfortService,
+        RolesGuard,],
 })
 export class ComfortModule {
 }

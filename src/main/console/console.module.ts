@@ -10,11 +10,19 @@ import {
 import {
     ConsoleService,
 } from "@main/console/console.service";
+import {
+    AuthModule,
+} from "@main/auth/auth.module";
+import {
+    RolesGuard,
+} from "@main/auth/jwt/roles.guard";
 
 @Module({
-    imports: [PrismaModule,],
+    imports: [PrismaModule,
+        AuthModule,],
     controllers: [ConsoleController,],
-    providers: [ConsoleService,],
+    providers: [ConsoleService,
+        RolesGuard,],
 })
 export class ConsoleModule {
 }

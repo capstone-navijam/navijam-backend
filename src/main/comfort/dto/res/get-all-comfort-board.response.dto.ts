@@ -1,14 +1,25 @@
 import {
     ApiProperty,
 } from "@nestjs/swagger";
+import {
+    Category,
+} from "@main/global/category";
 
-export class GetComfortBoardResponseDto {
+export class GetAllComfortBoardResponseDto {
     @ApiProperty({
         type: String,
         description: "Board Id",
         example: "1",
     })
     readonly id: string;
+
+    @ApiProperty({
+        enum: Category,
+        description: "카테고리",
+        isArray: true,
+        example: ["FREE",],
+    })
+    readonly categories: Category[];
 
     @ApiProperty({
         type: String,
@@ -24,8 +35,9 @@ export class GetComfortBoardResponseDto {
     })
     readonly createdAt: Date;
 
-    constructor(id: string, title: string, createdAt: Date) {
+    constructor(id: string, categories: Category[], title: string, createdAt: Date) {
         this.id = id;
+        this.categories = categories;
         this.title = title;
         this.createdAt = createdAt;
     }

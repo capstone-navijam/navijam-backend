@@ -33,3 +33,12 @@ export const categoryMap: { [key: string]: PrismaCategory } = {
     "정신건강": PrismaCategory.MENTAL_HEALTH,
     "사랑": PrismaCategory.LOVE,
 };
+
+const reverseCategoryMap = Object.fromEntries(
+    Object.entries(categoryMap).map(([key, value,]) => [value,
+key as Category,])
+);
+
+export function prismaCategoryToCategory(prismaCategory: PrismaCategory): Category {
+    return reverseCategoryMap[prismaCategory];
+}

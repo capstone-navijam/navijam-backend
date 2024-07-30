@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Param, Post, Put, Req, UseFilters, UseGuards,
+    Controller, ForbiddenException, Get, Param, Post, Put, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -40,10 +40,25 @@ import {
 import {
     ParseBigIntPipe,
 } from "@main/auth/pipe/parse-bigint.pipe";
+import {
+    GetComfortBoardDetailResponseDto,
+} from "@main/comfort/dto/res/get-comfort-board-detail.response.dto";
+import {
+    RolesGuard,
+} from "@main/auth/jwt/roles.guard";
+import {
+    Roles,
+} from "@main/util/decorators/roles.decorator";
+import {
+    CustomForbiddenExceptionFilter,
+} from "@main/filter/custom-forbidden-exception.filters";
+import {
+    GetAllComfortBoardResponseDto,
+} from "@main/comfort/dto/res/get-all-comfort-board.response.dto";
 
 @ApiTags("위로받기")
 @Controller("/comforts")
-@UseFilters(CustomUnauthorizedExceptionFilter)
+@UseFilters(CustomUnauthorizedExceptionFilter, CustomForbiddenExceptionFilter)
 export class ComfortController {
     constructor(private readonly comfortService: ComfortService) {
     }
@@ -52,7 +67,8 @@ export class ComfortController {
     @ApiOperation({
         summary: "위로받기 작성 API",
     })
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("MEMBER")
     @ApiCustomResponseDecorator(WriteComfortBoardResponseDto)
     @Post("/")
     async writeBoard(
@@ -65,18 +81,55 @@ export class ComfortController {
         return new CustomResponse<WriteComfortBoardResponseDto>(data, "게시글 등록 성공");
     }
 
-    // 특정 멤버 위로받기 전체 조회 API
+    // 위로받기 전체 조회 API
     @ApiOperation({
         summary: "위로받기 전체 조회 API",
     })
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("LISTENER")
+    @ApiCustomResponseDecorator(GetAllComfortBoardResponseDto)
+    @Get("/all")
+    async getAllBoards(): Promise<CustomResponse<GetAllComfortBoardResponseDto[]>> {
+        const data = await this.comfortService.getAllBoards();
+
+        return new CustomResponse<GetAllComfortBoardResponseDto[]>(data, "전체 게시글 조회 성공");
+    }
+
+    // 특정 멤버 위로받기 전체 조회 API
+    @ApiOperation({
+        summary: "특정 멤버 위로받기 전체 조회 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("MEMBER")
     @ApiCustomResponseDecorator(GetComfortBoardResponseDto)
     @Get("/")
-    async getAllBoards(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetComfortBoardResponseDto[]>> {
+    async getMemberBoards(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetComfortBoardResponseDto[]>> {
         const member = req.member;
-        const data = await this.comfortService.getAllBoards(member.id);
+        const data = await this.comfortService.getMemberBoards(member.id);
 
         return new CustomResponse<GetComfortBoardResponseDto[]>(data, "게시글 조회 성공");
+    }
+
+    // 위로받기 상세 조회 API
+    @ApiOperation({
+        summary: "위로받기 상세 조회 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("MEMBER", "LISTENER")
+    @ApiCustomResponseDecorator(GetComfortBoardDetailResponseDto)
+    @Get("/:id")
+    async getBoardDetail(
+        @Req() req: AuthenticatedRequest,
+        @Param("id", ParseBigIntPipe) id: bigint,): Promise<CustomResponse<GetComfortBoardDetailResponseDto>> {
+        const member = req.member;
+        const data = await this.comfortService.getBoardDetail(id);
+
+        if (data.memberId !== member.id.toString() && member.role !== "LISTENER") {
+            throw new ForbiddenException("접근 권한이 없습니다.");
+        }
+
+        return new CustomResponse<GetComfortBoardDetailResponseDto>(data, "게시글 상세 조회 성공");
+
     }
 
     // 위로받기 수정 API

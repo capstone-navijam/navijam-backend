@@ -131,7 +131,7 @@ export class AuthService {
                 address: signupListenerRequestDto.address,
                 career: signupListenerRequestDto.career,
                 description: signupListenerRequestDto.description,
-                categories: signupListenerRequestDto.category.map(category => categoryMap[category.toString()]),
+                categories: signupListenerRequestDto.category.map(category => categoryMap[category]),
             },
         });
 

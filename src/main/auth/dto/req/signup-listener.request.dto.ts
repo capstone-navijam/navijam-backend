@@ -17,7 +17,6 @@ import {
 } from "@main/global/category";
 
 export class SignupListenerRequestDto {
-    // 이메일
     @ApiProperty({
         description: "이메일",
         required: true,
@@ -27,7 +26,6 @@ export class SignupListenerRequestDto {
     })
     readonly email: string;
 
-    // 이름
     @ApiProperty({
         description: "이름",
         required: true,
@@ -41,7 +39,6 @@ export class SignupListenerRequestDto {
     })
     readonly nickname: string;
 
-    // 비밀번호
     @ApiProperty({
         description: "비밀번호",
         required: true,
@@ -55,14 +52,12 @@ export class SignupListenerRequestDto {
     })
     readonly password: string;
 
-    // 비밀번호 확인
     @ApiProperty({
         description: "비밀번호 확인",
         required: true,
     })
     readonly checkPassword: string;
 
-    // 프로필
     @ApiProperty({
         description: "프로필",
         required: true,
@@ -73,7 +68,6 @@ export class SignupListenerRequestDto {
     @MaxLength(100)
     readonly profile: string;
 
-    // 주소
     @IsOptional()
     @ApiProperty({
         description: "주소",
@@ -87,7 +81,6 @@ export class SignupListenerRequestDto {
     })
     address?: string;
 
-    // 경력
     @ApiProperty({
         description: "경력",
         required: true,
@@ -102,7 +95,6 @@ export class SignupListenerRequestDto {
     })
     career: string[];
 
-    // 한 줄 소개
     @ApiProperty({
         description: "한 줄 소개",
         required: true,
@@ -112,7 +104,6 @@ export class SignupListenerRequestDto {
     })
     description: string;
 
-    // 전화번호
     @ApiProperty({
         description: "전화번호",
         required: false,
@@ -123,7 +114,6 @@ export class SignupListenerRequestDto {
     })
     phoneNumber?: string;
 
-    // 카테고리
     @ApiProperty({
         description: "카테고리",
         required: true,

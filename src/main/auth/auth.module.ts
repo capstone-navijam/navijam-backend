@@ -19,6 +19,9 @@ import {
 import {
     JwtStrategy,
 } from "@main/auth/jwt/jwt.strategy";
+import {
+    RolesGuard,
+} from "@main/auth/jwt/roles.guard";
 
 @Module({
     imports: [
@@ -33,8 +36,10 @@ import {
     controllers: [AuthController,],
     providers: [AuthService,
         PrismaConfig,
-        JwtStrategy,],
-    exports: [AuthService,],
+        JwtStrategy,
+        RolesGuard,],
+    exports: [AuthService,
+        JwtModule,],
 })
 
 export class AuthModule {

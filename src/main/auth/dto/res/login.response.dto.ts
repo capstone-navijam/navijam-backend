@@ -19,12 +19,6 @@ export class LoginResponseDto {
 
     @ApiProperty({
         type: String,
-        description: "프로필",
-    })
-    readonly profile: string;
-
-    @ApiProperty({
-        type: String,
         description: "액세스 토큰",
     })
     readonly accessToken: string;
@@ -35,8 +29,9 @@ export class LoginResponseDto {
     })
     readonly tokenType: string;
 
-    constructor(nickname: string, accessToken: string, tokenType: string) {
+    constructor(nickname: string, role: string, accessToken: string, tokenType: string) {
         this.nickname = nickname;
+        this.role = role;
         this.accessToken = accessToken;
         this.tokenType = tokenType;
     }

@@ -1,6 +1,9 @@
 import {
     ApiProperty,
 } from "@nestjs/swagger";
+import {
+    Category,
+} from "@main/global/category";
 
 export class GetAllComfortBoardResponseDto {
     @ApiProperty({
@@ -9,6 +12,16 @@ export class GetAllComfortBoardResponseDto {
         example: "1",
     })
     readonly id: string;
+
+    @ApiProperty({
+        description: "위로받기 게시글 주제",
+        example: [Category.FREE,
+            Category.BREAKUP,],
+        required: true,
+        enum: Category,
+        isArray: true,
+    })
+    readonly category: Category[];
 
     @ApiProperty({
         type: String,
@@ -24,8 +37,9 @@ export class GetAllComfortBoardResponseDto {
     })
     readonly createdAt: Date;
 
-    constructor(id: string, title: string, createdAt: Date) {
+    constructor(id: string,categories: Category[],  title: string, createdAt: Date) {
         this.id = id;
+        this.category = categories;
         this.title = title;
         this.createdAt = createdAt;
     }

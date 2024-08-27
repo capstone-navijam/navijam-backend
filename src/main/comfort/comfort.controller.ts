@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, ForbiddenException, Get, Param, Post, Put, Req, UseFilters, UseGuards,
+    Controller, ForbiddenException, Get, Param, Patch, Post, Put, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -138,7 +138,7 @@ export class ComfortController {
     })
     @UseGuards(JwtAuthGuard)
     @ApiCustomResponseDecorator(UpdateComfortBoardResponseDto)
-    @Put("/:id")
+    @Patch("/:id")
     async updateBoard(
         @Req() req: AuthenticatedRequest,
         @Param("id", ParseBigIntPipe) id: bigint,

@@ -64,8 +64,10 @@ export class ComfortService {
 
         return boards.map(board => {
 
+            const categories = board.categories.map(prismaCategoryToCategory);
+
             return new GetAllComfortBoardResponseDto(
-                board.id.toString(), board.title, board.createdAt,
+                board.id.toString(), categories, board.title, board.createdAt,
             );
         });
     }

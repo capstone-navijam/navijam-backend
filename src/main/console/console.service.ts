@@ -15,17 +15,11 @@ import {
 } from "@main/console/dto/res/write-console.response.dto";
 import NotFoundBoardException from "@main/exception/not-found.board.exception";
 import {
-    GetAllComfortBoardResponseDto,
-} from "@main/comfort/dto/res/get-all-comfort-board.response.dto";
-import {
-    prismaCategoryToCategory,
-} from "@main/global/category";
-import {
     GetAllConsoleResponseDto,
-} from "@main/console/dto/res/get-all-console.response.dto";
+} from "@main/console/dto/res/get-all-console-response.dto";
 import {
-    CustomForbiddenExceptionFilter,
-} from "@main/filter/custom-forbidden-exception.filters";
+    getTimestamp,
+} from "@main/util/timestamp.util";
 
 @Injectable()
 export class ConsoleService {
@@ -54,83 +48,56 @@ export class ConsoleService {
             },
         });
 
+        await this.prisma.comfortBoard.update({
+            where: {
+                id: comfortBoardId,
+            },
+            data: {
+                isAnswered: true,
+            },
+        });
+
         return new WriteConsoleResponseDto(console.id.toString());
     }
 
-    // 위로하기 답변 게시글 전체 조회
-    async getAllBoards(listenerId: bigint): Promise<GetAllComfortBoardResponseDto[]> {
+    async getComfortBoardById(id: bigint): Promise<ComfortBoard | null> {
+        return this.prisma.comfortBoard.findUnique({
+            where: {
+                id,
+            },
+        });
+    }
+
+    // 위로하기 전체 조회 API
+    async getAllConsoles(member: Member, comfortBoardId: bigint) :Promise<GetAllConsoleResponseDto[]> {
+        const comfortBoard = await this.getComfortBoardById(comfortBoardId);
+
+        if (!comfortBoard) {
+            throw new NotFoundBoardException;
+        }
+
+        if (comfortBoard.memberId !== member.id && member.role !== Role.LISTENER) {
+            throw new ForbiddenException("접근 권한이 없습니다.");
+        }
+
         const consoles = await this.prisma.console.findMany({
             where: {
-                memberId: listenerId,
-                member: {
-                    role: Role.LISTENER,
-                },
+                comfortId: comfortBoardId,
             },
             include: {
-                comfort: true,
+                member: true,
             },
         });
 
-        const boards = consoles.map((console) => console.comfort);
+        return consoles.map(console => {
+            const timestamp = getTimestamp(console.createdAt, console.updatedAt);
 
-        const uniqueBoardIds = Array.from(new Set(boards.map((board) => board?.id)));
+            const memberId = console.member.id.toString();
 
-        const uniqueBoards = uniqueBoardIds
-            .map((id) => boards.find((board) => board?.id === id))
-            .filter((board): board is typeof boards[number] => board !== undefined);
-
-        return uniqueBoards.map(
-            (board) => {
-                const categories = board.categories.map(prismaCategoryToCategory); // board.categories에 접근하여 매핑
-
-                return new GetAllComfortBoardResponseDto(
-                    board.id.toString(), categories, board.title, board.createdAt,
-                );
-            }
-        );
-    }
-
-    // 위로하기 전체 조회
-    async getAllConsoles(comfortBoardId: bigint, member: Member): Promise<GetAllConsoleResponseDto[]> {
-        const consoles = await this.prisma.console.findMany({
-            where: {
-                comfortId: comfortBoardId, // 특정 comfortBoardId에 맞는 답글만 가져옴
-            },
-            select: {
-                id: true,
-                content: true,
-                createdAt: true,
-                updatedAt: true,
-                comfort: {
-                    select: {
-                        id: true,
-                        memberId: true,
-                        title: true,
-                    },
-                },
-                member: {
-                    select: {
-                        id: true,
-                        nickname: true,
-                        profile: true,
-                    },
-                },
-            },
+            return new GetAllConsoleResponseDto(
+                console.id.toString(), console.member.nickname, console.member.profile, console.content, timestamp, memberId,
+            );
         });
-        if (member.role === Role.LISTENER) {
-            return consoles.map(console => new GetAllConsoleResponseDto(
-                console.id.toString(), console.member?.nickname || "Anonymous", console.member?.profile || "default-profile-url", console.content, console.createdAt, console.updatedAt
-            ));
-        }
-
-        const isMemberAuthorized = consoles.some(console => console.comfort?.memberId === member.id);
-
-        if (!isMemberAuthorized) {
-            return consoles.map(console => new GetAllConsoleResponseDto(
-                console.id.toString(), console.member?.nickname || "Anonymous", console.member?.profile || "default-profile-url", console.content, console.createdAt, console.updatedAt
-            ));
-        } else {
-            throw new ForbiddenException();
-        }
     }
+
 }

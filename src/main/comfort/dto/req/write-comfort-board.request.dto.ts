@@ -2,7 +2,7 @@ import {
     ApiProperty,
 } from "@nestjs/swagger";
 import {
-    ArrayMaxSize, IsArray, IsEnum,
+    ArrayMaxSize, ArrayNotEmpty, IsArray, IsEnum,
     IsNotEmpty, IsString, Length,
 } from "class-validator";
 import {
@@ -43,8 +43,8 @@ export class WriteComfortBoardRequestDto {
 
     @ApiProperty({
         description: "위로받기 게시글 주제",
-        example: [Category.FREE,
-            Category.BREAKUP,],
+        example: ["가족",
+            "정신건강",],
         required: true,
         enum: Category,
         isArray: true,
@@ -57,6 +57,9 @@ export class WriteComfortBoardRequestDto {
     )
     @ArrayMaxSize(10, {
         message: "카테고리는 최대 10개까지 선택 가능합니다.",
+    })
+    @ArrayNotEmpty({
+        message: "카테고리는 적어도 하나 이상 선택해야 합니다.",
     })
     readonly category: Category[];
 }

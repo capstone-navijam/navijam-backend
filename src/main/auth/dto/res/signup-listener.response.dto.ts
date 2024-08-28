@@ -5,7 +5,7 @@ import {
 export class SignupListenerResponseDto {
     @ApiProperty({
         type: String,
-        description: "Listener id",
+        description: "Listener Id",
         example: "1",
     })
 

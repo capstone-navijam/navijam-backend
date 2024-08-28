@@ -76,9 +76,9 @@ export class AuthService {
     // 암호 해싱
     private async hashPassword(password: string): Promise<string> {
         const saltRounds = 10;
-        const salt = await bcrypt.genSalt(saltRounds); // 솔트 생성
+        const salt = await bcrypt.genSalt(saltRounds);
 
-        return await bcrypt.hash(password, salt); // 해시 생성
+        return await bcrypt.hash(password, salt);
     }
 
     // 일반 회원가입
@@ -106,7 +106,7 @@ export class AuthService {
             data: {
                 email: signupMemberRequestDto.email,
                 nickname: signupMemberRequestDto.nickname,
-                password: await this.hashPassword(signupMemberRequestDto.password), // 암호 해시 로직을 별도 메서드로 분리
+                password: await this.hashPassword(signupMemberRequestDto.password),
                 profile: signupMemberRequestDto.profile,
             },
         });
@@ -125,13 +125,15 @@ export class AuthService {
             throw new DuplicateEmailException();
         }
 
+        const prismaCategories = signupListenerRequestDto.category.map(category => categoryMap[category]);
+
         const listenerInfo: ListenerInfo = await this.prisma.listenerInfo.create({
             data: {
                 phoneNumber: signupListenerRequestDto.phoneNumber,
                 address: signupListenerRequestDto.address,
                 career: signupListenerRequestDto.career,
                 description: signupListenerRequestDto.description,
-                categories: signupListenerRequestDto.category.map(category => categoryMap[category]),
+                categories: prismaCategories, // 변환된 카테고리를 사용
             },
         });
 

@@ -49,6 +49,8 @@ model ComfortBoard {
   member     Member?    @relation(fields: [memberId], references: [id])
   consoles   Console[]
 
+  isAnswered Boolean @default(false)
+
   @@map("comfort_board")
 }
 

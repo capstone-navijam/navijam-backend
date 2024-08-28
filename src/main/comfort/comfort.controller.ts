@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, ForbiddenException, Get, Param, Patch, Post, Put, Req, UseFilters, UseGuards,
+    Controller, ForbiddenException, Get, Param, Patch, Post, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -55,6 +55,9 @@ import {
 import {
     GetAllComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-all-comfort-board.response.dto";
+import {
+    GetAnsweredComfortBoardResponseDto,
+} from "@main/comfort/dto/res/get-answered-comfort-board.response.dto";
 
 @ApiTags("위로받기")
 @Controller("/comforts")
@@ -81,6 +84,23 @@ export class ComfortController {
         return new CustomResponse<WriteComfortBoardResponseDto>(data, "게시글 등록 성공");
     }
 
+    // 상담사가 작성한 위로받기 게시글 조회 API
+    @ApiOperation({
+        summary: "상담사가 작성한 위로받기 게시글 조회 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("LISTENER")
+    @ApiCustomResponseDecorator(GetAnsweredComfortBoardResponseDto)
+    @Get("/answered")
+    async getAnsweredComfortBoards(
+        @Req() req: AuthenticatedRequest,
+    ): Promise<CustomResponse<GetAnsweredComfortBoardResponseDto[]>> {
+        const member = req.member;
+        const data = await this.comfortService.getAnsweredComfortBoards(member);
+
+        return new CustomResponse<GetAnsweredComfortBoardResponseDto[]>(data, "상담사가 작성한 위로받기 게시글 조회 성공");
+    }
+
     // 위로받기 전체 조회 API
     @ApiOperation({
         summary: "위로받기 전체 조회 API",
@@ -89,8 +109,9 @@ export class ComfortController {
     @Roles("LISTENER")
     @ApiCustomResponseDecorator(GetAllComfortBoardResponseDto)
     @Get("/all")
-    async getAllBoards(): Promise<CustomResponse<GetAllComfortBoardResponseDto[]>> {
-        const data = await this.comfortService.getAllBoards();
+    async getAllBoards(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetAllComfortBoardResponseDto[]>> {
+        const member = req.member;
+        const data = await this.comfortService.getAllBoards(member.id);
 
         return new CustomResponse<GetAllComfortBoardResponseDto[]>(data, "전체 게시글 조회 성공");
     }

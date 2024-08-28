@@ -3,7 +3,7 @@ import {
 } from "@nestjs/common";
 import {
     ComfortBoard, Member,
-    PrismaClient,
+    PrismaClient, Role,
 } from "@prisma/client";
 import {
     WriteComfortBoardRequestDto,
@@ -33,6 +33,9 @@ import {
 import {
     getTimestamp,
 } from "@main/util/timestamp.util";
+import {
+    GetAnsweredComfortBoardResponseDto,
+} from "@main/comfort/dto/res/get-answered-comfort-board.response.dto";
 
 @Injectable()
 export class ComfortService {
@@ -55,10 +58,11 @@ export class ComfortService {
     }
 
     // 위로받기 전체 조회
-    async getAllBoards(): Promise<GetAllComfortBoardResponseDto[]> {
+    async getAllBoards(memberId: bigint): Promise<GetAllComfortBoardResponseDto[]> {
         const boards = await this.prisma.comfortBoard.findMany({
             include: {
                 member: true,
+                consoles: true,
             },
         });
 
@@ -66,8 +70,10 @@ export class ComfortService {
 
             const categories = board.categories.map(prismaCategoryToCategory);
 
+            const hasAnswer = board.consoles.some(console => console.memberId === memberId);
+
             return new GetAllComfortBoardResponseDto(
-                board.id.toString(), categories, board.title, board.createdAt,
+                board.id.toString(), categories, board.title, board.createdAt, hasAnswer
             );
         });
     }
@@ -110,6 +116,32 @@ export class ComfortService {
         return new GetComfortBoardDetailResponseDto(
             board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "Unknown", timestamp,
         );
+    }
+
+    // 상담사가 답변한 위로받기 게시글 조회 API
+    async getAnsweredComfortBoards(member: Member): Promise<GetAnsweredComfortBoardResponseDto[]> {
+        const consoles = await this.prisma.console.findMany({
+            where: {
+                memberId: member.id,
+                member: {
+                    role: Role.LISTENER,
+                },
+            },
+            include: {
+                comfort: true,
+            },
+        });
+
+        return consoles
+            .filter((console) => console.comfort.isAnswered)
+            .map(
+                (console) => {
+                    const categories = console.comfort.categories.map(prismaCategoryToCategory);
+
+                    return new GetAnsweredComfortBoardResponseDto(
+                        console.comfort.id.toString(), categories, console.comfort.title, console.comfort.createdAt
+                    );
+                });
     }
 
     // 위로받기 수정

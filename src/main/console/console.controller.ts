@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Param, Post, Req, UseFilters, UseGuards,
+    Controller, Get, Param, ParseIntPipe, Post, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -41,11 +41,8 @@ import {
     RolesGuard,
 } from "@main/auth/jwt/roles.guard";
 import {
-    GetAllComfortBoardResponseDto,
-} from "@main/comfort/dto/res/get-all-comfort-board.response.dto";
-import {
     GetAllConsoleResponseDto,
-} from "@main/console/dto/res/get-all-console.response.dto";
+} from "@main/console/dto/res/get-all-console-response.dto";
 
 @ApiTags("위로하기")
 @Controller("/consoles")
@@ -73,39 +70,20 @@ export class ConsoleController {
         return new CustomResponse<WriteConsoleResponseDto>(data, "답변 등록 성공");
     }
 
-    // 위로하기 답변 게시글 전체 조회 API (상담사가 답변한 위로받기 게시글 전체 조회)
-    @ApiOperation({
-        summary: "위로하기 답변 게시글 전체 조회 API",
-    })
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.LISTENER)
-    @ApiCustomResponseDecorator(GetAllComfortBoardResponseDto)
-    @Get("/")
-    async getAllBoardsByListener(
-        @Req() req: AuthenticatedRequest,
-    ): Promise<CustomResponse<GetAllComfortBoardResponseDto[]>> {
-        const listener = req.member;
-        const data = await this.consoleService.getAllBoards(listener.id);
-
-        return new CustomResponse<GetAllComfortBoardResponseDto[]>(data, "상담사가 답변한 게시글 조회 성공");
-    }
-
     // 위로하기 전체 조회 API
     @ApiOperation({
         summary: "위로하기 전체 조회 API",
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("MEMBER", "LISTENER")
-    @ApiCustomResponseDecorator(GetAllConsoleResponseDto)
     @Get("/:comfortBoardId")
     async getAllConsoles(
         @Req() req: AuthenticatedRequest,
-        @Param("comfortBoardId", ParseBigIntPipe) comfortBoardId: bigint,
+        @Param("comfortBoardId", ParseIntPipe) comfortBoardId: bigint,
     ): Promise<CustomResponse<GetAllConsoleResponseDto[]>> {
         const member = req.member;
-        const data = await this.consoleService.getAllConsoles(comfortBoardId, member);
+        const data = await this.consoleService.getAllConsoles(member, comfortBoardId);
 
         return new CustomResponse<GetAllConsoleResponseDto[]>(data, "위로하기 전체 조회 성공");
     }
-
 }

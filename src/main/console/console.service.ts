@@ -75,7 +75,6 @@ export class ConsoleService {
         if (!comfortBoard) {
             throw new NotFoundBoardException;
         }
-
         if (comfortBoard.memberId !== member.id && member.role !== Role.LISTENER) {
             throw new ForbiddenException("접근 권한이 없습니다.");
         }

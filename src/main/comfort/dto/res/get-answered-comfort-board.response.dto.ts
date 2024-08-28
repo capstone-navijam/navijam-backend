@@ -5,7 +5,7 @@ import {
     Category,
 } from "@main/global/category";
 
-export class GetAllComfortBoardResponseDto {
+export class GetAnsweredComfortBoardResponseDto {
     @ApiProperty({
         type: String,
         description: "Board Id",
@@ -15,8 +15,7 @@ export class GetAllComfortBoardResponseDto {
 
     @ApiProperty({
         description: "위로받기 게시글 주제",
-        example: [Category.FREE,
-            Category.BREAKUP,],
+        example: ["자유",],
         required: true,
         enum: Category,
         isArray: true,
@@ -37,18 +36,10 @@ export class GetAllComfortBoardResponseDto {
     })
     readonly createdAt: Date;
 
-    @ApiProperty({
-        type: Boolean,
-        description: "답변 여부",
-        example: true,
-    })
-    readonly answered: boolean;
-
-    constructor(id: string, categories: Category[],  title: string, createdAt: Date, answered: boolean) {
+    constructor(id: string, categories: Category[],  title: string, createdAt: Date) {
         this.id = id;
         this.categories = categories;
         this.title = title;
         this.createdAt = createdAt;
-        this.answered = answered;
     }
 }

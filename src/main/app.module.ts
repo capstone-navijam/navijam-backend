@@ -22,6 +22,12 @@ import {
 import {
     ConsoleModule,
 } from "@main/console/console.module";
+import {
+    S3Module,
+} from "@main/s3/s3.module";
+import {
+    FileModule,
+} from "@main/file/file.module";
 
 @Module({
     imports: [
@@ -31,7 +37,10 @@ import {
         }),
         PrismaModule,
         ComfortModule,
-        ConsoleModule,],
+        ConsoleModule,
+        S3Module,
+        FileModule,
+    ],
     controllers: [ComfortController,],
     providers: [ComfortService,],
 })

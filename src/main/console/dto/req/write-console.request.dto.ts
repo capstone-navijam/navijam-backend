@@ -2,7 +2,7 @@ import {
     ApiProperty,
 } from "@nestjs/swagger";
 import {
-    IsNotEmpty, IsString, Length,
+    IsNotEmpty, IsNumber, IsString, Length,
 } from "class-validator";
 
 export class WriteConsoleRequestDto {
@@ -20,4 +20,12 @@ export class WriteConsoleRequestDto {
         message: "내용은 최소 5글자 이상이어야 합니다.",
     })
     readonly content: string;
+
+    @ApiProperty({
+        description: "Comfort Board Id",
+        example: "1",
+        required: true,
+    })
+    @IsNumber()
+    readonly comfortBoardId: bigint;
 }

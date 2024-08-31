@@ -20,6 +20,13 @@ import {
 import {
     getTimestamp,
 } from "@main/util/timestamp.util";
+import {
+    UpdateConsoleRequestDto,
+} from "@main/console/dto/req/update-console.request.dto";
+import {
+    UpdateConsoleResponseDto,
+} from "@main/console/dto/res/update-console.response.dto";
+import NotFoundConsoleException from "@main/exception/not-found.console.exception";
 
 @Injectable()
 export class ConsoleService {
@@ -27,12 +34,12 @@ export class ConsoleService {
     }
 
     // 위로하기 작성
-    async writeConsole(writeConsoleRequestDto: WriteConsoleRequestDto, member: Member, comfortBoardId: bigint
+    async writeConsole(body: WriteConsoleRequestDto, member: Member
     ): Promise<WriteConsoleResponseDto> {
 
         const comfortBoard = await this.prisma.comfortBoard.findUnique({
             where: {
-                id: comfortBoardId,
+                id: body.comfortBoardId,
             },
         });
 
@@ -42,15 +49,15 @@ export class ConsoleService {
 
         const console: Console = await this.prisma.console.create({
             data: {
-                content: writeConsoleRequestDto.content,
+                content: body.content,
                 memberId: BigInt(member.id),
-                comfortId: comfortBoardId,
+                comfortId: body.comfortBoardId,
             },
         });
 
         await this.prisma.comfortBoard.update({
             where: {
-                id: comfortBoardId,
+                id: body.comfortBoardId,
             },
             data: {
                 isAnswered: true,
@@ -69,7 +76,7 @@ export class ConsoleService {
     }
 
     // 위로하기 전체 조회 API
-    async getAllConsoles(member: Member, comfortBoardId: bigint) :Promise<GetAllConsoleResponseDto[]> {
+    async getAllConsoles(member: Member, comfortBoardId: bigint): Promise<GetAllConsoleResponseDto[]> {
         const comfortBoard = await this.getComfortBoardById(comfortBoardId);
 
         if (!comfortBoard) {
@@ -99,4 +106,33 @@ export class ConsoleService {
         });
     }
 
+    // 위로하기 수정 API
+    async updateConsole(id: bigint, memberId: bigint, updateConsoleRequestDto: UpdateConsoleRequestDto): Promise<UpdateConsoleResponseDto> {
+
+        const console = await this.prisma.console.findFirst({
+            where: {
+                id,
+                memberId,
+            },
+        });
+
+        if (!console) {
+            throw new NotFoundConsoleException;
+        }
+
+        const updatedConsole = await this.prisma.console.update({
+            where: {
+                id,
+            },
+            data: {
+                content: updateConsoleRequestDto.content,
+                updatedAt: new Date(),
+            },
+            include: {
+                member: true,
+            },
+        });
+
+        return new UpdateConsoleResponseDto(updatedConsole.id.toString());
+    }
 }

@@ -1,5 +1,5 @@
 import {
-    Injectable,
+    Injectable, UnauthorizedException,
 } from "@nestjs/common";
 import {
     ListenerInfo,
@@ -64,13 +64,23 @@ export class AuthService {
     async validateMember(payload: any): Promise<Member | null> {
         const memberId = payload.sub;
 
+        if (!memberId) {
+            console.error("Invalid token payload: missing sub");
+            throw new UnauthorizedException("로그인이 필요합니다.");
+        }
+
         const member = await this.prisma.member.findUnique({
             where: {
                 id: memberId,
             },
         });
 
-        return member || null;
+        if (!member) {
+            console.error(`No member found with ID: ${memberId}`);
+            throw new UnauthorizedException("사용자를 찾을 수 없습니다.");
+        }
+
+        return member;
     }
 
     // 암호 해싱

@@ -13,6 +13,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const request = ctx.getRequest<Request>();
         const status = exception.getStatus();
 
+        let message: string | string[];
+        if (typeof exception.getResponse() === "object") {
+            const exceptionResponse =  exception.getResponse() as { message: string[] };
+            message = exceptionResponse.message;
+        } else {
+            message = exception.message;
+        }
+
         response
             .status(status)
             .json({
@@ -21,7 +29,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
                     timeZone: "Asia/Seoul",
                 }),
                 path: request.url,
-                message: exception.message,
+                message: message,
                 error: exception.name,
                 data: null,
             });

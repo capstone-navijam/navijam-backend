@@ -36,6 +36,9 @@ import {
 import {
     GetAnsweredComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-answered-comfort-board.response.dto";
+import {
+    filterUniqueComfortBoards,
+} from "@main/util/comfort-board.utils";
 
 @Injectable()
 export class ComfortService {
@@ -95,10 +98,10 @@ export class ComfortService {
     }
 
     // 위로받기 상세 조회
-    async getBoardDetail(id: bigint): Promise<GetComfortBoardDetailResponseDto> {
+    async getBoardDetail(comfortBoardId: bigint): Promise<GetComfortBoardDetailResponseDto> {
         const board = await this.prisma.comfortBoard.findUnique({
             where: {
-                id,
+                id: comfortBoardId,
             },
             include: {
                 member: true,
@@ -118,7 +121,7 @@ export class ComfortService {
         );
     }
 
-    // 상담사가 답변한 위로받기 게시글 조회 API
+    // 상담사가 답변한 위로받기 게시글 조회
     async getAnsweredComfortBoards(member: Member): Promise<GetAnsweredComfortBoardResponseDto[]> {
         const consoles = await this.prisma.console.findMany({
             where: {
@@ -132,24 +135,15 @@ export class ComfortService {
             },
         });
 
-        return consoles
-            .filter((console) => console.comfort.isAnswered)
-            .map(
-                (console) => {
-                    const categories = console.comfort.categories.map(prismaCategoryToCategory);
-
-                    return new GetAnsweredComfortBoardResponseDto(
-                        console.comfort.id.toString(), categories, console.comfort.title, console.comfort.createdAt
-                    );
-                });
+        return filterUniqueComfortBoards(consoles);
     }
 
     // 위로받기 수정
-    async updateBoard(id: bigint, memberId: bigint, updateComfortBoardRequestDto: UpdateComfortBoardRequestDto): Promise<UpdateComfortBoardResponseDto> {
+    async updateBoard(comfortBoardId: bigint, memberId: bigint, updateComfortBoardRequestDto: UpdateComfortBoardRequestDto): Promise<UpdateComfortBoardResponseDto> {
 
         const board = await this.prisma.comfortBoard.findFirst({
             where: {
-                id,
+                id: comfortBoardId,
                 memberId,
             },
         });
@@ -160,7 +154,7 @@ export class ComfortService {
 
         const updatedBoard = await this.prisma.comfortBoard.update({
             where: {
-                id,
+                id: comfortBoardId,
             },
             data: {
                 title: updateComfortBoardRequestDto.title,

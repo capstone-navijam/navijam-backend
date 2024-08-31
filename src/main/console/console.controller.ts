@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Param, ParseIntPipe, Post, Req, UseFilters, UseGuards,
+    Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -43,6 +43,12 @@ import {
 import {
     GetAllConsoleResponseDto,
 } from "@main/console/dto/res/get-all-console-response.dto";
+import {
+    UpdateConsoleResponseDto,
+} from "@main/console/dto/res/update-console.response.dto";
+import {
+    UpdateConsoleRequestDto,
+} from "@main/console/dto/req/update-console.request.dto";
 
 @ApiTags("위로하기")
 @Controller("/consoles")
@@ -56,16 +62,15 @@ export class ConsoleController {
         summary: "위로하기 작성 API",
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles(Role.LISTENER)
+    @Roles("LISTENER")
     @ApiCustomResponseDecorator(WriteConsoleResponseDto)
-    @Post("/:comfortBoardId")
+    @Post()
     async writeConsole(
         @Req() req: AuthenticatedRequest,
-        @Param("comfortBoardId", ParseBigIntPipe) comfortBoardId: bigint,
         @Body() body: WriteConsoleRequestDto,
     ): Promise<CustomResponse<WriteConsoleResponseDto>> {
         const member = req.member;
-        const data: WriteConsoleResponseDto = await this.consoleService.writeConsole(body, member, comfortBoardId);
+        const data: WriteConsoleResponseDto = await this.consoleService.writeConsole(body, member);
 
         return new CustomResponse<WriteConsoleResponseDto>(data, "답변 등록 성공");
     }
@@ -76,14 +81,34 @@ export class ConsoleController {
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("MEMBER", "LISTENER")
-    @Get("/:comfortBoardId")
+    @Get()
     async getAllConsoles(
         @Req() req: AuthenticatedRequest,
-        @Param("comfortBoardId", ParseIntPipe) comfortBoardId: bigint,
+        @Query("comfortBoardId", ParseBigIntPipe) comfortBoardId: bigint,
     ): Promise<CustomResponse<GetAllConsoleResponseDto[]>> {
         const member = req.member;
         const data = await this.consoleService.getAllConsoles(member, comfortBoardId);
 
         return new CustomResponse<GetAllConsoleResponseDto[]>(data, "위로하기 전체 조회 성공");
+    }
+
+    // 위로하기 수정 API
+    @ApiOperation({
+        summary: "위로하기 수정 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @Roles("LISTENER")
+    @ApiCustomResponseDecorator(UpdateConsoleResponseDto)
+    @Patch("/:consoleId")
+    async updateConsole(
+        @Req() req: AuthenticatedRequest,
+        @Param("consoleId", ParseBigIntPipe) consoleId: bigint,
+        @Body() body: UpdateConsoleRequestDto,
+    ): Promise<CustomResponse<UpdateConsoleResponseDto>> {
+        const memberId = BigInt(req.member.id);
+        const updateConsole = await this.consoleService.updateConsole(consoleId, memberId, body);
+
+        return new CustomResponse<UpdateConsoleResponseDto>(updateConsole, "답변 수정 성공");
+        
     }
 }

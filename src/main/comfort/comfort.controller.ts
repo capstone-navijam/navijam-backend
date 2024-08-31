@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, ForbiddenException, Get, Param, Patch, Post, Req, UseFilters, UseGuards,
+    Controller, Get, Param, Patch, Post, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -73,7 +73,7 @@ export class ComfortController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("MEMBER")
     @ApiCustomResponseDecorator(WriteComfortBoardResponseDto)
-    @Post("/")
+    @Post()
     async writeBoard(
         @Req() req: AuthenticatedRequest,
         @Body() body: WriteComfortBoardRequestDto,
@@ -82,23 +82,6 @@ export class ComfortController {
         const data: WriteComfortBoardResponseDto = await this.comfortService.writeBoard(body, member);
 
         return new CustomResponse<WriteComfortBoardResponseDto>(data, "게시글 등록 성공");
-    }
-
-    // 상담사가 작성한 위로받기 게시글 조회 API
-    @ApiOperation({
-        summary: "상담사가 작성한 위로받기 게시글 조회 API",
-    })
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles("LISTENER")
-    @ApiCustomResponseDecorator(GetAnsweredComfortBoardResponseDto)
-    @Get("/answered")
-    async getAnsweredComfortBoards(
-        @Req() req: AuthenticatedRequest,
-    ): Promise<CustomResponse<GetAnsweredComfortBoardResponseDto[]>> {
-        const member = req.member;
-        const data = await this.comfortService.getAnsweredComfortBoards(member);
-
-        return new CustomResponse<GetAnsweredComfortBoardResponseDto[]>(data, "상담사가 작성한 위로받기 게시글 조회 성공");
     }
 
     // 위로받기 전체 조회 API
@@ -131,6 +114,23 @@ export class ComfortController {
         return new CustomResponse<GetComfortBoardResponseDto[]>(data, "게시글 조회 성공");
     }
 
+    // 상담사가 답변한 위로받기 게시글 조회 API
+    @ApiOperation({
+        summary: "상담사가 답변한 위로받기 게시글 조회 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("LISTENER")
+    @ApiCustomResponseDecorator(GetAnsweredComfortBoardResponseDto)
+    @Get("/answered")
+    async getAnsweredComfortBoards(
+        @Req() req: AuthenticatedRequest,
+    ): Promise<CustomResponse<GetAnsweredComfortBoardResponseDto[]>> {
+        const member = req.member;
+        const data = await this.comfortService.getAnsweredComfortBoards(member);
+
+        return new CustomResponse<GetAnsweredComfortBoardResponseDto[]>(data, "상담사가 작성한 위로받기 게시글 조회 성공");
+    }
+
     // 위로받기 상세 조회 API
     @ApiOperation({
         summary: "위로받기 상세 조회 API",
@@ -138,16 +138,11 @@ export class ComfortController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("MEMBER", "LISTENER")
     @ApiCustomResponseDecorator(GetComfortBoardDetailResponseDto)
-    @Get("/:id")
+    @Get("/:comfortBoardId")
     async getBoardDetail(
         @Req() req: AuthenticatedRequest,
-        @Param("id", ParseBigIntPipe) id: bigint,): Promise<CustomResponse<GetComfortBoardDetailResponseDto>> {
-        const member = req.member;
-        const data = await this.comfortService.getBoardDetail(id);
-
-        if (data.memberId !== member.id.toString() && member.role !== "LISTENER") {
-            throw new ForbiddenException("접근 권한이 없습니다.");
-        }
+        @Param("comfortBoardId", ParseBigIntPipe) comfortBoardId: bigint,): Promise<CustomResponse<GetComfortBoardDetailResponseDto>> {
+        const data = await this.comfortService.getBoardDetail(comfortBoardId);
 
         return new CustomResponse<GetComfortBoardDetailResponseDto>(data, "게시글 상세 조회 성공");
 
@@ -159,14 +154,14 @@ export class ComfortController {
     })
     @UseGuards(JwtAuthGuard)
     @ApiCustomResponseDecorator(UpdateComfortBoardResponseDto)
-    @Patch("/:id")
+    @Patch("/:comfortBoardId")
     async updateBoard(
         @Req() req: AuthenticatedRequest,
-        @Param("id", ParseBigIntPipe) id: bigint,
+        @Param("comfortBoardId", ParseBigIntPipe) comfortBoardId: bigint,
         @Body() body: UpdateComfortBoardRequestDto,
     ): Promise<CustomResponse<UpdateComfortBoardResponseDto>> {
         const memberId = BigInt(req.member.id);
-        const updateBoard = await this.comfortService.updateBoard(id, memberId, body);
+        const updateBoard = await this.comfortService.updateBoard(comfortBoardId, memberId, body);
 
         return new CustomResponse<UpdateComfortBoardResponseDto>(updateBoard, "게시글 수정 성공");
     }

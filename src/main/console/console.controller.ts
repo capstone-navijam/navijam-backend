@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseFilters, UseGuards,
+    Controller, Get, Param, Patch, Post, Query, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -35,9 +35,6 @@ import {
     Roles,
 } from "@main/util/decorators/roles.decorator";
 import {
-    Role,
-} from "@prisma/client";
-import {
     RolesGuard,
 } from "@main/auth/jwt/roles.guard";
 import {
@@ -49,10 +46,14 @@ import {
 import {
     UpdateConsoleRequestDto,
 } from "@main/console/dto/req/update-console.request.dto";
+import {
+    CustomForbiddenExceptionFilter,
+} from "@main/filter/custom-forbidden-exception.filters";
 
 @ApiTags("위로하기")
 @Controller("/consoles")
-@UseFilters(CustomUnauthorizedExceptionFilter)
+@UseFilters(CustomUnauthorizedExceptionFilter, CustomForbiddenExceptionFilter)
+
 export class ConsoleController {
     constructor(private readonly consoleService: ConsoleService) {
     }
@@ -105,8 +106,10 @@ export class ConsoleController {
         @Param("consoleId", ParseBigIntPipe) consoleId: bigint,
         @Body() body: UpdateConsoleRequestDto,
     ): Promise<CustomResponse<UpdateConsoleResponseDto>> {
+        const member = req.member;
         const memberId = BigInt(req.member.id);
-        const updateConsole = await this.consoleService.updateConsole(consoleId, memberId, body);
+
+        const updateConsole = await this.consoleService.updateConsole(consoleId, memberId, member, body);
 
         return new CustomResponse<UpdateConsoleResponseDto>(updateConsole, "답변 수정 성공");
         

@@ -1,5 +1,8 @@
 import {
-    Injectable, CanActivate, ExecutionContext, ForbiddenException,
+    Injectable,
+    CanActivate,
+    ExecutionContext,
+    ForbiddenException,
 } from "@nestjs/common";
 import {
     Reflector,
@@ -10,6 +13,9 @@ import {
 import {
     ConfigService,
 } from "@nestjs/config";
+import {
+    AuthenticatedRequest,
+} from "@main/auth/jwt/jwt.types";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -25,18 +31,21 @@ export class RolesGuard implements CanActivate {
             context.getHandler(),
             context.getClass(),
         ]);
+
         if (!requiredRoles) return true;
 
-        const request = context.switchToHttp().getRequest();
-        const token = request.headers.authorization?.split(" ")[1];
+        const request: AuthenticatedRequest = context.switchToHttp().getRequest();
+        const member = request.member; // JwtAuthGuard에서 설정된 사용자 정보
 
-        if (!token) throw new ForbiddenException("접근 권한이 없습니다.");
+        if (!member) {
+            throw new ForbiddenException("사용자 정보가 없습니다.");
+        }
 
-        const decoded = this.jwtService.verify(token, {
-            secret: this.configService.get<string>("JWT_SECRET"),
-        });
-        const userRole = decoded.role;
+        const hasRole = requiredRoles.some((role) => role === member.role);
+        if (!hasRole) {
+            throw new ForbiddenException("접근 권한이 없습니다.");
+        }
 
-        return requiredRoles.some(role => role === userRole);
+        return true;
     }
 }

@@ -107,17 +107,20 @@ export class ConsoleService {
     }
 
     // 위로하기 수정 API
-    async updateConsole(id: bigint, memberId: bigint, updateConsoleRequestDto: UpdateConsoleRequestDto): Promise<UpdateConsoleResponseDto> {
+    async updateConsole(id: bigint, memberId: bigint, member: Member, updateConsoleRequestDto: UpdateConsoleRequestDto): Promise<UpdateConsoleResponseDto> {
 
         const console = await this.prisma.console.findFirst({
             where: {
                 id,
-                memberId,
             },
         });
 
         if (!console) {
             throw new NotFoundConsoleException;
+        }
+
+        if (console.memberId !== memberId && member.role !== Role.LISTENER) {
+            throw new ForbiddenException("접근 권한이 없습니다.");
         }
 
         const updatedConsole = await this.prisma.console.update({

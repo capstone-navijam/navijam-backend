@@ -17,7 +17,10 @@ export class CustomForbiddenExceptionFilter implements ExceptionFilter {
 
         response.status(status).json({
             statusCode: status,
-            timestamp: new Date().toISOString(),
+            timestamp: new Date().toLocaleString("ko-KR", {
+                timeZone: "Asia/Seoul",
+                hour12: true,
+            }),
             path: request.url,
             message: message,
             error: exception.name,

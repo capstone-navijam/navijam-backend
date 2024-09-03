@@ -23,9 +23,11 @@ export default class CustomResponse<T> {
 
     constructor(data: T, message: string) {
         this.data = data;
+        this.message = message;
+
         this.timestamp = new Date().toLocaleString("ko-KR", {
             timeZone: "Asia/Seoul",
+            hour12: true,
         });
-        this.message = message;
     }
 }

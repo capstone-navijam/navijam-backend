@@ -7,7 +7,7 @@ import {
 
 export class UpdateConsoleRequestDto {
     @ApiProperty({
-        description: "게시글 내용",
+        description: "답변 내용",
         example: "많이 힘드셨을텐데 혼자 고생 많으셨습니다.",
         required: true,
         minLength: 20,

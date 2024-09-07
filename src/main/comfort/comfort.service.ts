@@ -76,7 +76,7 @@ export class ComfortService {
             const hasAnswer = board.consoles.some(console => console.memberId === memberId);
 
             return new GetAllComfortBoardResponseDto(
-                board.id.toString(), categories, board.title, board.createdAt, hasAnswer
+                board.id.toString(), categories, board.title, board.member!.id.toString(), board.member!.profile, board.member!.nickname, board.createdAt, hasAnswer
             );
         });
     }

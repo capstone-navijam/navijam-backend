@@ -31,6 +31,27 @@ export class GetAllComfortBoardResponseDto {
     readonly title: string;
 
     @ApiProperty({
+        type: String,
+        description: "Writer Id",
+        example: "1",
+    })
+    readonly writerId: string;
+
+    @ApiProperty({
+        type: String,
+        description: "작성자 프로필 URL",
+        example: "http://profile.com/profile1.jpg",
+    })
+    readonly writerProfile: string;
+
+    @ApiProperty({
+        type: String,
+        description: "작성자 닉네임",
+        example: "choonsik",
+    })
+    readonly writerNickname: string;
+
+    @ApiProperty({
         type: Date,
         description: "게시글 작성 시간",
         example: "2024-01-02T16:06:20.43672",
@@ -44,10 +65,15 @@ export class GetAllComfortBoardResponseDto {
     })
     readonly answered: boolean;
 
-    constructor(id: string, categories: Category[],  title: string, createdAt: Date, answered: boolean) {
+    constructor(id: string, categories: Category[],  title: string,
+        writerId: string, writerProfile: string, writerNickname: string,
+        createdAt: Date, answered: boolean) {
         this.id = id;
         this.categories = categories;
         this.title = title;
+        this.writerId = writerId;
+        this.writerProfile = writerProfile;
+        this.writerNickname = writerNickname;
         this.createdAt = createdAt;
         this.answered = answered;
     }

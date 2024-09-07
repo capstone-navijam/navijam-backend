@@ -45,8 +45,8 @@ model ComfortBoard {
   createdAt  DateTime   @default(dbgenerated("NOW()")) @map(name: "created_at")
   updatedAt  DateTime   @updatedAt @map(name: "updated_at")
   categories Category[] @default([FREE])
-  memberId   BigInt?    @map(name: "member_id")
-  member     Member?    @relation(fields: [memberId], references: [id])
+  memberId   BigInt     @map(name: "member_id")
+  member     Member     @relation(fields: [memberId], references: [id])
   consoles   Console[]
 
   isAnswered Boolean @default(false)

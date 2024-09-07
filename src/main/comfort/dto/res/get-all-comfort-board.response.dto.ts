@@ -32,6 +32,13 @@ export class GetAllComfortBoardResponseDto {
 
     @ApiProperty({
         type: String,
+        description: "게시글 내용",
+        example: "조언 부탁드립니다.",
+    })
+    readonly content: string;
+
+    @ApiProperty({
+        type: String,
         description: "Writer Id",
         example: "1",
     })
@@ -63,11 +70,11 @@ export class GetAllComfortBoardResponseDto {
         description: "답변 여부",
         example: true,
     })
-    readonly answered: boolean;
+    readonly isAnswered: boolean;
 
-    constructor(id: string, categories: Category[],  title: string,
+    constructor(id: string, categories: Category[],  title: string, contents: string,
         writerId: string, writerProfile: string, writerNickname: string,
-        createdAt: Date, answered: boolean) {
+        createdAt: Date, isAnswered: boolean) {
         this.id = id;
         this.categories = categories;
         this.title = title;
@@ -75,6 +82,6 @@ export class GetAllComfortBoardResponseDto {
         this.writerProfile = writerProfile;
         this.writerNickname = writerNickname;
         this.createdAt = createdAt;
-        this.answered = answered;
+        this.isAnswered = isAnswered;
     }
 }

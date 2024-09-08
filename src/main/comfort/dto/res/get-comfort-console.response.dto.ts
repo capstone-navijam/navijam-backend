@@ -4,11 +4,13 @@ import {
 import {
     Category,
 } from "@main/global/category";
+import {
+    GetAllConsoleResponseDto,
+} from "@main/console/dto/res/get-all-console-response.dto";
 
-export class GetAllComfortBoardResponseDto {
+export class GetComfortAndConsolesResponseDto {
     @ApiProperty({
-        type: String,
-        description: "Board Id",
+        description: "Comfort Board Id",
         example: "1",
     })
     readonly id: string;
@@ -24,57 +26,65 @@ export class GetAllComfortBoardResponseDto {
     readonly categories: Category[];
 
     @ApiProperty({
-        type: String,
         description: "게시글 제목",
         example: "조언 부탁드립니다.",
     })
     readonly title: string;
 
     @ApiProperty({
-        type: String,
         description: "게시글 내용",
         example: "조언 부탁드립니다.",
     })
     readonly content: string;
 
     @ApiProperty({
-        type: String,
         description: "Writer Id",
         example: "1",
     })
     readonly writerId: string;
 
     @ApiProperty({
-        type: String,
         description: "작성자 프로필 URL",
         example: "http://profile.com/profile1.jpg",
     })
     readonly writerProfile: string;
 
     @ApiProperty({
-        type: String,
         description: "작성자 닉네임",
         example: "choonsik",
     })
     readonly writerNickname: string;
 
     @ApiProperty({
-        type: Date,
         description: "게시글 작성 시간",
         example: "2024-01-02T16:06:20.43672",
     })
-    readonly createdAt: Date;
+    readonly createdAt: string;
 
     @ApiProperty({
-        type: Boolean,
         description: "답변 여부",
         example: true,
     })
     readonly isAnswered: boolean;
 
-    constructor(id: string, categories: Category[],  title: string, content: string,
-        writerId: string, writerProfile: string, writerNickname: string,
-        createdAt: Date, isAnswered: boolean) {
+    @ApiProperty({
+        description: "위로하기 답글 목록",
+        type: [GetAllConsoleResponseDto,],
+    })
+    readonly consoles: GetAllConsoleResponseDto[];
+
+    constructor(
+        id: string,
+        categories: Category[],
+        title: string,
+        content: string,
+        writerId: string,
+        writerProfile: string,
+        writerNickname: string,
+        createdAt: string,
+        isAnswered: boolean,
+        consoles: GetAllConsoleResponseDto[]
+    ) {
         this.id = id;
         this.categories = categories;
         this.title = title;
@@ -84,5 +94,6 @@ export class GetAllComfortBoardResponseDto {
         this.writerNickname = writerNickname;
         this.createdAt = createdAt;
         this.isAnswered = isAnswered;
+        this.consoles = consoles;
     }
 }

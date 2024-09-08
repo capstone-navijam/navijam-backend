@@ -58,6 +58,9 @@ import {
 import {
     GetAnsweredComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-answered-comfort-board.response.dto";
+import {
+    GetComfortAndConsolesResponseDto,
+} from "@main/comfort/dto/res/get-comfort-console.response.dto";
 
 @ApiTags("위로받기")
 @Controller("/comforts")
@@ -137,14 +140,14 @@ export class ComfortController {
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("MEMBER", "LISTENER")
-    @ApiCustomResponseDecorator(GetComfortBoardDetailResponseDto)
+    @ApiCustomResponseDecorator(GetComfortAndConsolesResponseDto)
     @Get("/:comfortBoardId")
     async getBoardDetail(
         @Req() req: AuthenticatedRequest,
-        @Param("comfortBoardId", ParseBigIntPipe) comfortBoardId: bigint,): Promise<CustomResponse<GetComfortBoardDetailResponseDto>> {
-        const data = await this.comfortService.getBoardDetail(comfortBoardId);
+        @Param("comfortBoardId", ParseBigIntPipe) comfortBoardId: bigint,): Promise<CustomResponse<GetComfortAndConsolesResponseDto>> {
+        const data = await this.comfortService.getComfortBoardWithConsoles(comfortBoardId);
 
-        return new CustomResponse<GetComfortBoardDetailResponseDto>(data, "게시글 상세 조회 성공");
+        return new CustomResponse<GetComfortAndConsolesResponseDto>(data, "게시글 상세 조회 성공");
 
     }
 

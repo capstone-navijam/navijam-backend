@@ -13,7 +13,7 @@ import {
 import {
     WriteConsoleResponseDto,
 } from "@main/console/dto/res/write-console.response.dto";
-import NotFoundBoardException from "@main/exception/not-found.board.exception";
+import NotFoundBoardException from "@main/exception/not-found-board.exception";
 import {
     GetAllConsoleResponseDto,
 } from "@main/console/dto/res/get-all-console-response.dto";
@@ -26,7 +26,13 @@ import {
 import {
     UpdateConsoleResponseDto,
 } from "@main/console/dto/res/update-console.response.dto";
-import NotFoundConsoleException from "@main/exception/not-found.console.exception";
+import NotFoundConsoleException from "@main/exception/not-found-console.exception";
+import {
+    ExistAdoptedConsoleException,
+} from "@main/exception/exsist-accpted-console.exception";
+import {
+    AdoptConsoleResponseDto,
+} from "@main/console/dto/res/adopt-console.response.dto";
 
 @Injectable()
 export class ConsoleService {
@@ -75,7 +81,7 @@ export class ConsoleService {
         });
     }
 
-    // 위로하기 전체 조회 API
+    // 위로하기 전체 조회
     async getAllConsoles(member: Member, comfortBoardId: bigint): Promise<GetAllConsoleResponseDto[]> {
         const comfortBoard = await this.getComfortBoardById(comfortBoardId);
 
@@ -106,8 +112,8 @@ export class ConsoleService {
         });
     }
 
-    // 위로하기 수정 API
-    async updateConsole(id: bigint, memberId: bigint, member: Member, updateConsoleRequestDto: UpdateConsoleRequestDto): Promise<UpdateConsoleResponseDto> {
+    // 위로하기 수정
+    async updateConsole(id: bigint, memberId: bigint, member: Member, body: UpdateConsoleRequestDto): Promise<UpdateConsoleResponseDto> {
 
         const console = await this.prisma.console.findFirst({
             where: {
@@ -128,7 +134,7 @@ export class ConsoleService {
                 id,
             },
             data: {
-                content: updateConsoleRequestDto.content,
+                content: body.content,
                 updatedAt: new Date(),
             },
             include: {
@@ -137,5 +143,48 @@ export class ConsoleService {
         });
 
         return new UpdateConsoleResponseDto(updatedConsole.id.toString());
+    }
+
+    // 위로하기 채택
+    async adoptConsole(consoleId: bigint): Promise<AdoptConsoleResponseDto> {
+        const console = await this.prisma.console.findUnique({
+            where: {
+                id: consoleId,
+            },
+            include: {
+                member: true,
+                comfort: true,
+            },
+        });
+
+        if(!console) {
+            throw new NotFoundConsoleException;
+        }
+
+        if(console.isAdopted) {
+            throw new ExistAdoptedConsoleException();
+        }
+
+        const existingAdoptedConsole = await this.prisma.console.findFirst({
+            where: {
+                comfortId: console.comfortId,
+                isAdopted: true,
+            },
+        });
+
+        if(existingAdoptedConsole) {
+            throw new ExistAdoptedConsoleException;
+        }
+
+        await this.prisma.console.update({
+            where: {
+                id: console.comfortId,
+            },
+            data: {
+                isAdopted: true,
+            },
+        });
+
+        return new AdoptConsoleResponseDto(console.id.toString(), true);
     }
 }

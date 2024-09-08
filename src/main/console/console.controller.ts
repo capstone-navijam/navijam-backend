@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Param, Patch, Post, Query, Req, UseFilters, UseGuards,
+    Controller, Get, HttpCode, Param, Patch, Post, Query, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -49,6 +49,9 @@ import {
 import {
     CustomForbiddenExceptionFilter,
 } from "@main/filter/custom-forbidden-exception.filters";
+import {
+    AdoptConsoleResponseDto,
+} from "@main/console/dto/res/adopt-console.response.dto";
 
 @ApiTags("위로하기")
 @Controller("/consoles")
@@ -113,5 +116,22 @@ export class ConsoleController {
 
         return new CustomResponse<UpdateConsoleResponseDto>(updateConsole, "답변 수정 성공");
         
+    }
+
+    // 채택하기 API
+    @ApiOperation({
+        summary: "채택하기 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @Roles("MEMBER")
+    @ApiCustomResponseDecorator(AdoptConsoleResponseDto)
+    @Patch("/:consoleId/adopted")
+    async adoptConsole(
+        @Param("consoleId", ParseBigIntPipe) consoleId: bigint,
+    ): Promise<CustomResponse<AdoptConsoleResponseDto>> {
+
+        const adoptConsole = await this.consoleService.adoptConsole(consoleId);
+
+        return new CustomResponse<AdoptConsoleResponseDto>(adoptConsole, "채택 성공");
     }
 }

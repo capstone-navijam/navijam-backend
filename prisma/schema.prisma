@@ -49,7 +49,8 @@ model ComfortBoard {
   member     Member?    @relation(fields: [memberId], references: [id])
   consoles   Console[]
 
-  isAnswered Boolean @default(false)
+  isAnswered     Boolean @default(false)
+  adoptConsoleId BigInt?
 
   @@map("comfort_board")
 }
@@ -64,6 +65,8 @@ model Console {
   memberId        BigInt           @map(name: "member_id")
   member          Member           @relation(fields: [memberId], references: [id])
   consoleComments ConsoleComment[]
+
+  isAdopted Boolean @default(false)
 
   @@map("console")
 }

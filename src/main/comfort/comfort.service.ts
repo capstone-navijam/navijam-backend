@@ -23,7 +23,7 @@ import {
 import {
     UpdateComfortBoardResponseDto,
 } from "@main/comfort/dto/res/update-comfort-board.response.dto";
-import NotFoundBoardException from "@main/exception/not-found.board.exception";
+import NotFoundBoardException from "@main/exception/not-found-board.exception";
 import {
     GetComfortBoardDetailResponseDto,
 } from "@main/comfort/dto/res/get-comfort-board-detail.response.dto";

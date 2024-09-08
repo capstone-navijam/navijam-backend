@@ -48,7 +48,7 @@ import CheckDuplicateNicknameParamsDto from "@main/auth/dto/req/check-duplicate-
 import CheckDuplicateNicknameResponseDto from "@main/auth/dto/res/check-duplicate-nickname.response.dto";
 import CheckDuplicateEmailParamsDto from "@main/auth/dto/req/check-duplicate-email.params.dto";
 import CheckDuplicateEmailResponseDto from "@main/auth/dto/res/check-duplicate-email.response.dto";
-import NotFoundMemberException from "@main/exception/not-found.member.exception";
+import NotFoundMemberException from "@main/exception/not-found-member.exception";
 
 type ExistsMember = Member | null;
 type ExistsListener = Member | null;

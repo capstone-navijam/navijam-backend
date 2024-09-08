@@ -39,6 +39,12 @@ import {
 import {
     filterUniqueComfortBoards,
 } from "@main/util/comfort-board.utils";
+import {
+    GetComfortAndConsolesResponseDto,
+} from "@main/comfort/dto/res/get-comfort-console.response.dto";
+import {
+    mapToComfortAndConsolesDto,
+} from "@main/util/comfort-console-map";
 
 @Injectable()
 export class ComfortService {
@@ -119,6 +125,33 @@ export class ComfortService {
         return new GetComfortBoardDetailResponseDto(
             board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "Unknown", timestamp,
         );
+    }
+
+    // 임시 API
+    async getComfortBoardWithConsoles(comfortBoardId: bigint): Promise<GetComfortAndConsolesResponseDto> {
+        const board = await this.prisma.comfortBoard.findUnique({
+            where: {
+                id: comfortBoardId,
+            },
+            include: {
+                member: true,
+            },
+        });
+
+        if (!board) {
+            throw new NotFoundBoardException();
+        }
+
+        const consoles = await this.prisma.console.findMany({
+            where: {
+                comfortId: comfortBoardId,
+            },
+            include: {
+                member: true,
+            },
+        });
+
+        return mapToComfortAndConsolesDto(board, consoles);
     }
 
     // 상담사가 답변한 위로받기 게시글 조회

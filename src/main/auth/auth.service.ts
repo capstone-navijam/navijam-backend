@@ -180,6 +180,7 @@ export class AuthService {
         const payload = {
             sub: member.id.toString(),
             role: member.role,
+            profile: member.profile,
         };
         const accessToken = this.jwtService.sign(payload, {
             secret: this.configService.get<string>("JWT_SECRET"),

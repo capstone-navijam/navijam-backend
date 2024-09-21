@@ -31,7 +31,7 @@ export class GetComfortBoardDetailResponseDto {
         enum: Category,
         description: "카테고리",
         isArray: true,
-        example: ["FREE",],
+        example: ["자유",],
     })
     readonly categories: Category[];
 
@@ -58,7 +58,7 @@ export class GetComfortBoardDetailResponseDto {
 
     @ApiProperty({
         type: String,
-        description: "Member id",
+        description: "Member Id",
         example: "1",
     })
     readonly memberId: string;

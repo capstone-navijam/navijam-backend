@@ -16,7 +16,7 @@ import {
 import NotFoundBoardException from "@main/exception/not-found.board.exception";
 import {
     GetAllConsoleResponseDto,
-} from "@main/console/dto/res/get-all-console-response.dto";
+} from "@main/console/dto/res/get-all-console.response.dto";
 import {
     getTimestamp,
 } from "@main/util/timestamp.util";

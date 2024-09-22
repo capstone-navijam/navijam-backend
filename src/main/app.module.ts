@@ -28,6 +28,9 @@ import {
 import {
     FileModule,
 } from "@main/file/file.module";
+import {
+    ListenerModule,
+} from "./listener/listener.module";
 
 @Module({
     imports: [
@@ -40,6 +43,7 @@ import {
         ConsoleModule,
         S3Module,
         FileModule,
+        ListenerModule,
     ],
     controllers: [ComfortController,],
     providers: [ComfortService,],

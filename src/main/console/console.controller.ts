@@ -39,7 +39,7 @@ import {
 } from "@main/auth/jwt/roles.guard";
 import {
     GetAllConsoleResponseDto,
-} from "@main/console/dto/res/get-all-console-response.dto";
+} from "@main/console/dto/res/get-all-console.response.dto";
 import {
     UpdateConsoleResponseDto,
 } from "@main/console/dto/res/update-console.response.dto";
@@ -82,6 +82,7 @@ export class ConsoleController {
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles("MEMBER", "LISTENER")
+    @ApiCustomResponseDecorator(GetAllConsoleResponseDto)
     @Get()
     async getAllConsoles(
         @Req() req: AuthenticatedRequest,
@@ -112,6 +113,6 @@ export class ConsoleController {
         const updateConsole = await this.consoleService.updateConsole(consoleId, memberId, member, body);
 
         return new CustomResponse<UpdateConsoleResponseDto>(updateConsole, "답변 수정 성공");
-        
+
     }
 }

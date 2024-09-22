@@ -28,8 +28,8 @@ export class GetComfortBoardDetailResponseDto {
     readonly nickname: string;
 
     @ApiProperty({
-        enum: Category,
         description: "카테고리",
+        enum: Category,
         isArray: true,
         example: ["자유",],
     })

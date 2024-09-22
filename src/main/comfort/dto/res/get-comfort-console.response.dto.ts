@@ -6,7 +6,7 @@ import {
 } from "@main/global/category";
 import {
     GetAllConsoleResponseDto,
-} from "@main/console/dto/res/get-all-console-response.dto";
+} from "@main/console/dto/res/get-all-console.response.dto";
 
 export class GetComfortAndConsolesResponseDto {
     @ApiProperty({
@@ -16,12 +16,10 @@ export class GetComfortAndConsolesResponseDto {
     readonly id: string;
 
     @ApiProperty({
-        description: "위로받기 게시글 주제",
-        example: [Category.FREE,
-            Category.BREAKUP,],
-        required: true,
+        description: "카테고리",
         enum: Category,
         isArray: true,
+        example: ["자유",],
     })
     readonly categories: Category[];
 

@@ -3,7 +3,7 @@ import {
 } from "@main/util/timestamp.util";
 import {
     GetAllConsoleResponseDto,
-} from "@main/console/dto/res/get-all-console-response.dto";
+} from "@main/console/dto/res/get-all-console.response.dto";
 import {
     GetComfortAndConsolesResponseDto,
 } from "@main/comfort/dto/res/get-comfort-console.response.dto";

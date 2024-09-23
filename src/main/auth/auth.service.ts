@@ -173,21 +173,22 @@ export class AuthService {
             throw new NotFoundMemberException();
         }
 
-        if (!await bcrypt.compare(loginRequestDto.password, member.password)) {
+        const isPasswordValid = await bcrypt.compare(loginRequestDto.password, member.password);
+        if (!isPasswordValid) {
             throw new InvalidPasswordException();
         }
 
         const payload = {
             sub: member.id.toString(),
             role: member.role,
-            profile: member.profile,
         };
+
         const accessToken = this.jwtService.sign(payload, {
             secret: this.configService.get<string>("JWT_SECRET"),
         });
 
         return new LoginResponseDto(
-            member.nickname, member.role, member.profile, accessToken
+            member.nickname, member.role, member.profile, accessToken, "Bearer"
         );
     }
 

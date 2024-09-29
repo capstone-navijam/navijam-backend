@@ -27,13 +27,15 @@ model Member {
 }
 
 model ListenerInfo {
-  id          BigInt     @id @default(autoincrement())
-  phoneNumber String?    @map(name: "phone_number") @db.VarChar(50)
-  address     String?    @db.VarChar(50)
-  career      String[]   @db.VarChar(50)
-  description String     @db.VarChar(100)
-  categories  Category[] @default([FREE])
-  Member      Member?
+  id            BigInt     @id @default(autoincrement())
+  phoneNumber   String?    @map(name: "phone_number") @db.VarChar(50)
+  contactNumber String     @map(name: "contact_number") @db.VarChar(50)
+  address       String?    @db.VarChar(50)
+  career        String[]   @db.VarChar(50)
+  education     String[]   @db.VarChar(50)
+  description   String     @db.VarChar(100)
+  categories    Category[] @default([FREE])
+  Member        Member?
 
   @@map("listener_info")
 }

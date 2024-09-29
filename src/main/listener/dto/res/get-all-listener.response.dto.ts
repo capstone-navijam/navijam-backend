@@ -63,6 +63,21 @@ export class GetAllListenerResponseDto {
     })
     readonly email: string;
 
+    @ApiProperty({
+        type: Array,
+        description: "경력",
+        example: ["전문심리상담경력",
+            "정신보건임상심리사 1급",],
+    })
+    readonly career: string[];
+
+    @ApiProperty({
+        type: Array,
+        description: "학력",
+        example: ["XX대학교 심리학과 박사",],
+    })
+    readonly education: string[];
+
     constructor(
         id: string,
         nickname: string,
@@ -72,6 +87,8 @@ export class GetAllListenerResponseDto {
         address: string,
         phoneNumber: string,
         email: string,
+        career: string[],
+        education: string[],
     ) {
         this.id = id;
         this.nickname = nickname;
@@ -81,5 +98,7 @@ export class GetAllListenerResponseDto {
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.email = email;
+        this.career = career;
+        this.education = education;
     }
 }

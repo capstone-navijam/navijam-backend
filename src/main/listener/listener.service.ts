@@ -10,10 +10,6 @@ import {
 import {
     prismaCategoryToCategory,
 } from "@main/global/category";
-import {
-    GetListenerDetailResponseDto,
-} from "@main/listener/dto/res/get-listener-detail.response.dto";
-import NotFoundListenerException from "@main/exception/not-found.listener.exception";
 
 @Injectable()
 export class ListenerService {
@@ -40,34 +36,8 @@ export class ListenerService {
             ) || [];
 
             return new GetAllListenerResponseDto(
-                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.phoneNumber || "", listener.email
+                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.phoneNumber || "", listener.email, listener.listenerInfo?.career || [], listener.listenerInfo?.education || []
             );
         });
-    }
-
-    // 상담사 상세 조회 API
-    async getDetailListener(id: bigint): Promise<GetListenerDetailResponseDto> {
-        const listener = await this.prisma.member.findUnique({
-            where: {
-                id: id,
-            },
-            include: {
-                listenerInfo: true,
-            },
-        });
-
-        if (!listener) {
-            throw new NotFoundListenerException;
-        }
-
-        if (!listener.listenerInfo) {
-            throw new NotFoundListenerException;
-        }
-
-        const categories = listener.listenerInfo!.categories.map(prismaCategoryToCategory);
-
-        return new GetListenerDetailResponseDto(
-            listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.phoneNumber || "", listener.email, listener.listenerInfo?.career || []
-        );
     }
 }

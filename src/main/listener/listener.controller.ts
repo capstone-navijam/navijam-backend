@@ -15,12 +15,6 @@ import {
     GetAllListenerResponseDto,
 } from "@main/listener/dto/res/get-all-listener.response.dto";
 import CustomResponse from "@main/response/custom-response";
-import {
-    GetListenerDetailResponseDto,
-} from "@main/listener/dto/res/get-listener-detail.response.dto";
-import {
-    ParseBigIntPipe,
-} from "@main/auth/pipe/parse-bigint.pipe";
 
 @ApiTags("상담사 리스트")
 @Controller("/listener")
@@ -39,19 +33,5 @@ export class ListenerController {
         const data = await this.listenerService.getAllListener();
 
         return new CustomResponse<GetAllListenerResponseDto[]>(data, "상담사 전체 조회 성공");
-    }
-
-    // 상담사 상세 조회 API
-    @ApiOperation({
-        summary: "상담사 상세 조회 API",
-    })
-    @ApiCustomResponseDecorator(GetListenerDetailResponseDto)
-    @Get("/:listenerId")
-    async getDetailListener(
-        @Param("listenerId", ParseBigIntPipe) id: bigint,
-    ): Promise<CustomResponse<GetListenerDetailResponseDto>> {
-        const data = await this.listenerService.getDetailListener(id);
-
-        return new CustomResponse<GetListenerDetailResponseDto>(data, "상담사 상세 조회 성공");
     }
 }

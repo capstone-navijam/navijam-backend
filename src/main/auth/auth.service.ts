@@ -140,10 +140,12 @@ export class AuthService {
         const listenerInfo: ListenerInfo = await this.prisma.listenerInfo.create({
             data: {
                 phoneNumber: signupListenerRequestDto.phoneNumber,
+                contactNumber: signupListenerRequestDto.contactNumber,
                 address: signupListenerRequestDto.address,
                 career: signupListenerRequestDto.career,
+                education: signupListenerRequestDto.education,
                 description: signupListenerRequestDto.description,
-                categories: prismaCategories, // 변환된 카테고리를 사용
+                categories: prismaCategories,
             },
         });
 

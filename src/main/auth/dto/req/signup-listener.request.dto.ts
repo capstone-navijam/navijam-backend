@@ -95,6 +95,20 @@ export class SignupListenerRequestDto {
     career: string[];
 
     @ApiProperty({
+        description: "학력",
+        required: true,
+    })
+    @IsArray()
+    @ArrayMaxSize(20, {
+        message: "학력은 최대 20개까지 입력할 수 있습니다.",
+    })
+    @Matches(/^[\s\w\d가-힣]{1,30}$/, {
+        each: true,
+        message: "학력은 한글, 영문, 숫자, 공백만 허용되며, 최대 30글자까지 입력할 수 있습니다.",
+    })
+    education: string[];
+
+    @ApiProperty({
         description: "한 줄 소개",
         required: true,
     })
@@ -112,6 +126,15 @@ export class SignupListenerRequestDto {
         message: "전화번호는 '010-1234-5678' 형식으로 입력해주세요.",
     })
     phoneNumber?: string;
+
+    @ApiProperty({
+        description: "센터 번호",
+        required: true,
+    })
+    @Matches(/^\d{2,3}-\d{3,4}-\d{4}$/, {
+        message: "전화번호는 '지역번호-국번-번호' 형식으로 입력해주세요. (예: 02-1234-5678 또는 031-123-4567)",
+    })
+    contactNumber: string;
 
     @ApiProperty({
         description: "카테고리",

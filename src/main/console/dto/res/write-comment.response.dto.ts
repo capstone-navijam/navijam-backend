@@ -2,9 +2,9 @@ import {
     ApiProperty,
 } from "@nestjs/swagger";
 
-export class WriteConsoleResponseDto {
+export class WriteCommentResponseDto {
     @ApiProperty({
-        description: "Console Id",
+        description: "Comment Id",
         type: String,
         example: "1",
     })

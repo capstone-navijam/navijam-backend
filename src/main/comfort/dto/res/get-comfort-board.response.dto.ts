@@ -18,13 +18,13 @@ export class GetComfortBoardResponseDto {
     readonly title: string;
 
     @ApiProperty({
-        type: Date,
+        type: String,
         description: "게시글 작성 시간",
         example: "2024-01-02T16:06:20.43672",
     })
-    readonly createdAt: Date;
+    readonly createdAt: string;
 
-    constructor(id: string, title: string, createdAt: Date) {
+    constructor(id: string, title: string, createdAt: string) {
         this.id = id;
         this.title = title;
         this.createdAt = createdAt;

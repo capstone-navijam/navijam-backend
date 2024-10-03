@@ -1,5 +1,5 @@
 import {
-    Controller, Get, Param,
+    Controller, Get,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -17,7 +17,7 @@ import {
 import CustomResponse from "@main/response/custom-response";
 
 @ApiTags("상담사 리스트")
-@Controller("/listener")
+@Controller("/listeners")
 
 export class ListenerController {
     constructor(private readonly listenerService: ListenerService) {

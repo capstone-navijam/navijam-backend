@@ -59,11 +59,11 @@ export class GetAllComfortBoardResponseDto {
     readonly writerNickname: string;
 
     @ApiProperty({
-        type: Date,
+        type: String,
         description: "게시글 작성 시간",
         example: "2024-01-02T16:06:20.43672",
     })
-    readonly createdAt: Date;
+    readonly createdAt: string;
 
     @ApiProperty({
         type: Boolean,
@@ -72,9 +72,9 @@ export class GetAllComfortBoardResponseDto {
     })
     readonly isAnswered: boolean;
 
-    constructor(id: string, categories: Category[],  title: string, content: string,
+    constructor(id: string, categories: Category[], title: string, content: string,
         writerId: string, writerProfile: string, writerNickname: string,
-        createdAt: Date, isAnswered: boolean) {
+        createdAt: string, isAnswered: boolean) {
         this.id = id;
         this.categories = categories;
         this.title = title;

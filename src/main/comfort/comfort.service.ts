@@ -1,4 +1,5 @@
 import {
+    ForbiddenException,
     Injectable,
 } from "@nestjs/common";
 import {
@@ -31,13 +32,14 @@ import {
     GetAllComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-all-comfort-board.response.dto";
 import {
+    getFormattedTimestamp,
     getTimestamp,
 } from "@main/util/timestamp.util";
 import {
     GetAnsweredComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-answered-comfort-board.response.dto";
 import {
-    filterUniqueComfortBoards,
+    filterUniqueComfortBoards, getComfortBoardById,
 } from "@main/util/comfort-board.utils";
 import {
     GetComfortAndConsolesResponseDto,
@@ -81,8 +83,10 @@ export class ComfortService {
 
             const hasAnswer = board.consoles.some(console => console.memberId === memberId);
 
+            const timestamp = getTimestamp(board.createdAt, board.updatedAt);
+
             return new GetAllComfortBoardResponseDto(
-                board.id.toString(), categories, board.title, board.content, board.member!.id.toString(), board.member!.profile, board.member!.nickname, board.createdAt, hasAnswer
+                board.id.toString(), categories, board.title, board.content, board.member!.id.toString(), board.member!.profile, board.member!.nickname, timestamp, hasAnswer
             );
         });
     }
@@ -98,9 +102,11 @@ export class ComfortService {
             },
         });
 
-        return boards.map(board => new GetComfortBoardResponseDto(
-            board.id.toString(), board.title, board.createdAt,
-        ));
+        return boards.map((board) => {
+            const timestamp = getTimestamp(board.createdAt, board.updatedAt);
+
+            return new GetComfortBoardResponseDto(board.id.toString(), board.title, timestamp);
+        });
     }
 
     // 위로받기 상세 조회
@@ -200,5 +206,40 @@ export class ComfortService {
         });
 
         return new UpdateComfortBoardResponseDto(updatedBoard.id.toString());
+    }
+
+    // 위로받기 삭제
+    async deleteComfortBoard(comfortBoardId: bigint, member: Member): Promise<void> {
+        const comfortBoard = await getComfortBoardById(this.prisma, comfortBoardId);
+
+        if(!comfortBoard) {
+            throw new NotFoundBoardException;
+        }
+
+        if(comfortBoard.memberId !== member.id) {
+            throw new ForbiddenException;
+        }
+
+        await this.prisma.$transaction(async (prisma) => {
+            await prisma.consoleComment.deleteMany({
+                where: {
+                    console: {
+                        comfortId: comfortBoardId,
+                    },
+                },
+            });
+
+            await prisma.console.deleteMany({
+                where: {
+                    comfortId: comfortBoardId,
+                },
+            });
+
+            await prisma.comfortBoard.delete({
+                where: {
+                    id: comfortBoardId,
+                },
+            });
+        });
     }
 }

@@ -4,6 +4,10 @@ import {
 import {
     prismaCategoryToCategory,
 } from "@main/global/category";
+import {
+    PrismaClient,
+} from "@prisma/client";
+import NotFoundBoardException from "@main/exception/not-found.board.exception";
 
 export function filterUniqueComfortBoards(consoles: any[]): GetAnsweredComfortBoardResponseDto[] {
     const uniqueComfortsBoards = new Map<string, GetAnsweredComfortBoardResponseDto>();
@@ -21,4 +25,22 @@ export function filterUniqueComfortBoards(consoles: any[]): GetAnsweredComfortBo
     });
 
     return Array.from(uniqueComfortsBoards.values());
+}
+
+export async function getComfortBoardById(prisma: PrismaClient, comfortBoardId: bigint) {
+    const comfortBoard = await prisma.comfortBoard.findUnique({
+        where: {
+            id: comfortBoardId,
+        },
+        include: {
+            member: true,
+            consoles: true,
+        },
+    });
+
+    if(!comfortBoard) {
+        throw new NotFoundBoardException;
+    }
+
+    return comfortBoard;
 }

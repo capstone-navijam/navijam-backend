@@ -18,6 +18,7 @@ import {
     GetAllConsoleResponseDto,
 } from "@main/console/dto/res/get-all-console.response.dto";
 import {
+    getFormattedTimestamp,
     getTimestamp,
 } from "@main/util/timestamp.util";
 import {
@@ -27,6 +28,16 @@ import {
     UpdateConsoleResponseDto,
 } from "@main/console/dto/res/update-console.response.dto";
 import NotFoundConsoleException from "@main/exception/not-found.console.exception";
+import {
+    WriteCommentRequestDto,
+} from "@main/console/dto/req/write-comment.request.dto";
+import {
+    WriteCommentResponseDto,
+} from "@main/console/dto/res/write-comment.response.dto";
+import {
+    GetAllCommentResponseDto,
+} from "@main/console/dto/res/get-all-comment.response.dto";
+import NotFoundCommentException from "@main/exception/not-found.comment.exception";
 
 @Injectable()
 export class ConsoleService {
@@ -75,7 +86,31 @@ export class ConsoleService {
         });
     }
 
-    // 위로하기 전체 조회 API
+    // 위로하기 댓글 작성
+    async writeComment(consoleId: bigint, body: WriteCommentRequestDto, member: Member): Promise<WriteCommentResponseDto> {
+        const console = await this.prisma.console.findUnique({
+            where: {
+                id: consoleId,
+            },
+        });
+
+        if (!console) {
+            throw new NotFoundConsoleException;
+        }
+
+        const comment = await this.prisma.consoleComment.create({
+            data: {
+                content: body.content,
+                memberId: BigInt(member.id),
+                consoleId: BigInt(console.id),
+            },
+        });
+
+        return new WriteCommentResponseDto(comment.id.toString(),);
+
+    }
+
+    // 위로하기 전체 조회
     async getAllConsoles(member: Member, comfortBoardId: bigint): Promise<GetAllConsoleResponseDto[]> {
         const comfortBoard = await this.getComfortBoardById(comfortBoardId);
 
@@ -106,7 +141,41 @@ export class ConsoleService {
         });
     }
 
-    // 위로하기 수정 API
+    // 위로하기 댓글 전체 조회
+    async getAllComments(member: Member, consoleId: bigint): Promise<GetAllCommentResponseDto[]> {
+        const console = await this.prisma.console.findUnique({
+            where: {
+                id: consoleId,
+            },
+        });
+
+        if (!console) {
+            throw new NotFoundConsoleException;
+        }
+
+        const comments = await this.prisma.consoleComment.findMany({
+            where: {
+                consoleId: consoleId,
+            },
+            include: {
+                member: true,
+            },
+        });
+
+        return comments.map(comment => {
+            const timestamp = getTimestamp(comment.createdAt);
+
+            const memberId = comment.member?.id?.toString();
+            const nickName = comment.member?.nickname?.toString();
+
+            return new GetAllCommentResponseDto(
+                comment.id.toString(), nickName || "", comment.content, timestamp, memberId || "", consoleId.toString(),
+            );
+        });
+
+    }
+
+    // 위로하기 수정
     async updateConsole(id: bigint, memberId: bigint, member: Member, updateConsoleRequestDto: UpdateConsoleRequestDto): Promise<UpdateConsoleResponseDto> {
 
         const console = await this.prisma.console.findFirst({
@@ -120,7 +189,7 @@ export class ConsoleService {
         }
 
         if (console.memberId !== memberId && member.role !== Role.LISTENER) {
-            throw new ForbiddenException("접근 권한이 없습니다.");
+            throw new ForbiddenException;
         }
 
         const updatedConsole = await this.prisma.console.update({
@@ -138,4 +207,60 @@ export class ConsoleService {
 
         return new UpdateConsoleResponseDto(updatedConsole.id.toString());
     }
+
+    // 위로하기 삭제
+    async deleteConsole(consoleId: bigint, member: Member): Promise<void> {
+        const console = await this.prisma.console.findUnique({
+            where: {
+                id: consoleId,
+            },
+        });
+
+        if (!console) {
+            throw new NotFoundConsoleException;
+        }
+
+        if (console.memberId !== member.id) {
+            throw new ForbiddenException;
+        }
+
+        await this.prisma.$transaction(async (prisma) => {
+            await prisma.consoleComment.deleteMany({
+                where: {
+                    consoleId: consoleId,
+                },
+            });
+
+            await prisma.console.delete({
+                where: {
+                    id: consoleId,
+                },
+            });
+        });
+    }
+
+    // 위로하기 댓글 삭제
+    async deleteComment(commentId: bigint, member: Member): Promise<void> {
+        const comment = await this.prisma.consoleComment.findUnique({
+            where: {
+                id: commentId,
+            },
+        });
+
+        if (!comment) {
+            throw new NotFoundCommentException;
+        }
+
+        if (comment.memberId !== member.id) {
+            throw new ForbiddenException;
+        }
+
+        await this.prisma.consoleComment.delete({
+            where: {
+                id: commentId,
+            },
+        });
+
+    }
+
 }

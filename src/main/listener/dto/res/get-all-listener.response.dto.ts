@@ -51,10 +51,10 @@ export class GetAllListenerResponseDto {
 
     @ApiProperty({
         type: String,
-        description: "전화번호",
-        example: "010-1234-5678",
+        description: "센터 번호",
+        example: "02-1234-5678",
     })
-    readonly phoneNumber: string;
+    readonly contactNumber: string;
 
     @ApiProperty({
         type: String,
@@ -85,7 +85,7 @@ export class GetAllListenerResponseDto {
         categories: Category[],
         description: string,
         address: string,
-        phoneNumber: string,
+        contactNumber: string,
         email: string,
         career: string[],
         education: string[],
@@ -96,7 +96,7 @@ export class GetAllListenerResponseDto {
         this.categories = categories;
         this.description = description;
         this.address = address;
-        this.phoneNumber = phoneNumber;
+        this.contactNumber = contactNumber;
         this.email = email;
         this.career = career;
         this.education = education;

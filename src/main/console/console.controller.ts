@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Param, Patch, Post, Query, Req, UseFilters, UseGuards,
+    Controller, Delete, Get, Param, Patch, Post, Query, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -49,6 +49,15 @@ import {
 import {
     CustomForbiddenExceptionFilter,
 } from "@main/filter/custom-forbidden-exception.filters";
+import {
+    WriteCommentResponseDto,
+} from "@main/console/dto/res/write-comment.response.dto";
+import {
+    WriteCommentRequestDto,
+} from "@main/console/dto/req/write-comment.request.dto";
+import {
+    GetAllCommentResponseDto,
+} from "@main/console/dto/res/get-all-comment.response.dto";
 
 @ApiTags("위로하기")
 @Controller("/consoles")
@@ -76,6 +85,25 @@ export class ConsoleController {
         return new CustomResponse<WriteConsoleResponseDto>(data, "답변 등록 성공");
     }
 
+    // 위로하기 댓글 작성 API
+    @ApiOperation({
+        summary: "위로하기 댓글 작성 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("MEMBER", "LISTENER")
+    @ApiCustomResponseDecorator(WriteCommentResponseDto)
+    @Post("/:consoleId/comments")
+    async writeComment(
+        @Param("consoleId", ParseBigIntPipe) consoleId: bigint,
+        @Body() body: WriteCommentRequestDto,
+        @Req() req: AuthenticatedRequest,
+    ): Promise<CustomResponse<WriteCommentResponseDto>> {
+        const member = req.member;
+        const data: WriteCommentResponseDto = await this.consoleService.writeComment(consoleId, body, member);
+
+        return new CustomResponse<WriteCommentResponseDto>(data, "댓글 등록 성공");
+    }
+
     // 위로하기 전체 조회 API
     @ApiOperation({
         summary: "위로하기 전체 조회 API",
@@ -92,6 +120,24 @@ export class ConsoleController {
         const data = await this.consoleService.getAllConsoles(member, comfortBoardId);
 
         return new CustomResponse<GetAllConsoleResponseDto[]>(data, "위로하기 전체 조회 성공");
+    }
+
+    // 위로하기 댓글 전체 조회 API
+    @ApiOperation({
+        summary: "위로하기 댓글 전체 조회 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("MEMBER", "LISTENER")
+    @ApiCustomResponseDecorator(GetAllCommentResponseDto)
+    @Get("/:consoleId/comments")
+    async getAllComments(
+        @Req() req: AuthenticatedRequest,
+        @Param("consoleId", ParseBigIntPipe) consoleId: bigint,
+    ): Promise<CustomResponse<GetAllCommentResponseDto[]>> {
+        const member = req.member;
+        const comments = await this.consoleService.getAllComments(member, consoleId);
+
+        return new CustomResponse<GetAllCommentResponseDto[]>(comments, "댓글 조회 성공");
     }
 
     // 위로하기 수정 API
@@ -115,4 +161,41 @@ export class ConsoleController {
         return new CustomResponse<UpdateConsoleResponseDto>(updateConsole, "답변 수정 성공");
 
     }
+
+    // 위로하기 삭제 API
+    @ApiOperation({
+        summary: "위로하기 삭제 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("LISTENER")
+    @Delete("/:consoleId")
+    async deleteConsole(
+        @Param("consoleId", ParseBigIntPipe) consoleId: bigint,
+        @Req() req: AuthenticatedRequest
+    ): Promise<CustomResponse<void>> {
+        const member = req.member;
+
+        await this.consoleService.deleteConsole(consoleId, member);
+
+        return new CustomResponse<void>(undefined, "위로하기 삭제 성공");
+    }
+
+    // 위로하기 댓글 삭제 API
+    @ApiOperation({
+        summary: "위로하기 댓글 삭제 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("MEMBER", "LISTENER")
+    @Delete("/:commentId/comments")
+    async deleteComment(
+        @Param("commentId", ParseBigIntPipe) commentId: bigint,
+        @Req() req: AuthenticatedRequest
+    ): Promise<CustomResponse<void>> {
+        const member = req.member;
+
+        await this.consoleService.deleteComment(commentId, member);
+
+        return new CustomResponse<void>(undefined, "위로하기 댓글 삭제 성공");
+    }
+
 }

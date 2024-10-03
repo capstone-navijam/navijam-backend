@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Param, Patch, Post, Req, UseFilters, UseGuards,
+    Controller, Delete, Get, Param, Patch, Post, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -167,5 +167,22 @@ export class ComfortController {
         const updateBoard = await this.comfortService.updateBoard(comfortBoardId, memberId, body);
 
         return new CustomResponse<UpdateComfortBoardResponseDto>(updateBoard, "게시글 수정 성공");
+    }
+
+    // 위로받기 삭제 API
+    @ApiOperation({
+        summary: "위로받기 삭제 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles("MEMBER")
+    @Delete("/:comfortBoardId")
+    async deleteComfortBoard(
+        @Param("comfortBoardId", ParseBigIntPipe) comfortBoardId: bigint,
+        @Req() req: AuthenticatedRequest
+    ): Promise<CustomResponse<void>> {
+        const member = req.member;
+        await this.comfortService.deleteComfortBoard(comfortBoardId, member);
+
+        return new CustomResponse<void>(undefined, "위로받기 삭제 성공");
     }
 }

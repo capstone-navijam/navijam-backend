@@ -4,7 +4,7 @@ import {
 
 export class WriteConsoleResponseDto {
     @ApiProperty({
-        description: "Console id",
+        description: "Console Id",
         type: String,
         example: "1",
     })

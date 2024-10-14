@@ -55,8 +55,8 @@ export class WriteComfortBoardRequestDto {
         message: "카테고리를 선택해주세요.",
     }
     )
-    @ArrayMaxSize(10, {
-        message: "카테고리는 최대 10개까지 선택 가능합니다.",
+    @ArrayMaxSize(3, {
+        message: "카테고리는 최대 3개까지 선택 가능합니다.",
     })
     @ArrayNotEmpty({
         message: "카테고리는 적어도 하나 이상 선택해야 합니다.",

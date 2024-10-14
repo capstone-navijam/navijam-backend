@@ -35,17 +35,25 @@ export class GetAllCommentResponseDto {
 
     @ApiProperty({
         type: String,
+        description: "Member Id",
+        example: "1",
+    })
+    readonly memberId: string;
+
+    @ApiProperty({
+        type: String,
         description: "Console Id",
         example: "1",
     })
     readonly consoleId: string;
 
-    constructor(id: string, nickname: string, profile: string, content: string, timestamp: string, consoleId: string) {
+    constructor(id: string, nickname: string, profile: string, content: string, timestamp: string, memberId: string, consoleId: string) {
         this.id = id;
         this.nickname = nickname;
         this.profile = profile;
         this.content = content;
         this.timestamp = timestamp;
+        this.memberId = memberId;
         this.consoleId = consoleId;
     }
 }

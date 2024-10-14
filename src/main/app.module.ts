@@ -31,6 +31,12 @@ import {
 import {
     ListenerModule,
 } from "./listener/listener.module";
+import {
+    CommunityService, 
+} from "./community/community.service";
+import {
+    CommunityModule, 
+} from "./community/community.module";
 
 @Module({
     imports: [
@@ -44,9 +50,11 @@ import {
         S3Module,
         FileModule,
         ListenerModule,
+        CommunityModule,
     ],
     controllers: [ComfortController,],
-    providers: [ComfortService,],
+    providers: [ComfortService,
+        CommunityService,],
 })
 export class AppModule {
 }

@@ -32,7 +32,6 @@ import {
     GetAllComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-all-comfort-board.response.dto";
 import {
-    getFormattedTimestamp,
     getTimestamp,
 } from "@main/util/timestamp.util";
 import {
@@ -54,13 +53,13 @@ export class ComfortService {
     }
 
     // 위로받기 작성
-    async writeBoard(writeComfortBoardRequestDto: WriteComfortBoardRequestDto, member: Member): Promise<WriteComfortBoardResponseDto> {
+    async writeBoard(body: WriteComfortBoardRequestDto, member: Member): Promise<WriteComfortBoardResponseDto> {
 
         const board: ComfortBoard = await this.prisma.comfortBoard.create({
             data: {
-                title: writeComfortBoardRequestDto.title,
-                content: writeComfortBoardRequestDto.content,
-                categories: writeComfortBoardRequestDto.category.map(category => categoryMap[category.toString()]),
+                title: body.title,
+                content: body.content,
+                categories: body.category.map(category => categoryMap[category.toString()]),
                 memberId: BigInt(member.id),
             },
         });

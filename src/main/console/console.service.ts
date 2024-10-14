@@ -18,7 +18,6 @@ import {
     GetAllConsoleResponseDto,
 } from "@main/console/dto/res/get-all-console.response.dto";
 import {
-    getFormattedTimestamp,
     getTimestamp,
 } from "@main/util/timestamp.util";
 import {
@@ -166,10 +165,11 @@ export class ConsoleService {
             const timestamp = getTimestamp(comment.createdAt);
 
             const memberId = comment.member?.id?.toString();
+            const profile = comment.member?.profile?.toString();
             const nickName = comment.member?.nickname?.toString();
 
             return new GetAllCommentResponseDto(
-                comment.id.toString(), nickName || "", comment.content, timestamp, memberId || "", consoleId.toString(),
+                comment.id.toString(), nickName || "", profile || "", comment.content, timestamp, memberId || "", consoleId.toString(),
             );
         });
 

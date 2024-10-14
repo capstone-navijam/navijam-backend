@@ -86,6 +86,7 @@ model CommunityBoard {
   id                BigInt             @id @default(autoincrement())
   title             String             @db.VarChar(50)
   content           String
+  categories        Category[]         @default([FREE])
   createdAt         DateTime           @default(now()) @map(name: "created_at")
   updatedAt         DateTime           @updatedAt @map(name: "updated_at")
   memberId          BigInt?            @map(name: "member_id")

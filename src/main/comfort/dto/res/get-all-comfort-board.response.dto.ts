@@ -72,9 +72,17 @@ export class GetAllComfortBoardResponseDto {
     })
     readonly isAnswered: boolean;
 
-    constructor(id: string, categories: Category[], title: string, content: string,
-        writerId: string, writerProfile: string, writerNickname: string,
-        createdAt: string, isAnswered: boolean) {
+    constructor(
+        id: string,
+        categories: Category[],
+        title: string,
+        content: string,
+        writerId: string,
+        writerProfile: string,
+        writerNickname: string,
+        createdAt: string,
+        isAnswered: boolean
+    ) {
         this.id = id;
         this.categories = categories;
         this.title = title;

@@ -164,12 +164,8 @@ export class ConsoleService {
         return comments.map(comment => {
             const timestamp = getTimestamp(comment.createdAt);
 
-            const memberId = comment.member?.id?.toString();
-            const profile = comment.member?.profile?.toString();
-            const nickName = comment.member?.nickname?.toString();
-
             return new GetAllCommentResponseDto(
-                comment.id.toString(), nickName || "", profile || "", comment.content, timestamp, memberId || "", consoleId.toString(),
+                comment.id.toString(), comment.member?.nickname?.toString() || "", comment.member?.profile?.toString() || "", comment.content, timestamp, comment.member?.id?.toString() || "", consoleId.toString(),
             );
         });
 

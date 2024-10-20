@@ -128,7 +128,7 @@ export class ComfortService {
         const categories = board.categories.map(prismaCategoryToCategory);
 
         return new GetComfortBoardDetailResponseDto(
-            board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "Unknown", timestamp,
+            board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp,
         );
     }
 
@@ -177,7 +177,7 @@ export class ComfortService {
     }
 
     // 위로받기 수정
-    async updateBoard(comfortBoardId: bigint, memberId: bigint, updateComfortBoardRequestDto: UpdateComfortBoardRequestDto): Promise<UpdateComfortBoardResponseDto> {
+    async updateBoard(comfortBoardId: bigint, memberId: bigint, body: UpdateComfortBoardRequestDto): Promise<UpdateComfortBoardResponseDto> {
 
         const board = await this.prisma.comfortBoard.findFirst({
             where: {
@@ -195,8 +195,8 @@ export class ComfortService {
                 id: comfortBoardId,
             },
             data: {
-                title: updateComfortBoardRequestDto.title,
-                content: updateComfortBoardRequestDto.content,
+                title: body.title,
+                content: body.content,
                 updatedAt: new Date(),
             },
             include: {

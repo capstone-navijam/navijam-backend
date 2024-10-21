@@ -39,20 +39,6 @@ export class GetAllCommunityBoardResponseDto {
 
     @ApiProperty({
         type: String,
-        description: "커뮤니티 제목",
-        example: "조언 부탁드립니다.",
-    })
-    readonly title: string;
-
-    @ApiProperty({
-        type: String,
-        description: "커뮤니티 내용",
-        example: "조언 부탁드립니다.",
-    })
-    readonly content: string;
-
-    @ApiProperty({
-        type: String,
         description: "작성 또는 수정된 시간",
         example: "2024. 10. 03. 오후 06:56:15",
     })
@@ -70,8 +56,6 @@ export class GetAllCommunityBoardResponseDto {
         profile: string,
         nickname: string,
         categories: Category[],
-        title: string,
-        content: string,
         timestamp: string,
         memberId: string
     ) {
@@ -79,8 +63,6 @@ export class GetAllCommunityBoardResponseDto {
         this.profile = profile;
         this.nickname = nickname;
         this.categories = categories;
-        this.title = title;
-        this.content = content;
         this.timestamp = timestamp;
         this.memberId = memberId;
     }

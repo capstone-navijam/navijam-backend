@@ -1,4 +1,5 @@
 import {
+    ForbiddenException,
     Injectable,
 } from "@nestjs/common";
 import {
@@ -25,6 +26,12 @@ import {
 import {
     GetAllCommunityBoardResponseDto,
 } from "@main/community/dto/res/get-all-community-board.response.dto";
+import {
+    UpdateCommunityBoardRequestDto,
+} from "@main/community/dto/req/update-community-board.request.dto";
+import {
+    UpdateCommunityBoardResponseDto,
+} from "@main/community/dto/res/update-community-board.response.dto";
 
 @Injectable()
 export class CommunityService {
@@ -55,17 +62,12 @@ export class CommunityService {
         });
 
         return boards.map((board) => {
-
             const categories = board.categories.map(prismaCategoryToCategory);
 
-            const memberProfile = board.member?.profile || "";
-            const memberNickname = board.member?.nickname || "";
-            const memberId = board.member?.id?.toString() || "";
-
             const timestamp = getTimestamp(board.createdAt, board.updatedAt);
-            
+
             return new GetAllCommunityBoardResponseDto(
-                board.id.toString(), memberProfile, memberNickname, categories, board.title, board.content, timestamp, memberId
+                board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.memberId?.toString() || "", timestamp
             );
         });
     }
@@ -92,5 +94,61 @@ export class CommunityService {
         return new GetCommunityBoardDetailResponseDto(
             board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp,
         );
+    }
+
+    // 커뮤니티 수정
+    async updateCommunity(communityBoardId: bigint, memberId: bigint, body: UpdateCommunityBoardRequestDto): Promise<UpdateCommunityBoardResponseDto> {
+        const board = await this.prisma.communityBoard.findFirst({
+            where: {
+                id: communityBoardId,
+                memberId,
+            },
+        });
+
+        if (!board) {
+            throw new NotFoundBoardException;
+        }
+
+        const updatedBoard = await this.prisma.communityBoard.update({
+            where: {
+                id: communityBoardId,
+            },
+            data: {
+                title: body.title,
+                content: body.content,
+                updatedAt: new Date(),
+            },
+            include: {
+                member: true,
+            },
+        });
+
+        return new UpdateCommunityBoardResponseDto(updatedBoard.id.toString());
+    }
+
+    // 커뮤니티 게시글 삭제
+    async deleteCommunity(communityBoardId: bigint, member: Member): Promise<void> {
+        const board = await this.prisma.communityBoard.findUnique({
+            where: {
+                id: communityBoardId,
+            },
+        });
+
+        if (!board) {
+            throw new NotFoundBoardException();
+        }
+
+        if (board.memberId !== member.id) {
+            throw new ForbiddenException;
+        }
+
+        await this.prisma.$transaction(async (prisma) => {
+
+            await prisma.communityBoard.delete({
+                where: {
+                    id: communityBoardId,
+                },
+            });
+        });
     }
 }

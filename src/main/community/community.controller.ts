@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Get, Param, Post, Req, UseFilters, UseGuards,
+    Controller, Delete, Get, Param, Patch, Post, Put, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -40,6 +40,12 @@ import {
 import {
     GetAllCommunityBoardResponseDto,
 } from "@main/community/dto/res/get-all-community-board.response.dto";
+import {
+    UpdateCommunityBoardResponseDto,
+} from "@main/community/dto/res/update-community-board.response.dto";
+import {
+    UpdateCommunityBoardRequestDto,
+} from "@main/community/dto/req/update-community-board.request.dto";
 
 @ApiTags("커뮤니티")
 @Controller("/community")
@@ -72,8 +78,7 @@ export class CommunityController {
     })
     @ApiCustomResponseDecorator(GetAllCommunityBoardResponseDto)
     @Get()
-    async getAllBoards(
-    ): Promise<CustomResponse<GetAllCommunityBoardResponseDto[]>> {
+    async getAllBoards(): Promise<CustomResponse<GetAllCommunityBoardResponseDto[]>> {
 
         const data = await this.communityService.getAllCommunity();
 
@@ -94,5 +99,36 @@ export class CommunityController {
     }
 
     // 커뮤니티 수정 API
+    @ApiOperation({
+        summary: "커뮤니티 수정 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @ApiCustomResponseDecorator(UpdateCommunityBoardResponseDto)
+    @Patch("/:communityBoardId")
+    async updateBoard(
+        @Req() req: AuthenticatedRequest,
+        @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint,
+        @Body() body: UpdateCommunityBoardRequestDto,
+    ): Promise<CustomResponse<UpdateCommunityBoardResponseDto>> {
+        const memberId = BigInt(req.member.id);
+        const updateBoard = await this.communityService.updateCommunity(communityBoardId, memberId, body);
 
+        return new CustomResponse<UpdateCommunityBoardResponseDto>(updateBoard, "게시글 수정 성공");
+    }
+
+    // 커뮤니티 삭제 API
+    @ApiOperation({
+        summary: "커뮤니티 삭제 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @Delete("/:communityBoardId")
+    async deleteCommunity(
+        @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint,
+        @Req() req: AuthenticatedRequest,
+    ): Promise<CustomResponse<void>> {
+        const member = req.member;
+        await this.communityService.deleteCommunity(communityBoardId, member);
+
+        return new CustomResponse<void>(undefined, "위로받기 삭제 성공");
+    }
 };

@@ -38,7 +38,7 @@ import {
     GetAnsweredComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-answered-comfort-board.response.dto";
 import {
-    filterUniqueComfortBoards, getComfortBoardById,
+    filterUniqueComfortBoards,
 } from "@main/util/comfort-board.utils";
 import {
     GetComfortAndConsolesResponseDto,
@@ -209,13 +209,17 @@ export class ComfortService {
 
     // 위로받기 삭제
     async deleteComfortBoard(comfortBoardId: bigint, member: Member): Promise<void> {
-        const comfortBoard = await getComfortBoardById(this.prisma, comfortBoardId);
+        const comfortBoard = await this.prisma.comfortBoard.findUnique({
+            where: {
+                id: comfortBoardId,
+            },
+        });
 
-        if(!comfortBoard) {
+        if (!comfortBoard) {
             throw new NotFoundBoardException;
         }
 
-        if(comfortBoard.memberId !== member.id) {
+        if (comfortBoard.memberId !== member.id) {
             throw new ForbiddenException;
         }
 

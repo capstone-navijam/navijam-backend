@@ -154,7 +154,7 @@ export class ConsoleService {
 
         const comments = await this.prisma.consoleComment.findMany({
             where: {
-                consoleId: consoleId,
+                id: consoleId,
             },
             include: {
                 member: true,
@@ -223,7 +223,7 @@ export class ConsoleService {
         await this.prisma.$transaction(async (prisma) => {
             await prisma.consoleComment.deleteMany({
                 where: {
-                    consoleId: consoleId,
+                    id: consoleId,
                 },
             });
 

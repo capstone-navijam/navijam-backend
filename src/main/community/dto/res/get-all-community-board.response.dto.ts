@@ -16,7 +16,7 @@ export class GetAllCommunityBoardResponseDto {
     @ApiProperty({
         type: String,
         description: "작성자 프로필",
-        example: "http://profile.com/profile1.jpg",
+        example: "https://example.com",
     })
     readonly profile: string;
 
@@ -29,16 +29,28 @@ export class GetAllCommunityBoardResponseDto {
 
     @ApiProperty({
         description: "카테고리",
-        example: [Category.FREE,
-            Category.BREAKUP,],
-        required: true,
         enum: Category,
         isArray: true,
+        example: ["자유",],
     })
     readonly categories: Category[];
 
     @ApiProperty({
         type: String,
+        description: "커뮤니티 제목",
+        example: "조언 부탁드립니다.",
+    })
+    readonly title: string;
+
+    @ApiProperty({
+        type: String,
+        description: "커뮤니티 내용",
+        example: "요즘 너무 지치는 일들이 많아 스트레스입니다.",
+    })
+    readonly content: string;
+
+    @ApiProperty({
+        type: Date,
         description: "작성 또는 수정된 시간",
         example: "2024. 10. 03. 오후 06:56:15",
     })
@@ -56,14 +68,18 @@ export class GetAllCommunityBoardResponseDto {
         profile: string,
         nickname: string,
         categories: Category[],
+        title: string,
+        content: string,
+        memberId: string,
         timestamp: string,
-        memberId: string
     ) {
         this.id = id;
         this.profile = profile;
         this.nickname = nickname;
         this.categories = categories;
-        this.timestamp = timestamp;
+        this.title = title;
+        this.content = content;
         this.memberId = memberId;
+        this.timestamp = timestamp;
     }
 }

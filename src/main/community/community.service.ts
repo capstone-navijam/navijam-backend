@@ -5,7 +5,6 @@ import {
 import {
     Member,
     PrismaClient,
-    CommunityBoard,
 } from "@prisma/client";
 import {
     WriteCommunityBoardRequestDto,
@@ -32,6 +31,16 @@ import {
 import {
     UpdateCommunityBoardResponseDto,
 } from "@main/community/dto/res/update-community-board.response.dto";
+import {
+    WriteCommunityCommentRequestDto,
+} from "@main/community/dto/req/write-community-comment.request.dto";
+import {
+    WriteCommunityCommentResponseDto,
+} from "@main/community/dto/res/write-community-comment.response.dto";
+import {
+    GetAllCommunityCommentResponseDto,
+} from "@main/community/dto/res/get-all-community-comment.response.dto";
+import NotFoundCommentException from "@main/exception/not-found.comment.exception";
 
 @Injectable()
 export class CommunityService {
@@ -67,7 +76,7 @@ export class CommunityService {
             const timestamp = getTimestamp(board.createdAt, board.updatedAt);
 
             return new GetAllCommunityBoardResponseDto(
-                board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.memberId?.toString() || "", timestamp
+                board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp,
             );
         });
     }
@@ -143,12 +152,93 @@ export class CommunityService {
         }
 
         await this.prisma.$transaction(async (prisma) => {
+            await prisma.communityComment.deleteMany({
+                where: {
+                    id: communityBoardId,
+                },
+            });
 
             await prisma.communityBoard.delete({
                 where: {
                     id: communityBoardId,
                 },
             });
+        });
+    }
+
+    // 커뮤니티 댓글 작성
+    async writeComment(communityBoardId: bigint, member: Member, body: WriteCommunityCommentRequestDto): Promise<WriteCommunityCommentResponseDto> {
+        const board = await this.prisma.communityBoard.findUnique({
+            where: {
+                id: communityBoardId,
+            },
+        });
+
+        if (!board) {
+            throw new NotFoundBoardException;
+        }
+
+        const comment = await this.prisma.communityComment.create({
+            data: {
+                content: body.content,
+                memberId: (member.id),
+                postId: communityBoardId,
+            },
+        });
+
+        return new WriteCommunityBoardResponseDto(comment.id.toString());
+    }
+
+    // 커뮤니티 댓글 조회
+    async getAllComments(communityBoardId: bigint): Promise<GetAllCommunityCommentResponseDto[]> {
+        const board = await this.prisma.communityBoard.findUnique({
+            where: {
+                id: communityBoardId,
+            },
+        });
+
+        if (!board) {
+            throw new NotFoundBoardException;
+        }
+
+        const comments = await this.prisma.communityComment.findMany({
+            where: {
+                id: communityBoardId,
+            },
+            include: {
+                member: true,
+            },
+        });
+
+        return comments.map(comment => {
+            const timestamp = getTimestamp(comment.createdAt);
+
+            return new GetAllCommunityCommentResponseDto(
+                comment.id.toString(), comment.member?.nickname?.toString() || "", comment.member?.profile?.toString() || "", comment.content, timestamp, comment.member?.id?.toString() || "", communityBoardId.toString(),
+            );
+        });
+    }
+
+    // 커뮤니티 댓글 삭제
+    async deleteComment(commentId: bigint, member: Member): Promise<void> {
+        const comment = await this.prisma.communityComment.findUnique({
+            where: {
+                id: commentId,
+            },
+        });
+
+        if (!comment) {
+            throw new NotFoundCommentException;
+        }
+
+        if (comment.memberId === commentId) {
+            throw new ForbiddenException;
+        }
+
+        await this.prisma.communityComment.delete({
+            where: {
+                id: commentId,
+            },
         });
     }
 }

@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Delete, Get, Param, Patch, Post, Put, Req, UseFilters, UseGuards,
+    Controller, Delete, Get, Param, Patch, Post, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     ApiOperation,
@@ -46,6 +46,15 @@ import {
 import {
     UpdateCommunityBoardRequestDto,
 } from "@main/community/dto/req/update-community-board.request.dto";
+import {
+    WriteCommunityCommentResponseDto,
+} from "@main/community/dto/res/write-community-comment.response.dto";
+import {
+    WriteCommunityCommentRequestDto,
+} from "@main/community/dto/req/write-community-comment.request.dto";
+import {
+    GetAllCommunityCommentResponseDto,
+} from "@main/community/dto/res/get-all-community-comment.response.dto";
 
 @ApiTags("커뮤니티")
 @Controller("/community")
@@ -72,6 +81,24 @@ export class CommunityController {
         return new CustomResponse<WriteCommunityBoardResponseDto>(data, "커뮤니티 게시글 작성 성공");
     }
 
+    // 커뮤니티 댓글 작성 API
+    @ApiOperation({
+        summary: "커뮤니티 댓글 작성 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @ApiCustomResponseDecorator(WriteCommunityCommentResponseDto)
+    @Post("/:communityBoardId/comments")
+    async writeComment(
+        @Param("communityBoardId", ParseBigIntPipe) communityId: bigint,
+        @Req() req: AuthenticatedRequest,
+        @Body() body: WriteCommunityCommentRequestDto,
+    ): Promise<CustomResponse<WriteCommunityCommentResponseDto>> {
+        const member = req.member;
+        const data: WriteCommunityCommentResponseDto = await this.communityService.writeComment(communityId, member, body);
+
+        return new CustomResponse<WriteCommunityCommentResponseDto>(data, "커뮤니티 댓글 작성 성공");
+    }
+
     // 커뮤니티 전체 조회 API
     @ApiOperation({
         summary: "커뮤니티 전체 조회 API",
@@ -82,7 +109,7 @@ export class CommunityController {
 
         const data = await this.communityService.getAllCommunity();
 
-        return new CustomResponse<GetAllCommunityBoardResponseDto[]>(data, "커뮤니티 전체 조회 성공");
+        return new CustomResponse<GetAllCommunityBoardResponseDto[]>(data, "커뮤니티 게시글 전체 조회 성공");
     }
 
     // 커뮤니티 상세 조회 API
@@ -92,10 +119,23 @@ export class CommunityController {
     @ApiCustomResponseDecorator(GetCommunityBoardDetailResponseDto)
     @Get("/:communityBoardId")
     async getCommunityDetail(
-        @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint,): Promise<CustomResponse<GetCommunityBoardDetailResponseDto>> {
+        @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint): Promise<CustomResponse<GetCommunityBoardDetailResponseDto>> {
         const data = await this.communityService.getCommunityDetail(communityBoardId);
 
         return new CustomResponse<GetCommunityBoardDetailResponseDto>(data, "커뮤니티 게시글 상세 조회 성공");
+    }
+
+    // 커뮤니티 댓글 전체 조회 API
+    @ApiOperation({
+        summary: "커뮤니티 댓글 전체 조회 API",
+    })
+    @ApiCustomResponseDecorator(GetAllCommunityCommentResponseDto)
+    @Get("/:communityBoardId/comments")
+    async getAllComments(
+        @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint): Promise<CustomResponse<GetAllCommunityCommentResponseDto[]>> {
+        const data = await this.communityService.getAllComments(communityBoardId);
+
+        return new CustomResponse<GetAllCommunityCommentResponseDto[]>(data, "커뮤니티 댓글 전체 조회 성공");
     }
 
     // 커뮤니티 수정 API
@@ -113,7 +153,7 @@ export class CommunityController {
         const memberId = BigInt(req.member.id);
         const updateBoard = await this.communityService.updateCommunity(communityBoardId, memberId, body);
 
-        return new CustomResponse<UpdateCommunityBoardResponseDto>(updateBoard, "게시글 수정 성공");
+        return new CustomResponse<UpdateCommunityBoardResponseDto>(updateBoard, "커뮤니티 게시글 수정 성공");
     }
 
     // 커뮤니티 삭제 API
@@ -129,6 +169,22 @@ export class CommunityController {
         const member = req.member;
         await this.communityService.deleteCommunity(communityBoardId, member);
 
-        return new CustomResponse<void>(undefined, "위로받기 삭제 성공");
+        return new CustomResponse<void>(undefined, "커뮤니티 게시글 삭제 성공");
+    }
+
+    // 커뮤니티 댓글 삭제 API
+    @ApiOperation({
+        summary: "커뮤니티 댓글 삭제 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @Delete("/:commentId/comments")
+    async deleteComment(
+        @Param("commentId", ParseBigIntPipe) commentId: bigint,
+        @Req() req: AuthenticatedRequest,
+    ): Promise<CustomResponse<void>> {
+        const member = req.member;
+        await this.communityService.deleteComment(commentId, member);
+
+        return new CustomResponse<void>(undefined, "커뮤니티 댓글 삭제 성공");
     }
 };

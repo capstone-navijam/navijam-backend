@@ -157,7 +157,6 @@ export class CommunityService {
                     id: communityBoardId,
                 },
             });
-
             await prisma.communityBoard.delete({
                 where: {
                     id: communityBoardId,
@@ -203,7 +202,7 @@ export class CommunityService {
 
         const comments = await this.prisma.communityComment.findMany({
             where: {
-                id: communityBoardId,
+                postId: communityBoardId,
             },
             include: {
                 member: true,

@@ -66,7 +66,7 @@ export class CommunityService {
     }
 
     // 커뮤니티 전체 조회
-    async getAllCommunity(member: Member): Promise<GetAllCommunityBoardResponseDto[]> {
+    async getAllCommunity(member: Member | null): Promise<GetAllCommunityBoardResponseDto[]> {
         const boards = await this.prisma.communityBoard.findMany({
             include: {
                 member: true,
@@ -78,8 +78,8 @@ export class CommunityService {
             const categories = board.categories.map(prismaCategoryToCategory);
             const timestamp = getTimestamp(board.createdAt, board.updatedAt);
 
-            const liked = board.likes.some(like => like.memberId === member.id) ?? false;
-            const likeCount = board.likes.length ?? 0;
+            const likeCount = board.likes.length;
+            const liked = member ? board.likes.some(like => like.memberId === member.id) : false;
 
             return new GetAllCommunityBoardResponseDto(
                 board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp, liked, likeCount
@@ -88,7 +88,7 @@ export class CommunityService {
     }
 
     // 커뮤니티 상세 조회
-    async getCommunityDetail(communityBoardId: bigint, member: Member): Promise<GetCommunityBoardDetailResponseDto> {
+    async getCommunityDetail(communityBoardId: bigint, member: Member | null): Promise<GetCommunityBoardDetailResponseDto> {
         const board = await this.prisma.communityBoard.findUnique({
             where: {
                 id: communityBoardId,
@@ -106,8 +106,8 @@ export class CommunityService {
         const timestamp = getTimestamp(board.createdAt, board.updatedAt);
         const categories = board.categories.map(prismaCategoryToCategory);
 
-        const liked = board.likes.some(like => like.memberId === member.id) ?? false;
-        const likeCount = board.likes.length ?? 0;
+        const likeCount = board.likes.length;
+        const liked = member ? board.likes.some(like => like.memberId === member.id) : false;
 
         return new GetCommunityBoardDetailResponseDto(
             board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp, liked, likeCount

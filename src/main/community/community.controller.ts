@@ -58,6 +58,12 @@ import {
 import {
     LikeCommunityResponseDto,
 } from "@main/community/dto/res/like-community-response.dto";
+import {
+    AuthGuard,
+} from "@nestjs/passport";
+import {
+    OptionalJwtAuthGuard,
+} from "@main/auth/jwt/optional-jwt.guard";
 
 @ApiTags("커뮤니티")
 @Controller("/community")
@@ -123,6 +129,7 @@ export class CommunityController {
         summary: "커뮤니티 전체 조회 API",
     })
     @ApiCustomResponseDecorator(GetAllCommunityBoardResponseDto)
+    @UseGuards(OptionalJwtAuthGuard)
     @Get()
     async getAllCommunity(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetAllCommunityBoardResponseDto[]>> {
         const member = req.member;
@@ -136,6 +143,7 @@ export class CommunityController {
         summary: "커뮤니티 상세 조회 API",
     })
     @ApiCustomResponseDecorator(GetCommunityBoardDetailResponseDto)
+    @UseGuards(OptionalJwtAuthGuard)
     @Get("/:communityBoardId")
     async getCommunityDetail(
         @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint,
@@ -152,6 +160,7 @@ export class CommunityController {
         summary: "커뮤니티 댓글 전체 조회 API",
     })
     @ApiCustomResponseDecorator(GetAllCommunityCommentResponseDto)
+    @UseGuards(OptionalJwtAuthGuard)
     @Get("/:communityBoardId/comments")
     async getAllComments(
         @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint): Promise<CustomResponse<GetAllCommunityCommentResponseDto[]>> {

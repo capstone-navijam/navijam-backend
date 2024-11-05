@@ -55,6 +55,9 @@ import {
 import {
     GetAllCommunityCommentResponseDto,
 } from "@main/community/dto/res/get-all-community-comment.response.dto";
+import {
+    LikeCommunityResponseDto,
+} from "@main/community/dto/res/like-community-response.dto";
 
 @ApiTags("커뮤니티")
 @Controller("/community")
@@ -89,14 +92,30 @@ export class CommunityController {
     @ApiCustomResponseDecorator(WriteCommunityCommentResponseDto)
     @Post("/:communityBoardId/comments")
     async writeComment(
-        @Param("communityBoardId", ParseBigIntPipe) communityId: bigint,
+        @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint,
         @Req() req: AuthenticatedRequest,
         @Body() body: WriteCommunityCommentRequestDto,
     ): Promise<CustomResponse<WriteCommunityCommentResponseDto>> {
         const member = req.member;
-        const data: WriteCommunityCommentResponseDto = await this.communityService.writeComment(communityId, member, body);
+        const data: WriteCommunityCommentResponseDto = await this.communityService.writeComment(communityBoardId, member, body);
 
         return new CustomResponse<WriteCommunityCommentResponseDto>(data, "커뮤니티 댓글 작성 성공");
+    }
+
+    @ApiOperation({
+        summary: "커뮤니티 게시글 좋아요 토글 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @ApiCustomResponseDecorator(LikeCommunityResponseDto)
+    @Post("/:communityBoardId/like")
+    async toggleLike(
+        @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint,
+        @Req() req: AuthenticatedRequest,
+    ): Promise<CustomResponse<LikeCommunityResponseDto>> {
+        const member = req.member;
+        const data = await this.communityService.toggleLike(communityBoardId, member);
+
+        return new CustomResponse<LikeCommunityResponseDto>(data, "좋아요 상태 변경");
     }
 
     // 커뮤니티 전체 조회 API
@@ -105,9 +124,9 @@ export class CommunityController {
     })
     @ApiCustomResponseDecorator(GetAllCommunityBoardResponseDto)
     @Get()
-    async getAllBoards(): Promise<CustomResponse<GetAllCommunityBoardResponseDto[]>> {
-
-        const data = await this.communityService.getAllCommunity();
+    async getAllCommunity(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetAllCommunityBoardResponseDto[]>> {
+        const member = req.member;
+        const data = await this.communityService.getAllCommunity(member);
 
         return new CustomResponse<GetAllCommunityBoardResponseDto[]>(data, "커뮤니티 게시글 전체 조회 성공");
     }
@@ -119,8 +138,11 @@ export class CommunityController {
     @ApiCustomResponseDecorator(GetCommunityBoardDetailResponseDto)
     @Get("/:communityBoardId")
     async getCommunityDetail(
-        @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint): Promise<CustomResponse<GetCommunityBoardDetailResponseDto>> {
-        const data = await this.communityService.getCommunityDetail(communityBoardId);
+        @Param("communityBoardId", ParseBigIntPipe) communityBoardId: bigint,
+        @Req() req: AuthenticatedRequest
+    ): Promise<CustomResponse<GetCommunityBoardDetailResponseDto>> {
+        const member = req.member;
+        const data = await this.communityService.getCommunityDetail(communityBoardId, member);
 
         return new CustomResponse<GetCommunityBoardDetailResponseDto>(data, "커뮤니티 게시글 상세 조회 성공");
     }

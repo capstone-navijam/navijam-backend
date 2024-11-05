@@ -41,6 +41,9 @@ import {
     GetAllCommunityCommentResponseDto,
 } from "@main/community/dto/res/get-all-community-comment.response.dto";
 import NotFoundCommentException from "@main/exception/not-found.comment.exception";
+import {
+    LikeCommunityResponseDto,
+} from "@main/community/dto/res/like-community-response.dto";
 
 @Injectable()
 export class CommunityService {
@@ -63,32 +66,36 @@ export class CommunityService {
     }
 
     // 커뮤니티 전체 조회
-    async getAllCommunity(): Promise<GetAllCommunityBoardResponseDto[]> {
+    async getAllCommunity(member: Member): Promise<GetAllCommunityBoardResponseDto[]> {
         const boards = await this.prisma.communityBoard.findMany({
             include: {
                 member: true,
+                likes: true,
             },
         });
 
         return boards.map((board) => {
             const categories = board.categories.map(prismaCategoryToCategory);
-
             const timestamp = getTimestamp(board.createdAt, board.updatedAt);
 
+            const liked = board.likes.some(like => like.memberId === member.id) ?? false;
+            const likeCount = board.likes.length ?? 0;
+
             return new GetAllCommunityBoardResponseDto(
-                board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp,
+                board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp, liked, likeCount
             );
         });
     }
 
     // 커뮤니티 상세 조회
-    async getCommunityDetail(communityBoardId: bigint): Promise<GetCommunityBoardDetailResponseDto> {
+    async getCommunityDetail(communityBoardId: bigint, member: Member): Promise<GetCommunityBoardDetailResponseDto> {
         const board = await this.prisma.communityBoard.findUnique({
             where: {
                 id: communityBoardId,
             },
             include: {
                 member: true,
+                likes: true,
             },
         });
 
@@ -97,11 +104,13 @@ export class CommunityService {
         }
 
         const timestamp = getTimestamp(board.createdAt, board.updatedAt);
-
         const categories = board.categories.map(prismaCategoryToCategory);
 
+        const liked = board.likes.some(like => like.memberId === member.id) ?? false;
+        const likeCount = board.likes.length ?? 0;
+
         return new GetCommunityBoardDetailResponseDto(
-            board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp,
+            board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp, liked, likeCount
         );
     }
 
@@ -239,5 +248,53 @@ export class CommunityService {
                 id: commentId,
             },
         });
+    }
+
+    // 좋아요 토글
+    async toggleLike(communityBoardId: bigint, member: Member): Promise<LikeCommunityResponseDto> {
+        const board = await this.prisma.communityBoard.findUnique({
+            where: {
+                id: communityBoardId,
+            },
+        });
+
+        if (!board) {
+            throw new NotFoundBoardException;
+        }
+
+        const existingLike = await this.prisma.likes.findUnique({
+            where: {
+                memberId_communityId: {
+                    memberId: member.id,
+                    communityId: communityBoardId,
+                },
+            },
+        });
+
+        if (existingLike) {
+            await this.prisma.likes.delete({
+                where: {
+                    memberId_communityId: {
+                        memberId: member.id,
+                        communityId: communityBoardId,
+                    },
+                },
+            });
+        } else {
+            await this.prisma.likes.create({
+                data: {
+                    memberId: member.id,
+                    communityId: communityBoardId,
+                },
+            });
+        }
+
+        const likeCount = await this.prisma.likes.count({
+            where: {
+                communityId: communityBoardId,
+            },
+        });
+
+        return new LikeCommunityResponseDto(!existingLike, likeCount);
     }
 }

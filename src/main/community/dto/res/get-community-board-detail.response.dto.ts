@@ -63,6 +63,18 @@ export class GetCommunityBoardDetailResponseDto {
     })
     readonly memberId: string;
 
+    @ApiProperty({
+        description: "좋아요 상태",
+        example: true,
+    })
+    readonly liked: boolean;
+
+    @ApiProperty({
+        description: "현재 좋아요 수",
+        example: 15,
+    })
+    readonly likeCount: number;
+
     constructor(
         id: string,
         profile: string,
@@ -72,6 +84,8 @@ export class GetCommunityBoardDetailResponseDto {
         content: string,
         memberId: string,
         timestamp: string,
+        liked: boolean,
+        likeCount: number,
     ) {
         this.id = id;
         this.profile = profile;
@@ -81,5 +95,7 @@ export class GetCommunityBoardDetailResponseDto {
         this.content = content;
         this.memberId = memberId;
         this.timestamp = timestamp;
+        this.liked = liked;
+        this.likeCount = likeCount;
     }
 }

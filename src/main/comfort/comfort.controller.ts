@@ -41,9 +41,6 @@ import {
     ParseBigIntPipe,
 } from "@main/auth/pipe/parse-bigint.pipe";
 import {
-    GetComfortBoardDetailResponseDto,
-} from "@main/comfort/dto/res/get-comfort-board-detail.response.dto";
-import {
     RolesGuard,
 } from "@main/auth/jwt/roles.guard";
 import {

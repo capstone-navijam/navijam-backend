@@ -1,5 +1,5 @@
 import {
-    Controller, Post, UploadedFile, UseInterceptors,
+    Controller, FileTypeValidator, ParseFilePipe, Post, UploadedFile, UseInterceptors,
 } from "@nestjs/common";
 import {
     FileService,
@@ -16,7 +16,15 @@ export class FileController {
 
     @UseInterceptors(FileInterceptor("file"))
     @Post()
-    async fileUpload(@UploadedFile() file: Express.Multer.File): Promise<CustomResponse<string>> {
+    async fileUpload(@UploadedFile(
+        new ParseFilePipe({
+            validators: [
+                new FileTypeValidator({
+                    fileType: /image\/(png|jpeg|gif)$/,
+                }),
+            ],
+        })
+    ) file: Express.Multer.File): Promise<CustomResponse<string>> {
         console.log(file);
         const result = await this.fileService.upload(file);
 

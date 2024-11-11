@@ -71,6 +71,11 @@ export class CommunityService {
             include: {
                 member: true,
                 likes: true,
+                _count: {
+                    select: {
+                        communityComments: true,
+                    },
+                },
             },
         });
 
@@ -80,9 +85,10 @@ export class CommunityService {
 
             const likeCount = board.likes.length;
             const liked = member ? board.likes.some(like => like.memberId === member.id) : false;
+            const commentCount = board._count.communityComments;
 
             return new GetAllCommunityBoardResponseDto(
-                board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp, liked, likeCount
+                board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp, liked, likeCount, commentCount,
             );
         });
     }
@@ -96,6 +102,11 @@ export class CommunityService {
             include: {
                 member: true,
                 likes: true,
+                _count: {
+                    select: {
+                        communityComments: true,
+                    },
+                },
             },
         });
 
@@ -108,9 +119,10 @@ export class CommunityService {
 
         const likeCount = board.likes.length;
         const liked = member ? board.likes.some(like => like.memberId === member.id) : false;
+        const commentCount = board._count.communityComments;
 
         return new GetCommunityBoardDetailResponseDto(
-            board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp, liked, likeCount
+            board.id.toString(), board.member?.profile || "", board.member?.nickname || "", categories, board.title, board.content, board.memberId?.toString() || "", timestamp, liked, likeCount, commentCount
         );
     }
 

@@ -75,6 +75,12 @@ export class GetCommunityBoardDetailResponseDto {
     })
     readonly likeCount: number;
 
+    @ApiProperty({
+        description: "댓글 개수",
+        example: 2,
+    })
+    readonly commentCount: number;
+
     constructor(
         id: string,
         profile: string,
@@ -86,6 +92,7 @@ export class GetCommunityBoardDetailResponseDto {
         timestamp: string,
         liked: boolean,
         likeCount: number,
+        commentCount: number,
     ) {
         this.id = id;
         this.profile = profile;
@@ -97,5 +104,6 @@ export class GetCommunityBoardDetailResponseDto {
         this.timestamp = timestamp;
         this.liked = liked;
         this.likeCount = likeCount;
+        this.commentCount = commentCount;
     }
 }

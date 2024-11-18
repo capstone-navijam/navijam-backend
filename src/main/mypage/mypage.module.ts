@@ -13,10 +13,14 @@ import {
 import {
     MypageController,
 } from "@main/mypage/mypage.controller";
+import {
+    FileModule,
+} from "@main/file/file.module";
 
 @Module({
     imports: [PrismaModule,
-        AuthModule,],
+        AuthModule,
+        FileModule,],
     controllers: [MypageController,],
     providers: [MypageService,],
 })

@@ -12,4 +12,8 @@ export class FileService {
     async upload(file: Express.Multer.File): Promise<string> {
         return await this.s3Service.uploadProfile(file);
     }
+
+    async delete(filePath: string) {
+        await this.s3Service.deleteFile(filePath);
+    }
 }

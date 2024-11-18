@@ -14,10 +14,16 @@ import {
 import {
     UpdateMemberProfileResponseDto,
 } from "@main/mypage/dto/res/update-member-profile.response.dto";
+import {
+    FileService,
+} from "@main/file/file.service";
+import {
+    UpdateMemberProfileImageResponseDto,
+} from "@main/mypage/dto/res/update-member-profile-image.response.dto";
 
 @Injectable()
 export class MypageService {
-    constructor(private readonly prisma: PrismaClient) {
+    constructor(private readonly prisma: PrismaClient, private readonly fileService: FileService) {
     }
 
     async updateMemberProfile(memberId: bigint, body: UpdateMemberProfileRequestDto): Promise<UpdateMemberProfileResponseDto> {
@@ -57,6 +63,31 @@ export class MypageService {
         }
 
         return new UpdateMemberProfileResponseDto(
+            memberId.toString(),
+        );
+    }
+
+    async updateMemberProfileImage(memberId: bigint, file: Express.Multer.File) {
+        const member = await this.prisma.member.findUnique({
+            where: {
+                id: memberId,
+            },
+        });
+
+        await this.fileService.delete(member!.profile);
+
+        const newProfile: string =  await this.fileService.upload(file);
+
+        await this.prisma.member.update({
+            where: {
+                id: memberId,
+            },
+            data: {
+                profile: newProfile,
+            },
+        });
+
+        return new UpdateMemberProfileImageResponseDto(
             memberId.toString(),
         );
     }

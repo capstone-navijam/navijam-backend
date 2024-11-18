@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, Patch, Req, UseFilters, UseGuards,
+    Controller, FileTypeValidator, ParseFilePipe, Patch, Req, UploadedFile, UseFilters, UseGuards, UseInterceptors,
 } from "@nestjs/common";
 import {
     MypageService,
@@ -36,6 +36,9 @@ import CustomResponse from "@main/response/custom-response";
 import {
     ApiCustomResponseDecorator,
 } from "@main/util/decorators/api-custom-response.decorator";
+import {
+    FileInterceptor,
+} from "@nestjs/platform-express";
 
 @Controller("mypage")
 @UseGuards(JwtAuthGuard)
@@ -57,5 +60,26 @@ export class MypageController {
         const data = await this.mypageService.updateMemberProfile(memberId, body);
 
         return new CustomResponse<UpdateMemberProfileResponseDto>(data, "마이페이지 수정 성공");
+    }
+
+    @ApiOperation({
+        summary: "마이페이지 프로필 수정(프로필 사진)",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseInterceptors(FileInterceptor("file"))
+    @Roles("MEMBER")
+    @Patch("/profile/image")
+    async updateMemberProfileImage(@Req() req: AuthenticatedRequest,
+                                   @UploadedFile(
+                                       new ParseFilePipe({
+                                           validators: [
+                                               new FileTypeValidator({
+                                                   fileType: /image\/(png|jpeg|gif)$/,
+                                               }),
+                                           ],
+                                       })
+                                   ) file: Express.Multer.File) {
+        await this.mypageService.updateMemberProfileImage(req.member.id, file);
+
     }
 }

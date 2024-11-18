@@ -42,6 +42,9 @@ import {
 import {
     GetMemberProfileResponseDto,
 } from "@main/mypage/dto/res/get-member-profile.response.dto";
+import {
+    GetComfortBoardWithStatusResponseDto,
+} from "@main/mypage/dto/res/get-comfort-board-with-status.response.dto";
 
 @Controller("mypage")
 @UseGuards(JwtAuthGuard)
@@ -52,7 +55,7 @@ export class MypageController {
     }
 
     @ApiOperation({
-        summary: "마이페이지 첫번째 페이지 조회",
+        summary: "마이페이지 첫 번째 페이지 조회",
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiCustomResponseDecorator(GetMemberProfileResponseDto)
@@ -66,6 +69,23 @@ export class MypageController {
 
         return new CustomResponse<GetMemberProfileResponseDto>(data, "마이페이지 프로필 조회 성공");
     }
+
+    @ApiOperation({
+        summary: "마이페이지 두 번째 페이지 조회",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiCustomResponseDecorator(GetComfortBoardWithStatusResponseDto)
+    @Roles("MEMBER")
+    @Get("/comforts")
+    async getMemberComfortStatusWithAnswer(
+        @Req() req: AuthenticatedRequest,
+    ): Promise<CustomResponse<GetComfortBoardWithStatusResponseDto[]>> {
+        const memberId = req.member.id;
+        const data = await this.mypageService.getMemberComfortStatusWithAnswer(memberId);
+
+        return new CustomResponse<GetComfortBoardWithStatusResponseDto[]>([...data.answered,
+            ...data.waiting,], "마이페이지 위로받기 상태 조회 성공");
+    };
 
     @ApiOperation({
         summary: "마이페이지 프로필 수정(닉네임, 비밀번호)",

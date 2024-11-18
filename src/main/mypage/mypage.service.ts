@@ -5,6 +5,10 @@ import {
 import {
     PrismaClient,
 } from "@prisma/client";
+import * as bcrypt from "bcrypt";
+import {
+    ConfigService,
+} from "@nestjs/config";
 import {
     UpdateMemberProfileRequestDto,
 } from "@main/mypage/dto/req/update-member.profile.request.dto";
@@ -24,12 +28,21 @@ import {
     GetMemberProfileResponseDto,
 } from "@main/mypage/dto/res/get-member-profile.response.dto";
 import NotFoundMemberException from "@main/exception/not-found.member.exception";
+import {
+    InvalidPasswordException,
+} from "@main/exception/invalid-password.exception";
+import {
+    GetComfortBoardWithStatusResponseDto,
+} from "@main/mypage/dto/res/get-comfort-board-with-status.response.dto";
 
 @Injectable()
 export class MypageService {
-    constructor(private readonly prisma: PrismaClient, private readonly fileService: FileService) {
+    constructor(private readonly prisma: PrismaClient,
+                private readonly fileService: FileService,
+                private readonly configService: ConfigService) {
     }
 
+    // 마이페이지 프로필 (닉네임, 비밀번호) 수정
     async updateMemberProfile(memberId: bigint, body: UpdateMemberProfileRequestDto): Promise<UpdateMemberProfileResponseDto> {
         const dataToUpdate: any = {};
 
@@ -49,14 +62,14 @@ export class MypageService {
         }
 
         // 비밀번호 처리
-        if (body.newPassword || body.checkPassword) {
+        if (body.newPassword) {
             if (body.newPassword !== body.checkPassword) {
-                throw new BadRequestException("비밀번호가 일치하지 않습니다.");
+                throw new InvalidPasswordException;
             }
-            dataToUpdate.password = body.newPassword;
+
+            dataToUpdate.password = await bcrypt.hash(body.newPassword, 10);
         }
 
-        // 존재하는 필드만 업데이트 실행
         if (Object.keys(dataToUpdate).length > 0) {
             await this.prisma.member.update({
                 where: {
@@ -71,6 +84,7 @@ export class MypageService {
         );
     }
 
+    // 마이페이지 프로필 이미지 수정
     async updateMemberProfileImage(memberId: bigint, file: Express.Multer.File) {
         const member = await this.prisma.member.findUnique({
             where: {
@@ -78,7 +92,13 @@ export class MypageService {
             },
         });
 
-        await this.fileService.delete(member!.profile);
+        const defaultProfile = this.configService.get<string>(
+            "DEFAULT_PROFILE_URL"
+        );
+
+        if (member!.profile !== defaultProfile) {
+            await this.fileService.delete(member!.profile);
+        }
 
         const newProfile: string = await this.fileService.upload(file);
 
@@ -118,4 +138,40 @@ export class MypageService {
             member.id.toString(), member.profile, member.email, member.nickname
         );
     }
+
+    // 마이페이지 위로받기 상태 조회
+    async getMemberComfortStatusWithAnswer(memberId: bigint): Promise<{
+        answered: GetComfortBoardWithStatusResponseDto[];
+        waiting: GetComfortBoardWithStatusResponseDto[]
+    }> {
+        const boards = await this.prisma.comfortBoard.findMany({
+            where: {
+                memberId: memberId,
+            },
+            include: {
+                consoles: true,
+            },
+        });
+
+        const answered = boards
+            .filter((board) => board.consoles.length > 0)
+            .map((board) =>
+                new GetComfortBoardWithStatusResponseDto(
+                    board.id.toString(), board.title, board.createdAt.toISOString(), true
+                )
+            );
+
+        const waiting = boards
+            .filter((board) => board.consoles.length === 0) // 답변이 없는 게시글
+            .map((board) =>
+                new GetComfortBoardWithStatusResponseDto(
+                    board.id.toString(), board.title, board.createdAt.toISOString(), false // 답변 대기 상태
+                )
+            );
+
+        return {
+            answered,
+            waiting,
+        };
+    };
 }

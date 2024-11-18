@@ -112,12 +112,16 @@ export class AuthService {
             throw new DuplicateNicknameException();
         }
 
-        const member: Member = await this.prisma.member.create({
+        const defaultProfile = this.configService.get<string>(
+            "DEFAULT_PROFILE_URL",
+        );
+
+        const member = await this.prisma.member.create({
             data: {
                 email: signupMemberRequestDto.email,
                 nickname: signupMemberRequestDto.nickname,
                 password: await this.hashPassword(signupMemberRequestDto.password),
-                profile: signupMemberRequestDto.profile,
+                profile: (signupMemberRequestDto.profile || defaultProfile) as string,            
             },
         });
 

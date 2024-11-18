@@ -1,6 +1,6 @@
 import {
     Body,
-    Controller, FileTypeValidator, ParseFilePipe, Patch, Req, UploadedFile, UseFilters, UseGuards, UseInterceptors,
+    Controller, FileTypeValidator, Get, ParseFilePipe, Patch, Req, UploadedFile, UseFilters, UseGuards, UseInterceptors,
 } from "@nestjs/common";
 import {
     MypageService,
@@ -39,6 +39,9 @@ import {
 import {
     FileInterceptor,
 } from "@nestjs/platform-express";
+import {
+    GetMemberProfileResponseDto,
+} from "@main/mypage/dto/res/get-member-profile.response.dto";
 
 @Controller("mypage")
 @UseGuards(JwtAuthGuard)
@@ -46,6 +49,22 @@ import {
 
 export class MypageController {
     constructor(private readonly mypageService: MypageService) {
+    }
+
+    @ApiOperation({
+        summary: "마이페이지 첫번째 페이지 조회",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiCustomResponseDecorator(GetMemberProfileResponseDto)
+    @Roles("MEMBER")
+    @Get("/profile")
+    async getMemberProfile(
+        @Req() req: AuthenticatedRequest
+    ): Promise<CustomResponse<GetMemberProfileResponseDto>> {
+        const memberId = req.member.id;
+        const data = await this.mypageService.getMemberProfile(memberId);
+
+        return new CustomResponse<GetMemberProfileResponseDto>(data, "마이페이지 프로필 조회 성공");
     }
 
     @ApiOperation({

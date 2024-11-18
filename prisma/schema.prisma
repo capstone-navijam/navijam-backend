@@ -12,7 +12,7 @@ model Member {
   email             String             @unique @db.VarChar(50)
   nickname          String             @map("nickname") @db.VarChar(20)
   password          String             @db.VarChar(100)
-  profile           String             @db.VarChar(256)
+  profile           String             @default("https://navijam-bucket.s3.ap-northeast-2.amazonaws.com/images/profiles/navijam-default-profile.png") @db.VarChar(256)
   role              Role               @default(MEMBER)
   listenerInfoId    BigInt?            @unique @map("listener_info_id")
   comfortBoards     ComfortBoard[]

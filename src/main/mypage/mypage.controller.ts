@@ -9,7 +9,7 @@ import {
     JwtAuthGuard,
 } from "@main/auth/jwt/jwt-auth.guard";
 import {
-    ApiOperation,
+    ApiOperation, ApiTags,
 } from "@nestjs/swagger";
 import {
     AuthenticatedRequest,
@@ -46,7 +46,8 @@ import {
     GetComfortBoardWithStatusResponseDto,
 } from "@main/mypage/dto/res/get-comfort-board-with-status.response.dto";
 
-@Controller("mypage")
+@ApiTags("마이페이지")
+@Controller("/mypage")
 @UseGuards(JwtAuthGuard)
 @UseFilters(CustomUnauthorizedExceptionFilter, CustomForbiddenExceptionFilter)
 

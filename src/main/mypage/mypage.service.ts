@@ -20,6 +20,10 @@ import {
 import {
     UpdateMemberProfileImageResponseDto,
 } from "@main/mypage/dto/res/update-member-profile-image.response.dto";
+import {
+    GetMemberProfileResponseDto,
+} from "@main/mypage/dto/res/get-member-profile.response.dto";
+import NotFoundMemberException from "@main/exception/not-found.member.exception";
 
 @Injectable()
 export class MypageService {
@@ -76,7 +80,7 @@ export class MypageService {
 
         await this.fileService.delete(member!.profile);
 
-        const newProfile: string =  await this.fileService.upload(file);
+        const newProfile: string = await this.fileService.upload(file);
 
         await this.prisma.member.update({
             where: {
@@ -89,6 +93,29 @@ export class MypageService {
 
         return new UpdateMemberProfileImageResponseDto(
             memberId.toString(),
+        );
+    }
+
+    // 마이페이지 프로필 조회
+    async getMemberProfile(memberId: bigint): Promise<GetMemberProfileResponseDto> {
+        const member = await this.prisma.member.findUnique({
+            where: {
+                id: memberId,
+            },
+            select: {
+                id: true,
+                profile: true,
+                email: true,
+                nickname: true,
+            },
+        });
+
+        if (!member) {
+            throw new NotFoundMemberException;
+        }
+
+        return new GetMemberProfileResponseDto(
+            member.id.toString(), member.profile, member.email, member.nickname
         );
     }
 }

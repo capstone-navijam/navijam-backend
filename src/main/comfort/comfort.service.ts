@@ -140,16 +140,17 @@ export class ComfortService {
             },
             include: {
                 member: true,
+                consoles: true,
             },
         });
 
         if (!board) {
-            throw new NotFoundBoardException();
+            throw new NotFoundBoardException;
         }
 
         const consoles = await this.prisma.console.findMany({
             where: {
-                id: comfortBoardId,
+                comfortId: comfortBoardId,
             },
             include: {
                 member: true,

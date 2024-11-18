@@ -59,9 +59,6 @@ import {
     LikeCommunityResponseDto,
 } from "@main/community/dto/res/like-community-response.dto";
 import {
-    AuthGuard,
-} from "@nestjs/passport";
-import {
     OptionalJwtAuthGuard,
 } from "@main/auth/jwt/optional-jwt.guard";
 

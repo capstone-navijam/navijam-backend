@@ -32,11 +32,20 @@ import {
     ListenerModule,
 } from "./listener/listener.module";
 import {
-    CommunityService, 
+    CommunityService,
 } from "./community/community.service";
 import {
-    CommunityModule, 
+    CommunityModule,
 } from "./community/community.module";
+import {
+    MypageController,
+} from "./mypage/mypage.controller";
+import {
+    MypageModule,
+} from "./mypage/mypage.module";
+import {
+    MypageService,
+} from "@main/mypage/mypage.service";
 
 @Module({
     imports: [
@@ -51,10 +60,13 @@ import {
         FileModule,
         ListenerModule,
         CommunityModule,
+        MypageModule,
     ],
-    controllers: [ComfortController,],
+    controllers: [ComfortController,
+        MypageController,],
     providers: [ComfortService,
-        CommunityService,],
+        CommunityService,
+        MypageService,],
 })
 export class AppModule {
 }

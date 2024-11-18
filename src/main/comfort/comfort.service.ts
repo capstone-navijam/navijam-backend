@@ -94,7 +94,7 @@ export class ComfortService {
     async getMemberBoards(memberId: bigint): Promise<GetComfortBoardResponseDto[]> {
         const boards = await this.prisma.comfortBoard.findMany({
             where: {
-                id: memberId,
+                memberId: memberId,
             },
             include: {
                 member: true,

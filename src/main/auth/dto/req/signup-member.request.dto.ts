@@ -1,5 +1,5 @@
 import {
-    IsNotEmpty, IsString, Matches, MaxLength, IsUrl, IsEmail,
+    IsNotEmpty, IsString, Matches, MaxLength, IsUrl, IsEmail, IsOptional,
 } from "class-validator";
 import {
     ApiProperty,
@@ -56,10 +56,11 @@ export class SignupMemberRequestDto {
 
     @ApiProperty({
         description: "프로필",
-        required: true,
+        required: false,
     })
     @IsUrl({}, {
         message: "프로필 사진이 형식에 맞지 않습니다.",
     })
-    readonly profile: string;
+    @IsOptional()
+    readonly profile?: string;
 }

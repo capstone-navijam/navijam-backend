@@ -135,9 +135,9 @@ export class ConsoleController {
         @Param("consoleId", ParseBigIntPipe) consoleId: bigint,
     ): Promise<CustomResponse<GetAllCommentResponseDto[]>> {
         const member = req.member;
-        const comments = await this.consoleService.getAllComments(member, consoleId);
+        const data = await this.consoleService.getAllComments(member, consoleId);
 
-        return new CustomResponse<GetAllCommentResponseDto[]>(comments, "댓글 조회 성공");
+        return new CustomResponse<GetAllCommentResponseDto[]>(data, "댓글 조회 성공");
     }
 
     // 위로하기 수정 API

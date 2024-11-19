@@ -1,5 +1,4 @@
 import {
-    BadRequestException,
     Injectable,
 } from "@nestjs/common";
 import {
@@ -34,6 +33,9 @@ import {
 import {
     GetComfortBoardWithStatusResponseDto,
 } from "@main/mypage/dto/res/get-comfort-board-with-status.response.dto";
+import {
+    GetMyCommunityBoardsResponseDto,
+} from "@main/mypage/dto/res/get-my-community-boards.response.dto";
 
 @Injectable()
 export class MypageService {
@@ -42,7 +44,7 @@ export class MypageService {
                 private readonly configService: ConfigService) {
     }
 
-    // 마이페이지 프로필 (닉네임, 비밀번호) 수정
+    // (회원) 마이페이지 프로필 (닉네임, 비밀번호) 수정
     async updateMemberProfile(memberId: bigint, body: UpdateMemberProfileRequestDto): Promise<UpdateMemberProfileResponseDto> {
         const dataToUpdate: any = {};
 
@@ -116,7 +118,7 @@ export class MypageService {
         );
     }
 
-    // 마이페이지 프로필 조회
+    // (회원) 마이페이지 프로필 조회
     async getMemberProfile(memberId: bigint): Promise<GetMemberProfileResponseDto> {
         const member = await this.prisma.member.findUnique({
             where: {
@@ -139,7 +141,7 @@ export class MypageService {
         );
     }
 
-    // 마이페이지 위로받기 상태 조회
+    // (회원) 마이페이지 위로받기 상태 조회
     async getMemberComfortStatusWithAnswer(memberId: bigint): Promise<{
         answered: GetComfortBoardWithStatusResponseDto[];
         waiting: GetComfortBoardWithStatusResponseDto[]
@@ -174,4 +176,24 @@ export class MypageService {
             waiting,
         };
     };
+
+    // 본인이 작성한 커뮤니티 게시글 조회
+    async getMyCommunityBoards(memberId: bigint): Promise<GetMyCommunityBoardsResponseDto[]> {
+        const boards = await this.prisma.communityBoard.findMany({
+            where: {
+                memberId: memberId,
+            },
+            select: {
+                id: true,
+                title: true,
+                createdAt: true,
+            },
+        });
+
+        return boards.map((board) =>
+            new GetMyCommunityBoardsResponseDto(
+                board.id.toString(), board.title, board.createdAt.toISOString()
+            )
+        );
+    }
 }

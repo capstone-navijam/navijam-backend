@@ -45,6 +45,12 @@ import {
 import {
     GetComfortBoardWithStatusResponseDto,
 } from "@main/mypage/dto/res/get-comfort-board-with-status.response.dto";
+import {
+    GetCommunityBoardDetailResponseDto,
+} from "@main/community/dto/res/get-community-board-detail.response.dto";
+import {
+    GetMyCommunityBoardsResponseDto,
+} from "@main/mypage/dto/res/get-my-community-boards.response.dto";
 
 @ApiTags("마이페이지")
 @Controller("/mypage")
@@ -56,7 +62,7 @@ export class MypageController {
     }
 
     @ApiOperation({
-        summary: "마이페이지 첫 번째 페이지 조회",
+        summary: "(회원) 마이페이지 첫 번째 페이지 조회 API",
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiCustomResponseDecorator(GetMemberProfileResponseDto)
@@ -72,7 +78,7 @@ export class MypageController {
     }
 
     @ApiOperation({
-        summary: "마이페이지 두 번째 페이지 조회",
+        summary: "(회원) 마이페이지 두 번째 페이지 조회 API",
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiCustomResponseDecorator(GetComfortBoardWithStatusResponseDto)
@@ -89,7 +95,20 @@ export class MypageController {
     };
 
     @ApiOperation({
-        summary: "마이페이지 프로필 수정(닉네임, 비밀번호)",
+        summary: "마이페이지 세 번째 페이지 조회(본인이 작성한 커뮤니티 게시글) API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @ApiCustomResponseDecorator(GetCommunityBoardDetailResponseDto)
+    @Get("/community")
+    async getMyCommunityBoard(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetMyCommunityBoardsResponseDto[]>> {
+        const memberId = req.member.id;
+        const data = await this.mypageService.getMyCommunityBoards(memberId);
+
+        return new CustomResponse<GetMyCommunityBoardsResponseDto[]>(data, "마이페이지 커뮤니티 게시글 조회 성공");
+    }
+
+    @ApiOperation({
+        summary: "(회원) 마이페이지 프로필 수정(닉네임, 비밀번호) API",
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiCustomResponseDecorator(UpdateMemberProfileResponseDto)
@@ -103,11 +122,10 @@ export class MypageController {
     }
 
     @ApiOperation({
-        summary: "마이페이지 프로필 수정(프로필 사진)",
+        summary: "마이페이지 프로필 수정(프로필 사진) API",
     })
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor("file"))
-    @Roles("MEMBER")
     @Patch("/profile/image")
     async updateMemberProfileImage(@Req() req: AuthenticatedRequest,
                                    @UploadedFile(

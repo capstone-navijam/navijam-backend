@@ -39,6 +39,12 @@ import {
 import {
     GetMyCommunityCommentsResponseDto,
 } from "@main/mypage/dto/res/get-my-community-comments.response.dto";
+import {
+    UpdatePasswordResponseDto,
+} from "@main/mypage/dto/res/update-password.response.dto";
+import {
+    UpdatePasswordRequestDto,
+} from "@main/mypage/dto/req/update-password.request.dto";
 
 @Injectable()
 export class MypageService {
@@ -49,42 +55,48 @@ export class MypageService {
 
     // (회원) 마이페이지 프로필 (닉네임, 비밀번호) 수정
     async updateMemberProfile(memberId: bigint, body: UpdateMemberProfileRequestDto): Promise<UpdateMemberProfileResponseDto> {
-        const dataToUpdate: any = {};
+        const nicknameExists = await this.prisma.member.findFirst({
+            where: {
+                nickname: body.nickname,
+            },
+        });
 
-        // 닉네임 처리
-        if (body.nickname) {
-            const nicknameExists = await this.prisma.member.findFirst({
-                where: {
-                    nickname: body.nickname,
-                },
-            });
-
-            if (nicknameExists) {
-                throw new DuplicateNicknameException;
-            }
-
-            dataToUpdate.nickname = body.nickname;
+        if (nicknameExists) {
+            throw new DuplicateNicknameException;
         }
 
-        // 비밀번호 처리
-        if (body.newPassword) {
-            if (body.newPassword !== body.checkPassword) {
-                throw new InvalidPasswordException;
-            }
-
-            dataToUpdate.password = await bcrypt.hash(body.newPassword, 10);
-        }
-
-        if (Object.keys(dataToUpdate).length > 0) {
-            await this.prisma.member.update({
-                where: {
-                    id: memberId,
-                },
-                data: dataToUpdate,
-            });
-        }
+        await this.prisma.member.update({
+            where: {
+                id: memberId,
+            },
+            data: {
+                nickname: body.nickname,
+            },
+        });
 
         return new UpdateMemberProfileResponseDto(
+            memberId.toString(),
+        );
+    }
+
+    // 비밀번호 변경
+    async updatePassword(memberId: bigint, body: UpdatePasswordRequestDto): Promise<UpdatePasswordResponseDto> {
+        if (body.newPassword !== body.checkPassword) {
+            throw new InvalidPasswordException;
+        }
+
+        const hashedPassword = await bcrypt.hash(body.newPassword, 10);
+
+        await this.prisma.member.update({
+            where: {
+                id: memberId,
+            },
+            data: {
+                password: hashedPassword,
+            },
+        });
+
+        return new UpdatePasswordResponseDto(
             memberId.toString(),
         );
     }
@@ -206,7 +218,7 @@ export class MypageService {
             where: {
                 memberId: memberId,
             },
-            select:{
+            select: {
                 content: true,
                 createdAt: true,
                 postId: true,

@@ -92,10 +92,15 @@ export class AuthService {
     }
 
     // 일반 회원가입
-    async signupMember(signupMemberRequestDto: SignupMemberRequestDto): Promise<SignupMemberResponseDto> {
+    async signupMember(body: SignupMemberRequestDto): Promise<SignupMemberResponseDto> {
+
+        if (body.password !== body.checkPassword) {
+            throw new InvalidPasswordException;
+        }
+
         const memberByEmail: ExistsMember = await this.prisma.member.findUnique({
             where: {
-                email: signupMemberRequestDto.email,
+                email: body.email,
             },
         });
 
@@ -105,7 +110,7 @@ export class AuthService {
 
         const memberByNickname: ExistsMember = await this.prisma.member.findFirst({
             where: {
-                nickname: signupMemberRequestDto.nickname,
+                nickname: body.nickname,
             },
         });
         if (memberByNickname) {
@@ -118,10 +123,10 @@ export class AuthService {
 
         const member = await this.prisma.member.create({
             data: {
-                email: signupMemberRequestDto.email,
-                nickname: signupMemberRequestDto.nickname,
-                password: await this.hashPassword(signupMemberRequestDto.password),
-                profile: (signupMemberRequestDto.profile || defaultProfile) as string,            
+                email: body.email,
+                nickname: body.nickname,
+                password: await this.hashPassword(body.password),
+                profile: body.profile || defaultProfile,
             },
         });
 

@@ -54,6 +54,12 @@ import {
 import {
     GetMyCommunityCommentsResponseDto,
 } from "@main/mypage/dto/res/get-my-community-comments.response.dto";
+import {
+    UpdatePasswordResponseDto,
+} from "@main/mypage/dto/res/update-password.response.dto";
+import {
+    UpdatePasswordRequestDto,
+} from "@main/mypage/dto/req/update-password.request.dto";
 
 @ApiTags("마이페이지")
 @Controller("/mypage")
@@ -125,7 +131,7 @@ export class MypageController {
     }
 
     @ApiOperation({
-        summary: "(회원) 마이페이지 프로필 수정(닉네임, 비밀번호) API",
+        summary: "(회원) 마이페이지 프로필 수정(닉네임) API",
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiCustomResponseDecorator(UpdateMemberProfileResponseDto)
@@ -136,6 +142,22 @@ export class MypageController {
         const data = await this.mypageService.updateMemberProfile(memberId, body);
 
         return new CustomResponse<UpdateMemberProfileResponseDto>(data, "마이페이지 수정 성공");
+    }
+
+    @ApiOperation({
+        summary: "비밀번호 변경 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @ApiCustomResponseDecorator(UpdatePasswordResponseDto)
+    @Patch("/profile/password")
+    async updatePassword(
+        @Req() req: AuthenticatedRequest,
+        @Body() body: UpdatePasswordRequestDto
+    ): Promise<CustomResponse<UpdatePasswordResponseDto>> {
+        const memberId = BigInt(req.member.id);
+        const data = await this.mypageService.updatePassword(memberId, body);
+
+        return new CustomResponse<UpdatePasswordResponseDto>(data, "비밀번호 변경 성공");
     }
 
     @ApiOperation({

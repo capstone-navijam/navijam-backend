@@ -26,8 +26,8 @@ async function bootstrap() {
     SwaggerModule.setup("navijam", app, document);
     app.useGlobalPipes(new ValidationPipe({
         transform: true,
-        whitelist: true,
-        forbidNonWhitelisted: true,
+        //whitelist: true,
+        //forbidNonWhitelisted: ,
     }));
     app.useGlobalFilters(new HttpExceptionFilter());
     app.enableCors({

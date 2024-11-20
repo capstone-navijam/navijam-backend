@@ -51,6 +51,9 @@ import {
 import {
     GetMyCommunityBoardsResponseDto,
 } from "@main/mypage/dto/res/get-my-community-boards.response.dto";
+import {
+    GetMyCommunityCommentsResponseDto,
+} from "@main/mypage/dto/res/get-my-community-comments.response.dto";
 
 @ApiTags("마이페이지")
 @Controller("/mypage")
@@ -71,7 +74,7 @@ export class MypageController {
     async getMemberProfile(
         @Req() req: AuthenticatedRequest
     ): Promise<CustomResponse<GetMemberProfileResponseDto>> {
-        const memberId = req.member.id;
+        const memberId = BigInt(req.member.id);
         const data = await this.mypageService.getMemberProfile(memberId);
 
         return new CustomResponse<GetMemberProfileResponseDto>(data, "마이페이지 프로필 조회 성공");
@@ -87,7 +90,7 @@ export class MypageController {
     async getMemberComfortStatusWithAnswer(
         @Req() req: AuthenticatedRequest,
     ): Promise<CustomResponse<GetComfortBoardWithStatusResponseDto[]>> {
-        const memberId = req.member.id;
+        const memberId = BigInt(req.member.id);
         const data = await this.mypageService.getMemberComfortStatusWithAnswer(memberId);
 
         return new CustomResponse<GetComfortBoardWithStatusResponseDto[]>([...data.answered,
@@ -101,10 +104,24 @@ export class MypageController {
     @ApiCustomResponseDecorator(GetCommunityBoardDetailResponseDto)
     @Get("/community")
     async getMyCommunityBoard(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetMyCommunityBoardsResponseDto[]>> {
-        const memberId = req.member.id;
+        const memberId = BigInt(req.member.id);
         const data = await this.mypageService.getMyCommunityBoards(memberId);
 
         return new CustomResponse<GetMyCommunityBoardsResponseDto[]>(data, "마이페이지 커뮤니티 게시글 조회 성공");
+    }
+
+    @ApiOperation({
+        summary: "마이페이지 세 번째 페이지 조회(본인이 작성한 커뮤니티 댓글) API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @ApiCustomResponseDecorator(GetMyCommunityCommentsResponseDto)
+    @Get("/community/comments")
+    async getMyCommunityComments(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetMyCommunityCommentsResponseDto[]>> {
+        const memberId = BigInt(req.member.id);
+        const data = await this.mypageService.getMyCommunityComments(memberId);
+
+        return new CustomResponse<GetMyCommunityCommentsResponseDto[]>(data, "마이페이지 커뮤니티 게시글 댓글 조회 성공");
+
     }
 
     @ApiOperation({
@@ -115,7 +132,7 @@ export class MypageController {
     @Roles("MEMBER")
     @Patch("/profile")
     async updateMemberProfile(@Req() req: AuthenticatedRequest, @Body() body: UpdateMemberProfileRequestDto): Promise<CustomResponse<UpdateMemberProfileResponseDto>> {
-        const memberId = req.member.id;
+        const memberId = BigInt(req.member.id);
         const data = await this.mypageService.updateMemberProfile(memberId, body);
 
         return new CustomResponse<UpdateMemberProfileResponseDto>(data, "마이페이지 수정 성공");

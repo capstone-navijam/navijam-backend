@@ -36,6 +36,9 @@ import {
 import {
     GetMyCommunityBoardsResponseDto,
 } from "@main/mypage/dto/res/get-my-community-boards.response.dto";
+import {
+    GetMyCommunityCommentsResponseDto,
+} from "@main/mypage/dto/res/get-my-community-comments.response.dto";
 
 @Injectable()
 export class MypageService {
@@ -196,4 +199,23 @@ export class MypageService {
             )
         );
     }
+
+    // 본인이 작성한 커뮤니티 댓글 조회
+    async getMyCommunityComments(memberId: bigint): Promise<GetMyCommunityCommentsResponseDto[]> {
+        const comments = await this.prisma.communityComment.findMany({
+            where: {
+                memberId: memberId,
+            },
+            select:{
+                content: true,
+                createdAt: true,
+                postId: true,
+            },
+        });
+
+        return comments.map((comment) =>
+            new GetMyCommunityCommentsResponseDto(
+                comment.postId.toString(), comment.content, comment.createdAt.toISOString()
+            ));
+    };
 }

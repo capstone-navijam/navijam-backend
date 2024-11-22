@@ -9,7 +9,15 @@ export class UpdateMemberProfileImageResponseDto {
     })
     readonly id: string;
 
-    constructor(id: string) {
+    @ApiProperty({
+        description: "프로필 이미지 URL",
+        example: "https://example.com/profile.png",
+    })
+    readonly profileUrl: string;
+
+    constructor(id: string, profileUrl: string) {
         this.id = id;
+        this.profileUrl = profileUrl;
     }
+
 }

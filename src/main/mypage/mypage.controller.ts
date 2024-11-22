@@ -60,6 +60,9 @@ import {
 import {
     UpdatePasswordRequestDto,
 } from "@main/mypage/dto/req/update-password.request.dto";
+import {
+    UpdateMemberProfileImageResponseDto,
+} from "@main/mypage/dto/res/update-member-profile-image.response.dto";
 
 @ApiTags("마이페이지")
 @Controller("/mypage")
@@ -176,7 +179,9 @@ export class MypageController {
                                            ],
                                        })
                                    ) file: Express.Multer.File) {
-        await this.mypageService.updateMemberProfileImage(req.member.id, file);
+        const data = await this.mypageService.updateMemberProfileImage(req.member.id, file);
+
+        return new CustomResponse<UpdateMemberProfileImageResponseDto>(data, "프로필 사진 수정 성공");
 
     }
 }

@@ -129,7 +129,7 @@ export class MypageService {
         });
 
         return new UpdateMemberProfileImageResponseDto(
-            memberId.toString(),
+            memberId.toString(), newProfile
         );
     }
 

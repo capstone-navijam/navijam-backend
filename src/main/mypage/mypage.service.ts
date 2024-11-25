@@ -53,7 +53,7 @@ export class MypageService {
                 private readonly configService: ConfigService) {
     }
 
-    // (회원) 마이페이지 프로필 (닉네임, 비밀번호) 수정
+    // (회원) 마이페이지 프로필 닉네임 수정
     async updateMemberProfile(memberId: bigint, body: UpdateMemberProfileRequestDto): Promise<UpdateMemberProfileResponseDto> {
         const nicknameExists = await this.prisma.member.findFirst({
             where: {
@@ -75,7 +75,7 @@ export class MypageService {
         });
 
         return new UpdateMemberProfileResponseDto(
-            memberId.toString(),
+            memberId.toString(), body.nickname
         );
     }
 

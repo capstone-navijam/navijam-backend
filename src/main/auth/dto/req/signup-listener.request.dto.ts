@@ -7,7 +7,7 @@ import {
     IsString,
     IsUrl,
     Matches,
-    MaxLength,
+    MaxLength, MinLength,
 } from "class-validator";
 import {
     ApiProperty,
@@ -142,4 +142,22 @@ export class SignupListenerRequestDto {
         enum: Category,
     })
     category: Category[];
+
+    @ApiProperty({
+        description: "상담 가능 시간",
+        required: true,
+        type: [String,],
+        example: ["AM 9:00 ~ AM 10:00",
+            "AM 11:00 ~ PM 7:00",],
+    })
+    @IsArray()
+    @IsString({
+        each: true,
+        message: "상담 가능 시간은 문자열이어야 합니다.",
+    })
+    @MinLength(8, {
+        each: true,
+        message: "각 상담 가능 시간은 최소 8글자 이상이어야 합니다.",
+    })
+    availableTime: string[];
 }

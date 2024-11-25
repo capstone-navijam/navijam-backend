@@ -155,6 +155,7 @@ export class AuthService {
                 education: signupListenerRequestDto.education,
                 description: signupListenerRequestDto.description,
                 categories: prismaCategories,
+                availableTime: signupListenerRequestDto.availableTime,
             },
         });
 

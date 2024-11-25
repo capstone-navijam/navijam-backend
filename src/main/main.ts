@@ -13,6 +13,12 @@ import {
 import {
     HttpExceptionFilter,
 } from "@main/filter/http-exception.filter";
+import {
+    ConfigService,
+} from "@nestjs/config";
+import {
+    RedisIoAdapter,
+} from "@main/global/redis-io.adapter";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -40,6 +46,10 @@ async function bootstrap() {
             "PATCH",
             "DELETE",],
     });
+
+    const configService = app.get(ConfigService);
+    const redisIoAdapter = new RedisIoAdapter(configService);
+    app.useWebSocketAdapter(redisIoAdapter);
 
     await app.listen(3000);
 }

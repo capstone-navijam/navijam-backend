@@ -126,7 +126,7 @@ export class AuthService {
                 email: body.email,
                 nickname: body.nickname,
                 password: await this.hashPassword(body.password),
-                profile: body.profile || defaultProfile,
+                profile: body.profile || defaultProfile as string,
             },
         });
 

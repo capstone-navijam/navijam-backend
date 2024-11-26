@@ -46,6 +46,9 @@ import {
 import {
     MypageService,
 } from "@main/mypage/mypage.service";
+import {
+    ChatroomModule,
+} from "@main/chatroom/chatroom.module";
 
 @Module({
     imports: [
@@ -61,6 +64,7 @@ import {
         ListenerModule,
         CommunityModule,
         MypageModule,
+        ChatroomModule,
     ],
     controllers: [ComfortController,
         MypageController,],

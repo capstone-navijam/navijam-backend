@@ -15,7 +15,7 @@ export function mapToComfortAndConsolesDto(board: any, consoles: any[]): GetComf
     // 게시글에 대한 카테고리 변환 처리
     const categories = board.categories.map((category: any) => prismaCategoryToCategory(category));
 
-    const boardTimestamp = getTimestamp(board.createdAt, board.updatedAt, "date");
+    const boardTimestamp = getTimestamp(board.createdAt, board.updatedAt, "datetime");
 
     // 콘솔(위로하기 답글) 변환 처리
     const consolesDto = consoles.map(console => {

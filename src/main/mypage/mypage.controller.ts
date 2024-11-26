@@ -69,6 +69,9 @@ import {
 import {
     UpdateListenerProfileRequestDto,
 } from "@main/mypage/dto/req/update-listener.profile.request.dto";
+import {
+    GetListenerProfileResponseDto,
+} from "@main/mypage/dto/res/get-listener-profile.response.dto";
 
 @ApiTags("마이페이지")
 @Controller("/mypage")
@@ -85,7 +88,7 @@ export class MypageController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiCustomResponseDecorator(GetMemberProfileResponseDto)
     @Roles("MEMBER")
-    @Get("/profile")
+    @Get("/profile/member")
     async getMemberProfile(
         @Req() req: AuthenticatedRequest
     ): Promise<CustomResponse<GetMemberProfileResponseDto>> {
@@ -113,7 +116,7 @@ export class MypageController {
     };
 
     @ApiOperation({
-        summary: "마이페이지 세 번째 페이지 조회(본인이 작성한 커뮤니티 게시글) API",
+        summary: "(회원/상담사) 마이페이지 세 번째 페이지 조회(본인이 작성한 커뮤니티 게시글) API",
     })
     @UseGuards(JwtAuthGuard)
     @ApiCustomResponseDecorator(GetCommunityBoardDetailResponseDto)
@@ -137,6 +140,20 @@ export class MypageController {
 
         return new CustomResponse<GetMyCommunityCommentsResponseDto[]>(data, "마이페이지 커뮤니티 게시글 댓글 조회 성공");
 
+    }
+
+    @ApiOperation({
+        summary: "(상담사) 마이페이지 프로필 조회 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiCustomResponseDecorator(GetListenerProfileResponseDto)
+    @Roles("LISTENER")
+    @Get("/profile/listener")
+    async getListenerProfile(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetListenerProfileResponseDto>> {
+        const memberId = BigInt(req.member.id);
+        const data = await this.mypageService.getListenerProfile(memberId);
+
+        return new CustomResponse<GetListenerProfileResponseDto>(data, "상담사 프로필 조회 성공");
     }
 
     @ApiOperation({

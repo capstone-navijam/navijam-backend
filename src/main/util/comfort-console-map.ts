@@ -15,6 +15,8 @@ export function mapToComfortAndConsolesDto(board: any, consoles: any[]): GetComf
     // 게시글에 대한 카테고리 변환 처리
     const categories = board.categories.map((category: any) => prismaCategoryToCategory(category));
 
+    const boardTimestamp = getTimestamp(board.createdAt, board.updatedAt);
+
     // 콘솔(위로하기 답글) 변환 처리
     const consolesDto = consoles.map(console => {
         const timestamp = getTimestamp(console.createdAt, console.updatedAt, "datetime");
@@ -23,8 +25,6 @@ export function mapToComfortAndConsolesDto(board: any, consoles: any[]): GetComf
             console.id.toString(), console.member.nickname, console.member.profile, console.content, timestamp, console.memberId.toString()
         );
     });
-
-    const boardTimestamp = getTimestamp(board.createdAt, board.updatedAt, "datetime");
 
     // 최종적으로 게시글과 답글을 결합한 DTO 반환
     return new GetComfortAndConsolesResponseDto(

@@ -14,6 +14,9 @@ import NotFoundListenerException from "@main/exception/not-found.listener.except
 import {
     IsNotListenerException,
 } from "@main/exception/is-not-listener.exception";
+import {
+    GetActiveChatroomsResponseDto,
+} from "@main/chatroom/dto/res/get-active-chatrooms.response.dto";
 
 @Injectable()
 export class ChatroomService {
@@ -47,5 +50,37 @@ export class ChatroomService {
         });
 
         return new CreateChatroomResponseDto(chatRoom.id.toString());
+    }
+
+    // 채팅방 목록 조회 API
+    async getActiveChatrooms(memberId: bigint): Promise<GetActiveChatroomsResponseDto[]> {
+        const chatrooms = await this.prisma.chatRoom.findMany({
+            where: {
+                memberId: memberId,
+                isEnabled: true,
+            },
+            include: {
+                listener: {
+                    include: {
+                        Member: true,
+                    },
+                },
+                chats: {
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                    take: 1,
+                },
+            },
+        });
+
+        return chatrooms.map((chatroom) => {
+            const recentMessage = chatroom.chats[0]?.message || "메시지가 없습니다.";
+            const recentMessageTime = chatroom.chats[0]?.createdAt?.toISOString() || "";
+
+            return new GetActiveChatroomsResponseDto(
+                chatroom.id, chatroom.listener.Member?.profile || "", chatroom.listener.Member?.nickname || "", recentMessage, recentMessageTime,
+            );
+        });
     }
 }

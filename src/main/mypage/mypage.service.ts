@@ -56,6 +56,9 @@ import {
     Category,
     categoryMap, prismaCategoryToCategory,
 } from "@main/global/category";
+import {
+    GetListenerProfileResponseDto,
+} from "@main/mypage/dto/res/get-listener-profile.response.dto";
 
 @Injectable()
 export class MypageService {
@@ -291,6 +294,29 @@ export class MypageService {
         return new UpdateListenerProfileResponseDto(
             body.nickname ?? member.nickname, updatedListenerInfo.address || "", updatedListenerInfo.career, updatedListenerInfo.education, updatedListenerInfo.description, updatedListenerInfo.phoneNumber || "", updatedListenerInfo.contactNumber, profileCategories, updatedListenerInfo.availableTime, member.email
         );
+    }
 
+    // 상담사 프로필 조회
+    async getListenerProfile(memberId: bigint): Promise<GetListenerProfileResponseDto> {
+        const member = await this.prisma.member.findUnique({
+            where: {
+                id: memberId,
+            },
+            include: {
+                listenerInfo: true,
+            },
+        });
+
+        if (!member || !member.listenerInfo) {
+            throw new NotFoundListenerException;
+        }
+
+        const listenerInfo = member.listenerInfo;
+
+        const categories = listenerInfo.categories.map(prismaCategoryToCategory);
+
+        return new GetListenerProfileResponseDto(
+            member.nickname, listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || [], member.email,
+        );
     }
 }

@@ -91,5 +91,4 @@ export class ChatService {
 
         return chat.id;
     }
-
 }

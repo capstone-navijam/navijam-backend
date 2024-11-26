@@ -52,6 +52,12 @@ import {
 import {
     ChatModule,
 } from "@main/chat/chat.module";
+import {
+    ChatroomService,
+} from "@main/chatroom/chatroom.service";
+import {
+    ChatroomController,
+} from "@main/chatroom/chatroom.controller";
 
 @Module({
     imports: [

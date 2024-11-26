@@ -13,11 +13,16 @@ import {
 import {
     JwtModule,
 } from "@nestjs/jwt";
+import {
+    ChatroomService,
+} from "@main/chatroom/chatroom.service";
 
 @Module({
     imports: [PrismaModule,
         JwtModule,],
     providers: [ChatGateway,
-        ChatService,],
+        ChatService,
+        ChatroomService,],
 })
-export class ChatModule {}
+export class ChatModule {
+}

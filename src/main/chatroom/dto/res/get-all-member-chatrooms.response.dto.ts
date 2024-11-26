@@ -2,12 +2,12 @@ import {
     ApiProperty,
 } from "@nestjs/swagger";
 
-export class GetActiveChatroomsResponseDto {
+export class GetAllMemberChatroomsResponseDto {
     @ApiProperty({
         description: "채팅방 ID",
         example: "1",
     })
-    readonly id: bigint;
+    readonly id: string;
 
     @ApiProperty({
         description: "상담사 이름",
@@ -33,17 +33,25 @@ export class GetActiveChatroomsResponseDto {
     })
     readonly recentMessageTime: string;
 
+    @ApiProperty({
+        description: "활성화 여부 (true/false)",
+        example: true,
+    })
+    readonly isEnabled: boolean;
+
     constructor(
-        id: bigint,
+        id: string,
         nickname: string,
         profile: string,
         recentMessage: string,
-        recentMessageTime: string
+        recentMessageTime: string,
+        isEnabled: boolean,
     ) {
         this.id = id;
         this.nickname = nickname;
         this.profile = profile;
         this.recentMessage = recentMessage;
         this.recentMessageTime = recentMessageTime;
+        this.isEnabled = isEnabled;
     }
 }

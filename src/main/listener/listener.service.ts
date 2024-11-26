@@ -36,7 +36,7 @@ export class ListenerService {
             ) || [];
 
             return new GetAllListenerResponseDto(
-                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.email, listener.listenerInfo?.career || [], listener.listenerInfo?.education || []
+                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.listenerInfo?.career || [], listener.listenerInfo?.education || [], listener.listenerInfo?.availableTime || []
             );
         });
     }

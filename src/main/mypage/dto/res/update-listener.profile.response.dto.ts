@@ -64,6 +64,13 @@ export class UpdateListenerProfileResponseDto {
     })
     readonly availableTime: string[];
 
+    @ApiProperty({
+        description: "이메일",
+        required: true,
+        type: String,
+    })
+    readonly email: string;
+
     constructor(
         nickname: string,
         address: string,
@@ -74,6 +81,7 @@ export class UpdateListenerProfileResponseDto {
         contactNumber: string,
         category: Category[],
         availableTime: string[],
+        email: string,
     ) {
         this.nickname = nickname;
         this.address = address;
@@ -84,5 +92,6 @@ export class UpdateListenerProfileResponseDto {
         this.contactNumber = contactNumber;
         this.category = category;
         this.availableTime = availableTime;
+        this.email = email;
     }
 }

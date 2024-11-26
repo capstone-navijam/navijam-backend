@@ -59,6 +59,12 @@ import {
 import {
     GetListenerProfileResponseDto,
 } from "@main/mypage/dto/res/get-listener-profile.response.dto";
+import {
+    GetWaitingComfortBoardResponseDto,
+} from "@main/mypage/dto/res/get-waiting-comfort-board.response.dto";
+import {
+    getTimestamp,
+} from "@main/util/timestamp.util";
 
 @Injectable()
 export class MypageService {
@@ -318,5 +324,29 @@ export class MypageService {
         return new GetListenerProfileResponseDto(
             member.nickname, listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || [], member.email,
         );
+    }
+
+    // 답변 대기 중인 위로받기 게시글 조회
+    async getWaitingComfortBoards(): Promise<GetWaitingComfortBoardResponseDto[]> {
+        const comfortBoards = await this.prisma.comfortBoard.findMany({
+            where: {
+                consoles: {
+                    none: {},
+                },
+            },
+            include: {
+                member: true,
+            },
+        });
+
+        return comfortBoards.map(comfort => {
+            const categories = comfort.categories.map(prismaCategoryToCategory);
+
+            const timestamp = getTimestamp(comfort.createdAt, comfort.updatedAt);
+
+            return new GetWaitingComfortBoardResponseDto(
+                comfort.id.toString(), categories, comfort.title, timestamp,
+            );
+        });
     }
 }

@@ -82,7 +82,7 @@ export class ComfortService {
 
             const hasAnswer = board.consoles.some(console => console.memberId === memberId);
 
-            const timestamp = getTimestamp(board.createdAt, board.updatedAt);
+            const timestamp = getTimestamp(board.createdAt, board.updatedAt, "date");
 
             return new GetAllComfortBoardResponseDto(
                 board.id.toString(), categories, board.title, board.content, board.member!.id.toString(), board.member!.profile, board.member!.nickname, timestamp, hasAnswer
@@ -102,7 +102,7 @@ export class ComfortService {
         });
 
         return boards.map((board) => {
-            const timestamp = getTimestamp(board.createdAt, board.updatedAt);
+            const timestamp = getTimestamp(board.createdAt, board.updatedAt, "date");
 
             return new GetComfortBoardResponseDto(board.id.toString(), board.title, timestamp);
         });
@@ -123,7 +123,7 @@ export class ComfortService {
             throw new NotFoundBoardException;
         }
 
-        const timestamp = getTimestamp(board.createdAt, board.updatedAt);
+        const timestamp = getTimestamp(board.createdAt, board.updatedAt, "datetime");
 
         const categories = board.categories.map(prismaCategoryToCategory);
 
@@ -174,7 +174,18 @@ export class ComfortService {
             },
         });
 
-        return filterUniqueComfortBoards(consoles);
+        return consoles.map(console => {
+            if (console.comfort) {
+                const categories = console.comfort.categories.map(prismaCategoryToCategory);
+
+                const timestamp = getTimestamp(console.comfort.createdAt, console.comfort.updatedAt, "date");
+
+                return new GetAnsweredComfortBoardResponseDto(
+                    console.comfort.id.toString(), categories, console.comfort.title, timestamp,
+                );
+            }
+            throw new Error("데이터가 존재하지 않습니다.");
+        });
     }
 
     // 위로받기 수정

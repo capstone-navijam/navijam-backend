@@ -32,14 +32,13 @@ export class GetAnsweredComfortBoardResponseDto {
     @ApiProperty({
         type: Date,
         description: "게시글 작성 시간",
-        example: "2024-01-02T16:06:20.43672",
     })
-    readonly createdAt: Date;
+    readonly timestamp: string;
 
-    constructor(id: string, categories: Category[],  title: string, createdAt: Date) {
+    constructor(id: string, categories: Category[],  title: string, timestamp: string) {
         this.id = id;
         this.categories = categories;
         this.title = title;
-        this.createdAt = createdAt;
+        this.timestamp = timestamp;
     }
 }

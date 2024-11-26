@@ -194,7 +194,11 @@ export class MypageService {
             .filter((board) => board.consoles.length > 0)
             .map((board) =>
                 new GetComfortBoardWithStatusResponseDto(
-                    board.id.toString(), board.title, board.createdAt.toISOString(), true
+                    board.id.toString(), board.title, board.createdAt.toLocaleDateString("ko-KR", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                    }), true
                 )
             );
 
@@ -202,7 +206,11 @@ export class MypageService {
             .filter((board) => board.consoles.length === 0) // 답변이 없는 게시글
             .map((board) =>
                 new GetComfortBoardWithStatusResponseDto(
-                    board.id.toString(), board.title, board.createdAt.toISOString(), false // 답변 대기 상태
+                    board.id.toString(), board.title, board.createdAt.toLocaleDateString("ko-KR", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                    }), false
                 )
             );
 
@@ -247,7 +255,11 @@ export class MypageService {
 
         return comments.map((comment) =>
             new GetMyCommunityCommentsResponseDto(
-                comment.postId.toString(), comment.content, comment.createdAt.toISOString()
+                comment.postId.toString(), comment.content, comment.createdAt.toLocaleDateString("ko-KR", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                }),
             ));
     };
 
@@ -342,7 +354,7 @@ export class MypageService {
         return comfortBoards.map(comfort => {
             const categories = comfort.categories.map(prismaCategoryToCategory);
 
-            const timestamp = getTimestamp(comfort.createdAt, comfort.updatedAt);
+            const timestamp = getTimestamp(comfort.createdAt, undefined, "date");
 
             return new GetWaitingComfortBoardResponseDto(
                 comfort.id.toString(), categories, comfort.title, timestamp,

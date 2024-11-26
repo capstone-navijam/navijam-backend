@@ -81,7 +81,7 @@ export class CommunityService {
 
         return boards.map((board) => {
             const categories = board.categories.map(prismaCategoryToCategory);
-            const timestamp = getTimestamp(board.createdAt, board.updatedAt);
+            const timestamp = getTimestamp(board.createdAt, board.updatedAt, "date");
 
             const likeCount = board.likes.length;
             const liked = member ? board.likes.some(like => like.memberId === member.id) : false;
@@ -114,7 +114,7 @@ export class CommunityService {
             throw new NotFoundBoardException;
         }
 
-        const timestamp = getTimestamp(board.createdAt, board.updatedAt);
+        const timestamp = getTimestamp(board.createdAt, board.updatedAt, "datetime");
         const categories = board.categories.map(prismaCategoryToCategory);
 
         const likeCount = board.likes.length;
@@ -231,7 +231,7 @@ export class CommunityService {
         });
 
         return comments.map(comment => {
-            const timestamp = getTimestamp(comment.createdAt);
+            const timestamp = getTimestamp(board.createdAt, board.updatedAt, "datetime");
 
             return new GetAllCommunityCommentResponseDto(
                 comment.id.toString(), comment.member?.nickname?.toString() || "", comment.member?.profile?.toString() || "", comment.content, timestamp, comment.member?.id?.toString() || "", communityBoardId.toString(),

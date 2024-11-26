@@ -130,7 +130,7 @@ export class ConsoleService {
         });
 
         return consoles.map(console => {
-            const timestamp = getTimestamp(console.createdAt, console.updatedAt);
+            const timestamp = getTimestamp(console.createdAt, console.updatedAt, "datetime");
 
             const memberId = console.member.id.toString();
 
@@ -154,7 +154,7 @@ export class ConsoleService {
 
         const comments = await this.prisma.consoleComment.findMany({
             where: {
-                id: consoleId,
+                consoleId: consoleId,
             },
             include: {
                 member: true,
@@ -162,7 +162,7 @@ export class ConsoleService {
         });
 
         return comments.map(comment => {
-            const timestamp = getTimestamp(comment.createdAt);
+            const timestamp = getTimestamp(comment.createdAt, undefined, "datetime");
 
             return new GetAllCommentResponseDto(
                 comment.id.toString(), comment.member?.nickname?.toString() || "", comment.member?.profile?.toString() || "", comment.content, timestamp, comment.member?.id?.toString() || "", consoleId.toString(),

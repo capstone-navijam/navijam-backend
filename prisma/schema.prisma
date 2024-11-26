@@ -37,7 +37,9 @@ model ListenerInfo {
   education     String[]   @db.VarChar(50)
   description   String     @db.VarChar(100)
   categories    Category[] @default([FREE])
-  Member        Member?
+  availableTime String[]   @db.VarChar(200)
+
+  Member Member?
   listenerRooms ChatRoom[]
 
   @@map("listener_info")

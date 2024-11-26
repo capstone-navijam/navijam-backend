@@ -1,71 +1,23 @@
 import {
-    ArrayMaxSize,
-    IsArray,
-    IsEmail,
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    IsUrl,
-    Matches,
-    MaxLength, MinLength,
-} from "class-validator";
-import {
     ApiProperty,
 } from "@nestjs/swagger";
+import {
+    ArrayMaxSize, IsArray, IsOptional, IsString, Matches, MaxLength, MinLength,
+} from "class-validator";
 import {
     Category,
 } from "@main/global/category";
 
-export class SignupListenerRequestDto {
-    @ApiProperty({
-        description: "이메일",
-        required: true,
-    })
-    @IsEmail({}, {
-        message: "이메일 주소 형식을 지켜주세요.",
-    })
-    readonly email: string;
-
+export class UpdateListenerProfileRequestDto {
     @ApiProperty({
         description: "이름",
-        required: true,
+        required: false,
     })
-    @IsString({})
-    @IsNotEmpty({
-        message: "공백을 포함할 수 없습니다.",
-    })
+    @IsString()
     @Matches(/^[a-zA-Z0-9가-힣]{2,8}$/, {
         message: "이름은 2~8글자의 한글 또는 영문자이어야 합니다.",
     })
     readonly nickname: string;
-
-    @ApiProperty({
-        description: "비밀번호",
-        required: true,
-    })
-    @IsString({})
-    @IsNotEmpty({
-        message: "공백을 포함할 수 없습니다.",
-    })
-    @Matches(/^(?=.*\d)(?=.*[a-zA-Z])(?=.*[^a-zA-Z0-9]).{8,14}$/, {
-        message: "비밀번호는 8~14글자의 영문, 숫자, 특수문자를 포함해야 합니다.",
-    })
-    readonly password: string;
-
-    @ApiProperty({
-        description: "비밀번호 확인",
-        required: true,
-    })
-    readonly checkPassword: string;
-
-    @ApiProperty({
-        description: "프로필",
-        required: true,
-    })
-    @IsUrl({}, {
-        message: "프로필 사진이 형식에 맞지 않습니다.",
-    })
-    readonly profile: string;
 
     @IsOptional()
     @ApiProperty({

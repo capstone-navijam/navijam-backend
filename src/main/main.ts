@@ -51,7 +51,7 @@ async function bootstrap() {
     const redisIoAdapter = new RedisIoAdapter(configService);
     app.useWebSocketAdapter(redisIoAdapter);
 
-    await app.listen(3000);
+    await app.listen(3001);
 }
 
 bootstrap();

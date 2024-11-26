@@ -63,6 +63,12 @@ import {
 import {
     UpdateMemberProfileImageResponseDto,
 } from "@main/mypage/dto/res/update-member-profile-image.response.dto";
+import {
+    UpdateListenerProfileResponseDto,
+} from "@main/mypage/dto/res/update-listener.profile.response.dto";
+import {
+    UpdateListenerProfileRequestDto,
+} from "@main/mypage/dto/req/update-listener.profile.request.dto";
 
 @ApiTags("마이페이지")
 @Controller("/mypage")
@@ -139,12 +145,26 @@ export class MypageController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @ApiCustomResponseDecorator(UpdateMemberProfileResponseDto)
     @Roles("MEMBER")
-    @Patch("/profile")
+    @Patch("/profile/member")
     async updateMemberProfile(@Req() req: AuthenticatedRequest, @Body() body: UpdateMemberProfileRequestDto): Promise<CustomResponse<UpdateMemberProfileResponseDto>> {
         const memberId = BigInt(req.member.id);
         const data = await this.mypageService.updateMemberProfile(memberId, body);
 
         return new CustomResponse<UpdateMemberProfileResponseDto>(data, "마이페이지 수정 성공");
+    }
+
+    @ApiOperation({
+        summary: "상담사 마이페이지 프로필 수정 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiCustomResponseDecorator(UpdateListenerProfileResponseDto)
+    @Roles("LISTENER")
+    @Patch("/profile/listener")
+    async updateListenerProfile(@Req() req: AuthenticatedRequest, @Body() body: UpdateListenerProfileRequestDto): Promise<CustomResponse<UpdateListenerProfileResponseDto>> {
+        const memberId = BigInt(req.member.id);
+        const data = await this.mypageService.updateListenerProfile(memberId, body);
+
+        return new CustomResponse<UpdateListenerProfileResponseDto>(data, "마이페이지 수정 성공");
     }
 
     @ApiOperation({

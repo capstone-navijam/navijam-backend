@@ -2,7 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common";
 import {
-    PrismaClient,
+    PrismaClient, $Enums,
 } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import {
@@ -45,6 +45,17 @@ import {
 import {
     UpdatePasswordRequestDto,
 } from "@main/mypage/dto/req/update-password.request.dto";
+import {
+    UpdateListenerProfileResponseDto,
+} from "@main/mypage/dto/res/update-listener.profile.response.dto";
+import {
+    UpdateListenerProfileRequestDto,
+} from "@main/mypage/dto/req/update-listener.profile.request.dto";
+import NotFoundListenerException from "@main/exception/not-found.listener.exception";
+import {
+    Category,
+    categoryMap, prismaCategoryToCategory,
+} from "@main/global/category";
 
 @Injectable()
 export class MypageService {
@@ -230,4 +241,56 @@ export class MypageService {
                 comment.postId.toString(), comment.content, comment.createdAt.toISOString()
             ));
     };
+
+    // 상담사 프로필 수정
+    async updateListenerProfile(memberId: bigint, body: UpdateListenerProfileRequestDto): Promise<UpdateListenerProfileResponseDto> {
+        const member = await this.prisma.member.findUnique({
+            where: {
+                id: memberId,
+            },
+            include: {
+                listenerInfo: true,
+            },
+        });
+
+        if (!member || !member.listenerInfo) {
+            throw new NotFoundListenerException;
+        }
+
+        if (body.nickname) {
+            await this.prisma.member.update({
+                where: {
+                    id: memberId,
+                },
+                data: {
+                    nickname: body.nickname,
+                },
+            });
+        }
+
+        const prismaCategories = body.category.map(category => categoryMap[category]);
+
+        const updatedListenerInfo = await this.prisma.listenerInfo.update({
+            where: {
+                id: member.listenerInfo.id,
+            },
+            data: {
+                address: body.address,
+                career: body.career,
+                education: body.education,
+                description: body.description,
+                phoneNumber: body.phoneNumber,
+                contactNumber: body.contactNumber,
+                categories: prismaCategories,
+                availableTime: body.availableTime,
+            },
+        });
+
+        const profileCategories = updatedListenerInfo.categories.map(prismaCategoryToCategory);
+
+        return new UpdateListenerProfileResponseDto(
+            body.nickname ?? member.nickname, updatedListenerInfo.address || "", updatedListenerInfo.career, updatedListenerInfo.education, updatedListenerInfo.description, updatedListenerInfo.phoneNumber || "", updatedListenerInfo.contactNumber, profileCategories, updatedListenerInfo.availableTime,
+        );
+
+    }
 }

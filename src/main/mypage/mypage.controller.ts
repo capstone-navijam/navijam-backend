@@ -163,7 +163,7 @@ export class MypageController {
         summary: "(상담사) 답변 대기 중인 위로받기 게시글 조회 API",
     })
     @UseGuards(JwtAuthGuard, RolesGuard)
-    @ApiCustomResponseDecorator(GetListenerProfileResponseDto)
+    @ApiCustomResponseDecorator(GetWaitingComfortBoardResponseDto)
     @Roles("LISTENER")
     @Get("/comforts/no-answered")
     async getWaitingComfortBoards(): Promise<CustomResponse<GetWaitingComfortBoardResponseDto[]>> {

@@ -32,6 +32,12 @@ import {
 import {
     WebSocketJwtGuard,
 } from "@main/chat/guard/websocket-jwt.guard";
+import {
+    ChatroomService,
+} from "@main/chatroom/chatroom.service";
+import {
+    ParseBigIntPipe,
+} from "@main/auth/pipe/parse-bigint.pipe";
 
 @UseGuards(WebSocketJwtGuard)
 @UsePipes(WebSocketValidationPipe)
@@ -45,7 +51,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @WebSocketServer()
     private readonly server: Server;
 
-    constructor(private readonly chatService: ChatService) {
+    constructor(private readonly chatService: ChatService,
+                private readonly chatroomService: ChatroomService,) {
     }
 
     @SubscribeMessage("join")
@@ -66,6 +73,25 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
             sender: client.memberId,
             message: message.message,
         });
+        await this.emitChatroomUpdate(message.roomId);
+    }
+
+    private async emitChatroomUpdate(roomId: bigint) {
+        // **채팅방 데이터를 최신 상태로 조회**
+        const chatroomData = await this.chatroomService.getChatroomById(roomId);
+
+        // 해당 채팅방을 조회 중인 사용자들에게 실시간으로 업데이트
+        this.server.to(roomId.toString()).emit("updateChatroomList", chatroomData);
+    }
+
+    @SubscribeMessage("getChatroomDetail")
+    async handleGetChatroomDetail(
+        @MessageBody("roomId", ParseBigIntPipe) roomId: bigint,
+        @ConnectedSocket() client: ChatMember,
+    ) {
+        const chatroom = await this.chatroomService.getChatroomById(roomId);
+
+        client.emit("chatroomDetail", chatroom);
     }
 
     afterInit(server: Server) {
@@ -79,4 +105,5 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     handleConnection(client: Socket, ...args: any[]): any {
         console.log("connect");
     }
+
 }

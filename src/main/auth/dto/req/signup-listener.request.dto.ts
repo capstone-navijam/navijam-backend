@@ -1,13 +1,13 @@
 import {
     ArrayMaxSize,
     IsArray,
-    IsEmail,
+    IsEmail, IsInt,
     IsNotEmpty,
     IsOptional,
     IsString,
     IsUrl,
     Matches,
-    MaxLength, MinLength,
+    MaxLength, Min, MinLength,
 } from "class-validator";
 import {
     ApiProperty,
@@ -160,4 +160,14 @@ export class SignupListenerRequestDto {
         message: "각 상담 가능 시간은 최소 8글자 이상이어야 합니다.",
     })
     availableTime: string[];
+
+    @ApiProperty({
+        description: "1:1 실시간 상담 가격",
+        required: true,
+    })
+    @IsInt()
+    @Min(0, {
+        message: "상담 가격은 0 이상의 숫자여야 합니다.",
+    })
+    price: number;
 }

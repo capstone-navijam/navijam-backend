@@ -2,8 +2,7 @@ import {
     Controller, Get,
 } from "@nestjs/common";
 import {
-    ApiOperation,
-    ApiTags,
+    ApiOperation, ApiTags,
 } from "@nestjs/swagger";
 import {
     ListenerService,

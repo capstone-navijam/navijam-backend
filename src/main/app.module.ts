@@ -49,6 +49,9 @@ import {
 import {
     ChatroomModule,
 } from "@main/chatroom/chatroom.module";
+import {
+    ChatModule,
+} from "@main/chat/chat.module";
 
 @Module({
     imports: [
@@ -65,6 +68,7 @@ import {
         CommunityModule,
         MypageModule,
         ChatroomModule,
+        ChatModule,
     ],
     controllers: [ComfortController,
         MypageController,],

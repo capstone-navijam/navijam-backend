@@ -7,9 +7,17 @@ import {
 import {
     ChatGateway,
 } from "@main/chat/chat.gateway";
+import {
+    ChatService,
+} from "@main/chat/chat.service";
+import {
+    JwtModule,
+} from "@nestjs/jwt";
 
 @Module({
-    imports: [PrismaModule,],
-    providers: [ChatGateway,],
+    imports: [PrismaModule,
+        JwtModule,],
+    providers: [ChatGateway,
+        ChatService,],
 })
 export class ChatModule {}

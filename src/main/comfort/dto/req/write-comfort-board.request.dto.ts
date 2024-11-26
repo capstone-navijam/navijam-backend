@@ -2,8 +2,7 @@ import {
     ApiProperty,
 } from "@nestjs/swagger";
 import {
-    ArrayMaxSize, ArrayNotEmpty, IsArray, IsEnum,
-    IsNotEmpty, IsString, Length,
+    ArrayMaxSize, ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, Length,
 } from "class-validator";
 import {
     Category,

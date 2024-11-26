@@ -1,5 +1,5 @@
 import {
-    HttpException, HttpStatus, 
+    HttpException, HttpStatus,
 } from "@nestjs/common";
 
 export class InvalidRequestException extends HttpException {

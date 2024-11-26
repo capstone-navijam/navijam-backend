@@ -1,51 +1,50 @@
 import {
-    Injectable,
-} from "@nestjs/common";
-import {
     IoAdapter,
 } from "@nestjs/platform-socket.io";
-import * as redis from "redis";
 import {
-    ConfigService,
-} from "@nestjs/config";
+    createClient, RedisClientType,
+} from "redis";
 import {
     ServerOptions,
 } from "socket.io";
 import {
     createAdapter,
 } from "@socket.io/redis-adapter";
+import {
+    ConfigService,
+} from "@nestjs/config";
+import {
+    INestApplication,
+} from "@nestjs/common";
 
-@Injectable()
 export class RedisIoAdapter extends IoAdapter {
-    private readonly pubClient: redis.RedisClientType;
-    private readonly subClient: redis.RedisClientType;
+    private adapterConstructor: ReturnType<typeof createAdapter>;
+    private pubClient: RedisClientType;
+    private subClient: RedisClientType;
 
-    constructor(configService: ConfigService) {
-        super();
-
+    constructor(configService: ConfigService, app: INestApplication) {
+        super(app);
         const redisHost = configService.get<string>("REDIS_HOST", "localhost");
         const redisPort = configService.get<number>("REDIS_PORT", 16379);
 
-        this.pubClient = redis.createClient({
+        this.pubClient = createClient({
             url: `redis://${redisHost}:${redisPort}`,
         });
         this.subClient = this.pubClient.duplicate();
     }
 
-    async createIOServer(port: number, options?: ServerOptions): Promise<void> {
-        const server = super.createIOServer(port, options);
+    async connectToRedis(): Promise<void> {
 
-        await this.pubClient.connect();
-        await this.subClient.connect();
+        await Promise.all([this.pubClient.connect(),
+            this.subClient.connect(),]);
 
-        const redisAdapter = createAdapter(this.pubClient, this.subClient);
-        server.adapter(redisAdapter);
-
-        return server;
+        this.adapterConstructor = createAdapter(this.pubClient, this.subClient);
     }
 
-    async onModuleDestroy() {
-        await this.pubClient.disconnect();
-        await this.subClient.disconnect();
+    createIOServer(port: number, options?: ServerOptions): any {
+        const server = super.createIOServer(port, options);
+        server.adapter(this.adapterConstructor);
+
+        return server;
     }
 }

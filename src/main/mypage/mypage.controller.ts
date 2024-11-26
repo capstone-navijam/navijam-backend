@@ -1,6 +1,15 @@
 import {
     Body,
-    Controller, FileTypeValidator, Get, ParseFilePipe, Patch, Req, UploadedFile, UseFilters, UseGuards, UseInterceptors,
+    Controller,
+    FileTypeValidator,
+    Get,
+    ParseFilePipe,
+    Patch,
+    Req,
+    UploadedFile,
+    UseFilters,
+    UseGuards,
+    UseInterceptors,
 } from "@nestjs/common";
 import {
     MypageService,

@@ -2,8 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common";
 import {
-    Member,
-    PrismaClient,
+    Member, PrismaClient,
 } from "@prisma/client";
 import {
     CreateChatRoomRequestDto,

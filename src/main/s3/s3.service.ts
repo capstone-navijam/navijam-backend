@@ -2,10 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common";
 import {
-    DeleteObjectCommand,
-    ObjectCannedACL,
-    PutObjectCommand,
-    S3Client,
+    DeleteObjectCommand, ObjectCannedACL, PutObjectCommand, S3Client,
 } from "@aws-sdk/client-s3";
 import {
     ConfigService,

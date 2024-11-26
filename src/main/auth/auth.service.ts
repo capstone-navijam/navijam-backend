@@ -2,10 +2,7 @@ import {
     Injectable, UnauthorizedException,
 } from "@nestjs/common";
 import {
-    ListenerInfo,
-    Member,
-    PrismaClient,
-    Role,
+    ListenerInfo, Member, PrismaClient, Role,
 } from "@prisma/client";
 import {
     SignupMemberRequestDto,

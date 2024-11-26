@@ -153,6 +153,7 @@ export class AuthService {
                 description: signupListenerRequestDto.description,
                 categories: prismaCategories,
                 availableTime: signupListenerRequestDto.availableTime,
+                price: signupListenerRequestDto.price,
             },
         });
 

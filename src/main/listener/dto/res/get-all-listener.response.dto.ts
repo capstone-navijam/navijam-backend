@@ -80,6 +80,12 @@ export class GetAllListenerResponseDto {
     })
     readonly availableTime: string[];
 
+    @ApiProperty({
+        description: "상담 가격 (포맷된 값)",
+        example: "₩50,000",
+    })
+    readonly formattedPrice: string;
+
     constructor(
         id: string,
         nickname: string,
@@ -91,6 +97,7 @@ export class GetAllListenerResponseDto {
         career: string[],
         education: string[],
         availableTime: string[],
+        formattedPrice: string,
     ) {
         this.id = id;
         this.nickname = nickname;
@@ -102,5 +109,6 @@ export class GetAllListenerResponseDto {
         this.career = career;
         this.education = education;
         this.availableTime = availableTime;
+        this.formattedPrice = formattedPrice;
     }
 }

@@ -64,6 +64,9 @@ import {
 import {
     getTimestamp,
 } from "@main/util/timestamp.util";
+import {
+    formatPriceToKRW,
+} from "@main/util/format-price.utils";
 
 @Injectable()
 export class MypageService {
@@ -307,9 +310,10 @@ export class MypageService {
         });
 
         const profileCategories = updatedListenerInfo.categories.map(prismaCategoryToCategory);
+        const formattedPrice = formatPriceToKRW(updatedListenerInfo.price || 0);
 
         return new UpdateListenerProfileResponseDto(
-            body.nickname ?? member.nickname, updatedListenerInfo.address || "", updatedListenerInfo.career, updatedListenerInfo.education, updatedListenerInfo.description, updatedListenerInfo.phoneNumber || "", updatedListenerInfo.contactNumber, profileCategories, updatedListenerInfo.availableTime, member.email
+            body.nickname ?? member.nickname, updatedListenerInfo.address || "", updatedListenerInfo.career, updatedListenerInfo.education, updatedListenerInfo.description, updatedListenerInfo.phoneNumber || "", updatedListenerInfo.contactNumber, profileCategories, updatedListenerInfo.availableTime, member.email, formattedPrice,
         );
     }
 
@@ -331,9 +335,10 @@ export class MypageService {
         const listenerInfo = member.listenerInfo;
 
         const categories = listenerInfo.categories.map(prismaCategoryToCategory);
+        const formattedPrice = formatPriceToKRW(listenerInfo.price || 0);
 
         return new GetListenerProfileResponseDto(
-            member.nickname, listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || [], member.email,
+            member.nickname, listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || [], member.email, formattedPrice
         );
     }
 

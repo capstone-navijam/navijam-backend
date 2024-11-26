@@ -71,6 +71,12 @@ export class UpdateListenerProfileResponseDto {
     })
     readonly email: string;
 
+    @ApiProperty({
+        description: "상담 가격 (포맷된 값)",
+        example: "₩50,000",
+    })
+    readonly formattedPrice: string;
+
     constructor(
         nickname: string,
         address: string,
@@ -82,6 +88,7 @@ export class UpdateListenerProfileResponseDto {
         category: Category[],
         availableTime: string[],
         email: string,
+        formattedPrice: string,
     ) {
         this.nickname = nickname;
         this.address = address;
@@ -93,5 +100,6 @@ export class UpdateListenerProfileResponseDto {
         this.category = category;
         this.availableTime = availableTime;
         this.email = email;
+        this.formattedPrice = formattedPrice;
     }
 }

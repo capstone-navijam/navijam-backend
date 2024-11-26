@@ -38,6 +38,7 @@ model ListenerInfo {
   description   String     @db.VarChar(100)
   categories    Category[] @default([FREE])
   availableTime String[]   @db.VarChar(200)
+  price         Int        @default(0)
 
   Member        Member?
   listenerRooms ChatRoom[]

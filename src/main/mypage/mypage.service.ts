@@ -2,7 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common";
 import {
-    PrismaClient, $Enums,
+    PrismaClient,
 } from "@prisma/client";
 import * as bcrypt from "bcrypt";
 import {
@@ -53,7 +53,6 @@ import {
 } from "@main/mypage/dto/req/update-listener.profile.request.dto";
 import NotFoundListenerException from "@main/exception/not-found.listener.exception";
 import {
-    Category,
     categoryMap, prismaCategoryToCategory,
 } from "@main/global/category";
 import {

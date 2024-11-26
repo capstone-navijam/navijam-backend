@@ -1,11 +1,8 @@
 import {
-    ForbiddenException,
-    Injectable,
+    ForbiddenException, Injectable,
 } from "@nestjs/common";
 import {
-    ComfortBoard,
-    Console, Member,
-    PrismaClient, Role,
+    ComfortBoard, Console, Member, PrismaClient, Role,
 } from "@prisma/client";
 import {
     WriteConsoleRequestDto,

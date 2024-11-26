@@ -1,6 +1,6 @@
 import {
     Category as PrismaCategory,
-} from  "@prisma/client";
+} from "@prisma/client";
 
 export enum Category {
     FREE = "자유",

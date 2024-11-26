@@ -1,10 +1,8 @@
 import {
-    ForbiddenException,
-    Injectable,
+    ForbiddenException, Injectable,
 } from "@nestjs/common";
 import {
-    Member,
-    PrismaClient,
+    Member, PrismaClient,
 } from "@prisma/client";
 import {
     WriteCommunityBoardRequestDto,

@@ -1,5 +1,5 @@
 import {
-    IsNotEmpty, IsString, Matches, MaxLength, IsUrl, IsEmail, IsOptional,
+    IsEmail, IsNotEmpty, IsOptional, IsString, IsUrl, Matches, MaxLength,
 } from "class-validator";
 import {
     ApiProperty,

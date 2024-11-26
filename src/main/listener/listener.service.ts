@@ -2,7 +2,7 @@ import {
     Injectable,
 } from "@nestjs/common";
 import {
-    PrismaClient, Role, $Enums,
+    $Enums, PrismaClient, Role,
 } from "@prisma/client";
 import {
     GetAllListenerResponseDto,

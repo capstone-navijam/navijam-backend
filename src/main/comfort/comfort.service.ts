@@ -1,10 +1,8 @@
 import {
-    ForbiddenException,
-    Injectable,
+    ForbiddenException, Injectable,
 } from "@nestjs/common";
 import {
-    ComfortBoard, Member,
-    PrismaClient, Role,
+    ComfortBoard, Member, PrismaClient, Role,
 } from "@prisma/client";
 import {
     WriteComfortBoardRequestDto,
@@ -37,9 +35,6 @@ import {
 import {
     GetAnsweredComfortBoardResponseDto,
 } from "@main/comfort/dto/res/get-answered-comfort-board.response.dto";
-import {
-    filterUniqueComfortBoards,
-} from "@main/util/comfort-board.utils";
 import {
     GetComfortAndConsolesResponseDto,
 } from "@main/comfort/dto/res/get-comfort-console.response.dto";

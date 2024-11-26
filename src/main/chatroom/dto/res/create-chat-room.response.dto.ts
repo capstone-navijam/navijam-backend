@@ -2,7 +2,7 @@ import {
     ApiProperty,
 } from "@nestjs/swagger";
 
-export class CreateChatroomResponseDto {
+export class CreateChatRoomResponseDto {
     @ApiProperty({
         description: "Chatroom Id",
         type: String,

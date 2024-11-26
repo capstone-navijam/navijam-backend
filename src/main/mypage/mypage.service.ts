@@ -289,7 +289,7 @@ export class MypageService {
         const profileCategories = updatedListenerInfo.categories.map(prismaCategoryToCategory);
 
         return new UpdateListenerProfileResponseDto(
-            body.nickname ?? member.nickname, updatedListenerInfo.address || "", updatedListenerInfo.career, updatedListenerInfo.education, updatedListenerInfo.description, updatedListenerInfo.phoneNumber || "", updatedListenerInfo.contactNumber, profileCategories, updatedListenerInfo.availableTime,
+            body.nickname ?? member.nickname, updatedListenerInfo.address || "", updatedListenerInfo.career, updatedListenerInfo.education, updatedListenerInfo.description, updatedListenerInfo.phoneNumber || "", updatedListenerInfo.contactNumber, profileCategories, updatedListenerInfo.availableTime, member.email
         );
 
     }

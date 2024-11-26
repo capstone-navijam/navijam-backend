@@ -2,7 +2,7 @@ import {
     ApiOperation, ApiTags,
 } from "@nestjs/swagger";
 import {
-    Body, Controller, Post, Req, UseFilters, UseGuards,
+    Body, Controller, Get, Post, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     CustomUnauthorizedExceptionFilter,
@@ -29,6 +29,9 @@ import {
     CreateChatRoomRequestDto,
 } from "@main/chatroom/dto/req/create-chatroom.request.dto";
 import CustomResponse from "@main/response/custom-response";
+import {
+    GetActiveChatroomsResponseDto,
+} from "@main/chatroom/dto/res/get-active-chatrooms.response.dto";
 
 @ApiTags("채팅방")
 @Controller("/chatrooms")
@@ -54,4 +57,19 @@ export class ChatroomController {
 
         return new CustomResponse<CreateChatroomResponseDto>(data, "채팅방 생성 성공");
     }
+
+    // 채팅방 목록 조회 API
+    @ApiOperation({
+        summary: "채팅방 생성 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @ApiCustomResponseDecorator(GetActiveChatroomsResponseDto)
+    @Get()
+    async getActiveChatrooms(@Req() req: AuthenticatedRequest): Promise<CustomResponse<GetActiveChatroomsResponseDto[]>> {
+        const memberId = BigInt(req.member.id);
+        const data = await this.chatroomService.getActiveChatrooms(memberId);
+
+        return new CustomResponse<GetActiveChatroomsResponseDto[]>(data, "활성화된 채팅방 조회 성공");
+    }
+
 }

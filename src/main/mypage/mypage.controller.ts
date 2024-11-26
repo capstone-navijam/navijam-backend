@@ -72,6 +72,9 @@ import {
 import {
     GetListenerProfileResponseDto,
 } from "@main/mypage/dto/res/get-listener-profile.response.dto";
+import {
+    GetWaitingComfortBoardResponseDto,
+} from "@main/mypage/dto/res/get-waiting-comfort-board.response.dto";
 
 @ApiTags("마이페이지")
 @Controller("/mypage")
@@ -154,6 +157,19 @@ export class MypageController {
         const data = await this.mypageService.getListenerProfile(memberId);
 
         return new CustomResponse<GetListenerProfileResponseDto>(data, "상담사 프로필 조회 성공");
+    }
+
+    @ApiOperation({
+        summary: "(상담사) 답변 대기 중인 위로받기 게시글 조회 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiCustomResponseDecorator(GetListenerProfileResponseDto)
+    @Roles("LISTENER")
+    @Get("/comforts/no-answered")
+    async getWaitingComfortBoards(): Promise<CustomResponse<GetWaitingComfortBoardResponseDto[]>> {
+        const data = await this.mypageService.getWaitingComfortBoards();
+
+        return new CustomResponse<GetWaitingComfortBoardResponseDto[]>(data, "답변 대기 중인 게시글 조회 성공");
     }
 
     @ApiOperation({

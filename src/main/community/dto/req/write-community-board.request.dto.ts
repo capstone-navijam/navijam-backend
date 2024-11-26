@@ -1,5 +1,5 @@
 import {
-    IsString, IsNotEmpty, ArrayMaxSize, IsArray, Length, ArrayNotEmpty, IsEnum,
+    ArrayMaxSize, ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, Length,
 } from "class-validator";
 import {
     ApiProperty,

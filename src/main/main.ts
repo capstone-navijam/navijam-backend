@@ -47,8 +47,9 @@ async function bootstrap() {
             "DELETE",],
     });
 
-    const configService = app.get(ConfigService);
-    const redisIoAdapter = new RedisIoAdapter(configService);
+    const configService = await app.get(ConfigService);
+    const redisIoAdapter = new RedisIoAdapter(configService, app);
+    await redisIoAdapter.connectToRedis();
     app.useWebSocketAdapter(redisIoAdapter);
 
     await app.listen(3000);

@@ -7,7 +7,9 @@ import {
     IsString,
     IsUrl,
     Matches,
-    MaxLength, Min, MinLength,
+    MaxLength,
+    MinLength,
+    Min
 } from "class-validator";
 import {
     ApiProperty,

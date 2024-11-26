@@ -57,7 +57,7 @@ export class GetComfortAndConsolesResponseDto {
         description: "게시글 작성 시간",
         example: "2024-01-02T16:06:20.43672",
     })
-    readonly createdAt: string;
+    readonly timestamp: string;
 
     @ApiProperty({
         description: "답변 여부",
@@ -79,7 +79,7 @@ export class GetComfortAndConsolesResponseDto {
         writerId: string,
         writerProfile: string,
         writerNickname: string,
-        createdAt: string,
+        timestamp: string,
         isAnswered: boolean,
         consoles: GetAllConsoleResponseDto[]
     ) {
@@ -90,7 +90,7 @@ export class GetComfortAndConsolesResponseDto {
         this.writerId = writerId;
         this.writerProfile = writerProfile;
         this.writerNickname = writerNickname;
-        this.createdAt = createdAt;
+        this.timestamp = timestamp;
         this.isAnswered = isAnswered;
         this.consoles = consoles;
     }

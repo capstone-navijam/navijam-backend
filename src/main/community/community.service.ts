@@ -209,7 +209,7 @@ export class CommunityService {
         return new WriteCommunityBoardResponseDto(comment.id.toString());
     }
 
-    // 커뮤니티 댓글 조회
+    // 커뮤니티 댓글 전체 조회
     async getAllComments(communityBoardId: bigint): Promise<GetAllCommunityCommentResponseDto[]> {
         const board = await this.prisma.communityBoard.findUnique({
             where: {
@@ -231,7 +231,7 @@ export class CommunityService {
         });
 
         return comments.map(comment => {
-            const timestamp = getTimestamp(board.createdAt, board.updatedAt, "datetime");
+            const timestamp = getTimestamp(comment.createdAt, undefined, "datetime");
 
             return new GetAllCommunityCommentResponseDto(
                 comment.id.toString(), comment.member?.nickname?.toString() || "", comment.member?.profile?.toString() || "", comment.content, timestamp, comment.member?.id?.toString() || "", communityBoardId.toString(),

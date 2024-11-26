@@ -10,10 +10,22 @@ import {
 import {
     ChatroomController,
 } from "@main/chatroom/chatroom.controller";
+import {
+    RolesGuard,
+} from "@main/auth/jwt/roles.guard";
+import {
+    JwtModule,
+} from "@nestjs/jwt";
 
 @Module({
-    imports: [PrismaModule,],
+    imports: [PrismaModule,
+        JwtModule,],
     controllers: [ChatroomController,],
-    providers: [ChatroomService,],
+    providers: [ChatroomService,
+        RolesGuard,
+    ],
+
 })
-export class ChatroomModule {}
+
+export class ChatroomModule {
+}

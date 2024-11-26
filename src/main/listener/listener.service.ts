@@ -10,6 +10,9 @@ import {
 import {
     prismaCategoryToCategory,
 } from "@main/global/category";
+import {
+    formatPriceToKRW,
+} from "@main/util/format-price.utils";
 
 @Injectable()
 export class ListenerService {
@@ -35,8 +38,10 @@ export class ListenerService {
                 (category: $Enums.Category) => prismaCategoryToCategory(category)
             ) || [];
 
+            const formattedPrice = formatPriceToKRW(listener.listenerInfo?.price || 0);
+
             return new GetAllListenerResponseDto(
-                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.listenerInfo?.career || [], listener.listenerInfo?.education || [], listener.listenerInfo?.availableTime || []
+                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.listenerInfo?.career || [], listener.listenerInfo?.education || [], listener.listenerInfo?.availableTime || [], formattedPrice,
             );
         });
     }

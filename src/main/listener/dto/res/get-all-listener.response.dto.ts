@@ -86,6 +86,24 @@ export class GetAllListenerResponseDto {
     })
     readonly formattedPrice: string;
 
+    @ApiProperty({
+        description: "리뷰 갯수",
+        example: 20,
+    })
+    readonly reviewCount: number;
+
+    @ApiProperty({
+        description: "리뷰 평균 점수",
+        example: "4.5",
+    })
+    readonly averageRating: string;
+
+    @ApiProperty({
+        description: "최근 리뷰",
+        example: "친절하고 유익한 상담이었어요 !",
+    })
+    readonly recentReview: string;
+
     constructor(
         id: string,
         nickname: string,
@@ -98,6 +116,9 @@ export class GetAllListenerResponseDto {
         education: string[],
         availableTime: string[],
         formattedPrice: string,
+        reviewCount: number,
+        averageRating: string,
+        recentReview: string,
     ) {
         this.id = id;
         this.nickname = nickname;
@@ -110,5 +131,8 @@ export class GetAllListenerResponseDto {
         this.education = education;
         this.availableTime = availableTime;
         this.formattedPrice = formattedPrice;
+        this.reviewCount = reviewCount;
+        this.averageRating = averageRating;
+        this.recentReview = recentReview;
     }
 }

@@ -29,7 +29,20 @@ export class ListenerService {
                 },
             },
             include: {
-                listenerInfo: true,
+                listenerInfo: {
+                    include: {
+                        reviews: {
+                            select: {
+                                rating: true,
+                                comment: true,
+                                createdAt: true,
+                            },
+                            orderBy: {
+                                createdAt: "desc",
+                            },
+                        },
+                    },
+                },
             },
         });
 
@@ -40,9 +53,14 @@ export class ListenerService {
 
             const formattedPrice = formatPriceToKRW(listener.listenerInfo?.price || 0);
 
+            const reviews = listener.listenerInfo?.reviews || [];
+            const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+            const reviewCount = reviews.length;
+            const averageRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : "0";
+            const recentReview = reviews.length > 0 ? reviews[0].comment : "아직 리뷰가 없습니다.";
+
             return new GetAllListenerResponseDto(
-                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.listenerInfo?.career || [], listener.listenerInfo?.education || [], listener.listenerInfo?.availableTime || []
-                , formattedPrice,
+                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.listenerInfo?.career || [], listener.listenerInfo?.education || [], listener.listenerInfo?.availableTime || [], formattedPrice, reviewCount, averageRating, recentReview,
             );
         });
     }

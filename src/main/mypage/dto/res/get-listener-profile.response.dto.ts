@@ -19,6 +19,12 @@ export class GetListenerProfileResponseDto {
     readonly nickname: string;
 
     @ApiProperty({
+        description: "프로필 URL",
+        example: "https://example.com/profile.jpg",
+    })
+    readonly profile: string;
+
+    @ApiProperty({
         description: "주소",
         required: true,
     })
@@ -86,6 +92,7 @@ export class GetListenerProfileResponseDto {
     constructor(
         id: string,
         nickname: string,
+        profile: string,
         address: string,
         career: string[],
         education: string[],
@@ -99,6 +106,7 @@ export class GetListenerProfileResponseDto {
     ) {
         this.id = id;
         this.nickname = nickname;
+        this.profile = profile;
         this.address = address;
         this.career = career;
         this.education = education;

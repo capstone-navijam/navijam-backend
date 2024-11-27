@@ -39,7 +39,7 @@ export function getTimestamp(
     if (updatedAt && updatedAt > createdAt) {
         const formattedUpdatedAt = getFormattedTimestamp(updatedAt);
 
-        return `${formattedUpdatedAt} (수정됨)`;
+        return `${formattedUpdatedAt}`;
     }
 
     return formattedCreatedAt;

@@ -1,10 +1,10 @@
 import {
-    IsNotEmpty,
+    IsNotEmpty, IsNumber,
 } from "class-validator";
 
 export class SendChatMessage {
-    @IsNotEmpty()
-    roomId: string;
+    @IsNumber()
+    roomId: bigint;
 
     @IsNotEmpty()
     message: string;

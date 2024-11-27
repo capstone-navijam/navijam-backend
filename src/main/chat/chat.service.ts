@@ -71,7 +71,7 @@ export class ChatService {
 
             const existsChatroom = await tx.chatRoom.findUnique({
                 where: {
-                    id: BigInt(message.roomId),
+                    id: message.roomId,
                 },
             });
 
@@ -88,13 +88,13 @@ export class ChatService {
                 data: {
                     message: message.message,
                     memberId: existsMember.id,
-                    roomId: BigInt(message.roomId),
+                    roomId: message.roomId,
                 },
             });
 
             await tx.chatRoom.update({
                 where: {
-                    id: BigInt(message.roomId),
+                    id: message.roomId,
                 },
                 data: {
                     recentMessageTime: new Date(),

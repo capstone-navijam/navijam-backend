@@ -55,6 +55,9 @@ import {
 import {
     ReservationModule,
 } from "@main/reservation/reservation.module";
+import { ReviewService } from './review/review.service';
+import { ReviewController } from './review/review.controller';
+import { ReviewModule } from './review/review.module';
 
 @Module({
     imports: [
@@ -73,12 +76,15 @@ import {
         ChatroomModule,
         ChatModule,
         ReservationModule,
+        ReviewModule,
     ],
     controllers: [ComfortController,
-        MypageController,],
+        MypageController,
+        ReviewController,],
     providers: [ComfortService,
         CommunityService,
-        MypageService,],
+        MypageService,
+        ReviewService,],
 })
 export class AppModule {
 }

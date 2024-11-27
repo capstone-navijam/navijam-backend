@@ -1,4 +1,5 @@
 import {
+    ForbiddenException,
     Injectable,
 } from "@nestjs/common";
 import {
@@ -30,8 +31,8 @@ import {
     NotFoundChatroomException,
 } from "@main/exception/websocket/not-found-chatroom.exception";
 import {
-    ChatMessageDto,
-} from "@main/chat/dto/chat.message.dto";
+    ChatroomAlreadyClosedException,
+} from "@main/exception/http/chatroom-already-closed.exception";
 
 @Injectable()
 export class ChatroomService {
@@ -214,6 +215,10 @@ export class ChatroomService {
 
         if (!chatroom) throw new NotFoundChatroomException;
 
+        if (!chatroom.isEnabled) {
+            throw new ChatroomAlreadyClosedException();
+        }
+
         const participant = chatroom.memberId === memberId
             ? chatroom.listener?.Member
             : chatroom.member;
@@ -231,5 +236,33 @@ export class ChatroomService {
         return new GetChatroomDetailResponseDto(
             chatroom.id, participant?.nickname || "알 수 없음", participant?.profile || "", messages, chatroom.isEnabled, timestamp,
         );
+    }
+
+    // 채팅방 종료
+    async endChatRoom(roomId: bigint): Promise<void> {
+        const chatroom = await this.prisma.chatRoom.findUnique({
+            where: {
+                id: roomId,
+            },
+
+        });
+
+        if (!chatroom) {
+            throw new NotFoundChatroomException();
+        }
+
+        if (!chatroom.isEnabled) {
+            throw new ChatroomAlreadyClosedException();
+        }
+
+        await this.prisma.chatRoom.update({
+            where: {
+                id: roomId,
+            },
+            data: {
+                isEnabled: false,
+            },
+        });
+
     }
 }

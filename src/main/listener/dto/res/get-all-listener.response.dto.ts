@@ -74,10 +74,11 @@ export class GetAllListenerResponseDto {
     @ApiProperty({
         description: "상담 가능 시간",
         required: true,
-        type: String,
-        example: "AM 9:00 ~ AM 10:00",
+        type: [String,],
+        example: ["AM 9:00 ~ AM 10:00",
+            "AM 11:00 ~ PM 7:00",],
     })
-    readonly availableTime: string;
+    readonly availableTime: string[];
 
     @ApiProperty({
         description: "상담 가격 (포맷된 값)",
@@ -95,7 +96,7 @@ export class GetAllListenerResponseDto {
         contactNumber: string,
         career: string[],
         education: string[],
-        availableTime: string,
+        availableTime: string[],
         formattedPrice: string,
     ) {
         this.id = id;

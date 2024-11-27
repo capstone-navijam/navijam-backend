@@ -313,7 +313,7 @@ export class MypageService {
         const formattedPrice = formatPriceToKRW(updatedListenerInfo.price || 0);
 
         return new UpdateListenerProfileResponseDto(
-            body.nickname ?? member.nickname, updatedListenerInfo.address || "", updatedListenerInfo.career, updatedListenerInfo.education, updatedListenerInfo.description, updatedListenerInfo.phoneNumber || "", updatedListenerInfo.contactNumber, profileCategories, updatedListenerInfo.availableTime, member.email, formattedPrice,
+            body.nickname ?? member.nickname, updatedListenerInfo.address || "", updatedListenerInfo.career, updatedListenerInfo.education, updatedListenerInfo.description, updatedListenerInfo.phoneNumber || "", updatedListenerInfo.contactNumber, profileCategories, updatedListenerInfo.availableTime || [], member.email, formattedPrice,
         );
     }
 
@@ -338,7 +338,7 @@ export class MypageService {
         const formattedPrice = formatPriceToKRW(listenerInfo.price || 0);
 
         return new GetListenerProfileResponseDto(
-            member.id.toString(),  member.nickname, member.profile,listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || "", member.email, formattedPrice
+            member.id.toString(),  member.nickname, member.profile,listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || [], member.email, formattedPrice
         );
     }
 

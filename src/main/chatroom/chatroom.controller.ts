@@ -89,6 +89,22 @@ export class ChatroomController {
         return new CustomResponse<GetAllMemberChatroomsResponseDto[]>(data, "회원 채팅방 목록 조회 성공");
     }
 
+    // (상담사) 모든 채팅방 목록 조회 API
+    @ApiOperation({
+        summary: "(상담사) 모든 채팅방 목록 조회 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @ApiCustomResponseDecorator(GetAllListenerChatroomsResponseDto)
+    @Roles("LISTENER")
+    @Get("/all/listener")
+    async getAllListenerChatRooms(@Req() req: AuthenticatedRequest,
+    ): Promise<CustomResponse<GetAllListenerChatroomsResponseDto[]>> {
+        const memberId = BigInt(req.member.id);
+        const data = await this.chatroomService.getAllListenerChatRooms(memberId);
+
+        return new CustomResponse<GetAllListenerChatroomsResponseDto[]>(data, "상담사 채팅방 목록 조회 성공");
+    }
+
     // 단일 채팅방 조회 API
     @ApiOperation({
         summary: "단일 채팅방 조회 API",

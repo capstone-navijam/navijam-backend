@@ -61,7 +61,7 @@ export class ChatroomService {
         return new CreateChatRoomResponseDto(chatRoom.id.toString());
     }
 
-    // (회원)모든 채팅방 목록 조회
+    // (회원) 모든 채팅방 목록 조회
     async getAllMemberChatRooms(memberId: bigint): Promise<GetAllMemberChatroomsResponseDto[]> {
         const chatRooms = await this.prisma.chatRoom.findMany({
             where: {
@@ -84,12 +84,12 @@ export class ChatroomService {
                         createdAt: true,
                     },
                     orderBy: {
-                        createdAt: "desc", // 최근 메시지가 첫 번째로 오도록 정렬
+                        createdAt: "desc",
                     },
                 },
             },
             orderBy: {
-                recentMessageTime: "desc", // 전체 채팅방을 최근 메시지 시간으로 정렬
+                recentMessageTime: "desc",
             },
         });
 
@@ -98,12 +98,12 @@ export class ChatroomService {
 
             // 최근 메시지 시간 계산
             const recentMessageTime = chatroom.recentMessageTime
-                || chatroom.chats[0]?.createdAt // chats 배열에서 가장 최근 메시지 시간 사용
-                || new Date(); // 모든 값이 없을 경우 현재 시간 사용
+                || chatroom.chats[0]?.createdAt
+                || new Date();
 
             // 최근 메시지 내용
             const recentMessage = chatroom.recentMessage
-                || chatroom.chats[0]?.message // chats 배열에서 최근 메시지 내용 사용
+                || chatroom.chats[0]?.message
                 || "최근 메시지가 없습니다.";
 
             return new GetAllMemberChatroomsResponseDto(
@@ -112,11 +112,57 @@ export class ChatroomService {
         });
     }
 
-    // 단일 채팅방 조회 API
+    // (상담사) 모든 채팅방 목록 조회
+    async getAllListenerChatRooms(listenerId: bigint): Promise<GetAllListenerChatroomsResponseDto[]> {
+        const chatRooms = await this.prisma.chatRoom.findMany({
+            where: {
+                id: listenerId,
+            },
+            include: {
+                member: {
+                    select: {
+                        nickname: true,
+                        profile: true,
+                    },
+                },
+                chats: {
+                    select: {
+                        message: true,
+                        createdAt: true,
+                    },
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                },
+            },
+            orderBy: {
+                recentMessageTime: "desc",
+            },
+        });
+
+        return chatRooms.map(chatroom => {
+            const member = chatroom.member;
+
+            const recentMessageTime = chatroom.recentMessageTime
+                || chatroom.chats[0]?.createdAt
+                || new Date();
+
+            const recentMessage = chatroom.recentMessage
+                || chatroom.chats[0]?.message
+                || "최근 메세지가 없습니다.";
+
+            return new GetAllListenerChatroomsResponseDto(
+                chatroom.id.toString(), member?.nickname || "", member?.profile || "", recentMessage, getTimestamp(recentMessageTime, undefined, "datetime"), chatroom.isEnabled,
+            );
+        });
+
+    }
+
+    // 단일 채팅방 조회
     async getChatroomById(roomId: bigint): Promise<GetChatroomDetailResponseDto> {
         const chatroom = await this.prisma.chatRoom.findUnique({
             where: {
-                id: roomId, 
+                id: roomId,
             },
             include: {
                 member: {
@@ -141,7 +187,7 @@ export class ChatroomService {
                         createdAt: true,
                     },
                     orderBy: {
-                        createdAt: "desc", 
+                        createdAt: "desc",
                     },
                 },
             },
@@ -151,7 +197,7 @@ export class ChatroomService {
 
         const lastChat = chatroom.chats[0] || {
             message: "대화 없음",
-            createdAt: new Date(), 
+            createdAt: new Date(),
         };
 
         return new GetChatroomDetailResponseDto(

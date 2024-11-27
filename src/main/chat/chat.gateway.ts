@@ -94,6 +94,16 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         client.emit("chatroomDetail", chatroom);
     }
 
+    @SubscribeMessage("updateChatrooms")
+    async updateChatRooms(
+        @ConnectedSocket() client: ChatMember,
+    ) {
+        const listenerId = BigInt(client.memberId);
+        const chatRooms = await this.chatroomService.getAllListenerChatRooms(listenerId);
+
+        client.emit("updateChatRooms", chatRooms);
+    }
+
     afterInit(server: Server) {
         console.log("init chat");
     }

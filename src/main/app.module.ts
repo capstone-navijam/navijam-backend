@@ -53,11 +53,8 @@ import {
     ChatModule,
 } from "@main/chat/chat.module";
 import {
-    ChatroomService,
-} from "@main/chatroom/chatroom.service";
-import {
-    ChatroomController,
-} from "@main/chatroom/chatroom.controller";
+    ReservationModule,
+} from "@main/reservation/reservation.module";
 
 @Module({
     imports: [
@@ -75,6 +72,7 @@ import {
         MypageModule,
         ChatroomModule,
         ChatModule,
+        ReservationModule,
     ],
     controllers: [ComfortController,
         MypageController,],

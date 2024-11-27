@@ -148,15 +148,19 @@ export class SignupListenerRequestDto {
     @ApiProperty({
         description: "상담 가능 시간",
         required: true,
-        type: String,
-        example: "AM 9:00 ~ AM 10:00",
+        type: [String,],
+        example: ["AM 9:00 ~ AM 10:00",
+            "AM 11:00 ~ PM 7:00",],
     })
-    @IsString()
+    @IsString({
+        each: true,
+        message: "상담 가능 시간은 문자열이어야 합니다.",
+    })
     @MinLength(5, {
         each: true,
         message: "상담 가능 시간은 최소 5글자 이상이어야 합니다.",
     })
-    availableTime: string;
+    availableTime: string[];
 
     @ApiProperty({
         description: "1:1 실시간 상담 가격",

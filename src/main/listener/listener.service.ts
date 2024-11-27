@@ -41,7 +41,8 @@ export class ListenerService {
             const formattedPrice = formatPriceToKRW(listener.listenerInfo?.price || 0);
 
             return new GetAllListenerResponseDto(
-                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.listenerInfo?.career || [], listener.listenerInfo?.education || [], listener.listenerInfo?.availableTime || "", formattedPrice,
+                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.listenerInfo?.career || [], listener.listenerInfo?.education || [], listener.listenerInfo?.availableTime || []
+                , formattedPrice,
             );
         });
     }

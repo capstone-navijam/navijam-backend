@@ -5,7 +5,7 @@ import {
 export class IsNotListenerException extends BadRequestException {
     constructor() {
         super({
-            message: "상담은 상담사와 진행할 수 있기 때문에 채팅방 생성이 불가능합니다.",
+            message: "해당 회원 정보는 상담사가 아닌 일반 회원입니다. 상담사 정보를 전달해주세요.",
         });
     }
 }

@@ -192,7 +192,7 @@ export class MypageController {
     })
     @UseGuards(JwtAuthGuard)
     @ApiCustomResponseDecorator(GetListenerReviewsResponseDto)
-    @Get("/:listerId/reviews")
+    @Get("/:listenerId/reviews")
     async getListenerReviews(@Param("listenerId", ParseBigIntPipe) listenerId: bigint): Promise<CustomResponse<GetListenerReviewsResponseDto>> {
         const data = await this.mypageService.getListenerReviews(listenerId);
 

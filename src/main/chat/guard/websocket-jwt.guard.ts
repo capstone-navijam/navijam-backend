@@ -31,7 +31,7 @@ export class WebSocketJwtGuard implements CanActivate {
 
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
         const client = context.switchToWs().getClient();
-        const authToken = client.handshake.headers["authorization"];
+        const authToken = client.handshake.auth.token;
 
         if (!authToken) {
             throw new UnauthorizedException("Missing authorization token");

@@ -23,83 +23,87 @@ export class ChatService {
     }
 
     async validateChatroomId(id: bigint, memberId: string): Promise<void> {
-        const existsMember = await this.prisma.member.findUnique({
-            where: {
-                id: BigInt(memberId),
-            },
-            include: {
-                listenerInfo: true,
-            },
+        await this.prisma.$transaction(async tx => {
+            const existsMember = await tx.member.findUnique({
+                where: {
+                    id: BigInt(memberId),
+                },
+                include: {
+                    listenerInfo: true,
+                },
+            });
+
+            if (!existsMember) {
+                throw new NotFoundMemberException();
+            }
+
+            const chatroom = await tx.chatRoom.findUnique({
+                where: {
+                    id: id,
+                },
+            });
+
+            if (!chatroom) {
+                throw new NotFoundChatroomException();
+            }
+
+            if (chatroom.memberId !== existsMember.id
+                && (existsMember.listenerInfo && chatroom.listenerId !== existsMember.listenerInfo.id)) {
+                throw new InvalidSendChatException();
+            }
         });
-
-        if (!existsMember) {
-            throw new NotFoundMemberException();
-        }
-
-        const chatroom = await this.prisma.chatRoom.findUnique({
-            where: {
-                id: id,
-            },
-        });
-
-        if (!chatroom) {
-            throw new NotFoundChatroomException();
-        }
-
-        if (chatroom.memberId !== existsMember.id
-            && (existsMember.listenerInfo && chatroom.listenerId !== existsMember.listenerInfo.id)) {
-            throw new InvalidSendChatException();
-        }
     }
 
     async saveChat(message: SendChatMessage, id: string) {
-        const existsMember = await this.prisma.member.findUnique({
-            where: {
-                id: BigInt(id),
-            },
-            include: {
-                listenerInfo: true,
-            },
+        return await this.prisma.$transaction(async tx => {
+            const existsMember = await tx.member.findUnique({
+                where: {
+                    id: BigInt(id),
+                },
+                include: {
+                    listenerInfo: true,
+                },
+            });
+
+            if (!existsMember) {
+                throw new NotFoundMemberException();
+            }
+
+            const existsChatroom = await tx.chatRoom.findUnique({
+                where: {
+                    id: message.roomId,
+                },
+            });
+
+            if (!existsChatroom) {
+                throw new NotFoundChatroomException();
+            }
+
+            if (existsChatroom.memberId !== existsMember.id
+                && (existsMember.listenerInfo && existsChatroom.listenerId !== existsMember.listenerInfo.id)) {
+                throw new InvalidSendChatException();
+            }
+
+            const chat = await tx.chat.create({
+                data: {
+                    message: message.message,
+                    memberId: existsMember.id,
+                    roomId: message.roomId,
+                },
+            });
+
+            await tx.chatRoom.update({
+                where: {
+                    id: message.roomId,
+                },
+                data: {
+                    recentMessageTime: new Date(),
+                    recentMessage: message.message,
+                },
+            });
+
+            return chat.id;
         });
-
-        if (!existsMember) {
-            throw new NotFoundMemberException();
-        }
-
-        const existsChatroom = await this.prisma.chatRoom.findUnique({
-            where: {
-                id: message.roomId,
-            },
-        });
-
-        if (!existsChatroom) {
-            throw new NotFoundChatroomException();
-        }
-
-        if (existsChatroom.memberId !== existsMember.id
-            && (existsMember.listenerInfo && existsChatroom.listenerId !== existsMember.listenerInfo.id)) {
-            throw new InvalidSendChatException();
-        }
-
-        const chat = await this.prisma.chat.create({
-            data: {
-                message: message.message,
-                memberId: existsMember.id,
-                roomId: message.roomId,
-            },
-        });
-
-        await this.prisma.chatRoom.update({
-            where: {
-                id: message.roomId,
-            },
-            data: {
-                recentMessageTime: new Date(),
-                recentMessage: message.message,
-            },
-        });
-
-        return chat.id;
     }
 
     /**

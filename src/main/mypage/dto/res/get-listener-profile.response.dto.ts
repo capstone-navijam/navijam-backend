@@ -7,14 +7,20 @@ import {
 
 export class GetListenerProfileResponseDto {
     @ApiProperty({
+        description: "Listener Id",
+        required: true,
+    })
+    readonly id: string;
+
+    @ApiProperty({
         description: "이름",
-        required: false,
+        required: true,
     })
     readonly nickname: string;
 
     @ApiProperty({
         description: "주소",
-        required: false,
+        required: true,
     })
     readonly address: string;
 
@@ -38,7 +44,7 @@ export class GetListenerProfileResponseDto {
 
     @ApiProperty({
         description: "전화번호",
-        required: false,
+        required: true,
     })
     readonly phoneNumber: string;
 
@@ -78,6 +84,7 @@ export class GetListenerProfileResponseDto {
     readonly formattedPrice: string;
 
     constructor(
+        id: string,
         nickname: string,
         address: string,
         career: string[],
@@ -90,6 +97,7 @@ export class GetListenerProfileResponseDto {
         email: string,
         formattedPrice: string,
     ) {
+        this.id = id;
         this.nickname = nickname;
         this.address = address;
         this.career = career;

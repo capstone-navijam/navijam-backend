@@ -42,6 +42,9 @@ import {
 import {
     WsExceptionFilter,
 } from "@main/filter/ws-exception.filter";
+import {
+    ChatroomAlreadyClosedException,
+} from "@main/exception/http/chatroom-already-closed.exception";
 
 @UseFilters(WsExceptionFilter)
 @UseGuards(WebSocketJwtGuard)
@@ -86,17 +89,36 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         @MessageBody() message: SendChatMessage,
         @ConnectedSocket() client: ChatMember,
     ) {
-        await this.chatService.saveChat(message, client.memberId);
+        try {
+            const memberId = BigInt(client.memberId);
+            const chatroom = await this.chatroomService.getChatroomDetail(message.roomId, memberId);
 
-        // 실시간 메시지 이벤트
-        this.server.to(message.roomId.toString()).emit("newMessage", {
-            sender: client.memberId,
-            message: message.message,
-            timestamp: new Date().toISOString(),
-        });
+            // 채팅방 활성 상태 검증
+            if (!chatroom.isEnabled) {
+                throw new ChatroomAlreadyClosedException();
+            }
 
-        // 채팅방 상태 업데이트
-        await this.updateChatRoom(message.roomId, BigInt(client.memberId));
+            // 메시지 저장 로직
+            await this.chatService.saveChat(message, client.memberId);
+
+            // 실시간 메시지 이벤트
+            this.server.to(message.roomId.toString()).emit("newMessage", {
+                sender: client.memberId,
+                message: message.message,
+                timestamp: new Date().toISOString(),
+            });
+
+            // 채팅방 상태 업데이트
+            await this.updateChatRoom(message.roomId, memberId);
+        } catch (error) {
+            if (error instanceof ChatroomAlreadyClosedException) {
+                client.emit("error", {
+                    message: error.message,
+                });
+            } else {
+                throw error;
+            }
+        }
     }
 
     /**
@@ -136,6 +158,37 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
             : await this.chatroomService.getAllMemberChatRooms(memberId);
 
         client.emit("chatRooms", chatRooms);
+    }
+
+    /**
+     * 채팅방 종료
+     */
+    @SubscribeMessage("endChatRoom")
+    async handleEndChatRoom(
+        @MessageBody("roomId", ParseBigIntPipe) roomId: bigint,
+        @ConnectedSocket() client: ChatMember,
+    ) {
+        try {
+            // 채팅방 종료 서비스 호출
+            await this.chatroomService.endChatRoom(roomId);
+
+            // WebSocket으로 상담 종료 상태 알림
+            this.server.to(roomId.toString()).emit("endChatRoom", {
+                message: "채팅방 연결이 해제되었습니다.",
+                roomId: roomId.toString(),
+            });
+
+            // 채팅방 연결 해제
+            this.server.socketsLeave(roomId.toString());
+        } catch (error) {
+            if (error instanceof ChatroomAlreadyClosedException) {
+                client.emit("endChatRoom", {
+                    message: error.message,
+                });
+            } else {
+                throw error;
+            }
+        }
     }
 
     /**

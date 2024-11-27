@@ -18,6 +18,7 @@ import {
     ChatroomService,
 } from "@main/chatroom/chatroom.service";
 import {
+    UseFilters,
     UseGuards, UsePipes,
 } from "@nestjs/common";
 import {
@@ -38,7 +39,11 @@ import {
 import {
     ParseBigIntPipe,
 } from "@main/auth/pipe/parse-bigint.pipe";
+import {
+    WsExceptionFilter,
+} from "@main/filter/ws-exception.filter";
 
+@UseFilters(WsExceptionFilter)
 @UseGuards(WebSocketJwtGuard)
 @UsePipes(WebSocketValidationPipe)
 @WebSocketGateway(3030, {

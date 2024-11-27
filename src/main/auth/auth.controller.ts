@@ -79,6 +79,9 @@ export class AuthController {
             data, "로그인 성공",
         );
     }
+<<<<<<< HEAD
+}
+=======
 
     // 닉네임 중복 확인 API
     @ApiOperation({
@@ -110,3 +113,4 @@ export class AuthController {
         );
     }
 }
+>>>>>>> main

@@ -1,8 +1,8 @@
 import {
-    IsNumber,
+    IsNotEmpty,
 } from "class-validator";
 
 export class JoinChatRoomMessage {
-    @IsNumber()
-    roomId: bigint;
+    @IsNotEmpty()
+    roomId: string;
 }

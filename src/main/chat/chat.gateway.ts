@@ -73,10 +73,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
         @MessageBody() message: JoinChatRoomMessage,
         @ConnectedSocket() client: ChatMember,
     ) {
-        await this.chatService.validateChatroomId(message.roomId, client.memberId);
+        await this.chatService.validateChatroomId(BigInt(message.roomId), client.memberId);
 
-        client.join(message.roomId.toString());
-        this.server.to(message.roomId.toString()).emit("userJoined", {
+        client.join(message.roomId);
+        this.server.to(message.roomId).emit("userJoined", {
             message: `${client.memberId} joined the room.`,
         });
     }
@@ -91,7 +91,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     ) {
         try {
             const memberId = BigInt(client.memberId);
-            const chatroom = await this.chatroomService.getChatroomDetail(message.roomId, memberId);
+            const chatroom = await this.chatroomService.getChatroomDetail(BigInt(message.roomId), memberId);
 
             // 채팅방 활성 상태 검증
             if (!chatroom.isEnabled) {
@@ -109,7 +109,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
             });
 
             // 채팅방 상태 업데이트
-            await this.updateChatRoom(message.roomId, memberId);
+            await this.updateChatRoom(BigInt(message.roomId), memberId);
         } catch (error) {
             if (error instanceof ChatroomAlreadyClosedException) {
                 client.emit("error", {
@@ -135,11 +135,11 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
      */
     @SubscribeMessage("getChatRoomDetail")
     async handleGetChatRoomDetail(
-        @MessageBody("roomId", ParseBigIntPipe) roomId: bigint,
+        @MessageBody("roomId", ParseBigIntPipe) roomId: string,
         @ConnectedSocket() client: ChatMember,
     ) {
         const memberId = BigInt(client.memberId);
-        const chatroom = await this.chatroomService.getChatroomDetail(roomId, memberId);
+        const chatroom = await this.chatroomService.getChatroomDetail(BigInt(roomId), memberId);
 
         client.emit("chatRoomDetail", chatroom);
     }

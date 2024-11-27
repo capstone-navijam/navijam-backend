@@ -26,6 +26,12 @@ import {
 import {
     GetChatroomDetailResponseDto,
 } from "@main/chatroom/dto/res/get-chat-room-detail.response.dto";
+import {
+    NotFoundChatroomException,
+} from "@main/exception/websocket/not-found-chatroom.exception";
+import {
+    ChatMessageDto,
+} from "@main/chat/dto/chat.message.dto";
 
 @Injectable()
 export class ChatroomService {
@@ -61,7 +67,7 @@ export class ChatroomService {
         return new CreateChatRoomResponseDto(chatRoom.id.toString());
     }
 
-    // (회원)모든 채팅방 목록 조회
+    // (회원) 모든 채팅방 목록 조회
     async getAllMemberChatRooms(memberId: bigint): Promise<GetAllMemberChatroomsResponseDto[]> {
         const chatRooms = await this.prisma.chatRoom.findMany({
             where: {
@@ -84,12 +90,12 @@ export class ChatroomService {
                         createdAt: true,
                     },
                     orderBy: {
-                        createdAt: "desc", // 최근 메시지가 첫 번째로 오도록 정렬
+                        createdAt: "desc",
                     },
                 },
             },
             orderBy: {
-                recentMessageTime: "desc", // 전체 채팅방을 최근 메시지 시간으로 정렬
+                recentMessageTime: "desc",
             },
         });
 
@@ -98,12 +104,12 @@ export class ChatroomService {
 
             // 최근 메시지 시간 계산
             const recentMessageTime = chatroom.recentMessageTime
-                || chatroom.chats[0]?.createdAt // chats 배열에서 가장 최근 메시지 시간 사용
-                || new Date(); // 모든 값이 없을 경우 현재 시간 사용
+                || chatroom.chats[0]?.createdAt
+                || new Date();
 
             // 최근 메시지 내용
             const recentMessage = chatroom.recentMessage
-                || chatroom.chats[0]?.message // chats 배열에서 최근 메시지 내용 사용
+                || chatroom.chats[0]?.message
                 || "최근 메시지가 없습니다.";
 
             return new GetAllMemberChatroomsResponseDto(
@@ -112,11 +118,11 @@ export class ChatroomService {
         });
     }
 
-    // 단일 채팅방 조회 API
-    async getChatroomById(roomId: bigint): Promise<GetChatroomDetailResponseDto> {
-        const chatroom = await this.prisma.chatRoom.findUnique({
+    // (상담사) 모든 채팅방 목록 조회
+    async getAllListenerChatRooms(listenerId: bigint): Promise<GetAllListenerChatroomsResponseDto[]> {
+        const chatRooms = await this.prisma.chatRoom.findMany({
             where: {
-                id: roomId, 
+                id: listenerId,
             },
             include: {
                 member: {
@@ -125,8 +131,59 @@ export class ChatroomService {
                         profile: true,
                     },
                 },
+                chats: {
+                    select: {
+                        message: true,
+                        createdAt: true,
+                    },
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                },
+            },
+            orderBy: {
+                recentMessageTime: "desc",
+            },
+        });
+
+        return chatRooms.map(chatroom => {
+            const member = chatroom.member;
+
+            const recentMessageTime = chatroom.recentMessageTime
+                || chatroom.chats[0]?.createdAt
+                || new Date();
+
+            const recentMessage = chatroom.recentMessage
+                || chatroom.chats[0]?.message
+                || "최근 메세지가 없습니다.";
+
+            return new GetAllListenerChatroomsResponseDto(
+                chatroom.id.toString(), member?.nickname || "", member?.profile || "", recentMessage, getTimestamp(recentMessageTime, undefined, "datetime"), chatroom.isEnabled,
+            );
+        });
+
+    }
+
+    // 채팅방 상세 조회
+    async getChatroomDetail(roomId: bigint, memberId: bigint): Promise<GetChatroomDetailResponseDto> {
+        const chatroom = await this.prisma.chatRoom.findUnique({
+            where: {
+                id: roomId,
+            },
+            select: {
+                id: true,
+                memberId: true,
+                listenerId: true,
+                isEnabled: true,
+                recentMessageTime: true,
+                member: {
+                    select: {
+                        nickname: true,
+                        profile: true,
+                    },
+                },
                 listener: {
-                    include: {
+                    select: {
                         Member: {
                             select: {
                                 nickname: true,
@@ -137,25 +194,42 @@ export class ChatroomService {
                 },
                 chats: {
                     select: {
+                        id: true,
                         message: true,
                         createdAt: true,
+                        memberId: true,
+                        member: {
+                            select: {
+                                id: true,
+                                nickname: true,
+                            },
+                        },
                     },
                     orderBy: {
-                        createdAt: "desc", 
+                        createdAt: "asc",
                     },
                 },
             },
         });
 
-        if (!chatroom) throw new Error("Chatroom not found");
+        if (!chatroom) throw new NotFoundChatroomException;
 
-        const lastChat = chatroom.chats[0] || {
-            message: "대화 없음",
-            createdAt: new Date(), 
-        };
+        const participant = chatroom.memberId === memberId
+            ? chatroom.listener?.Member
+            : chatroom.member;
+
+        const messages = chatroom.chats.map(chat => ({
+            id: chat.id.toString(),
+            senderId: chat.member.id.toString(),
+            senderNickname: chat.member.nickname,
+            message: chat.message,
+            createdAt: getTimestamp(chat.createdAt, undefined, "datetime"),
+        }));
+
+        const timestamp = getTimestamp(chatroom.recentMessageTime || new Date(0), undefined, "datetime");
 
         return new GetChatroomDetailResponseDto(
-            chatroom.id.toString(), chatroom.listener?.Member?.nickname || "", chatroom.listener?.Member?.profile || "", lastChat.message, getTimestamp(lastChat.createdAt, undefined, "datetime"), chatroom.isEnabled,
+            chatroom.id, participant?.nickname || "알 수 없음", participant?.profile || "", messages, chatroom.isEnabled, timestamp,
         );
     }
 }

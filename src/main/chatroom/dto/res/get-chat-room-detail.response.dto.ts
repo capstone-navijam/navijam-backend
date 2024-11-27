@@ -1,6 +1,9 @@
 import {
     ApiProperty,
 } from "@nestjs/swagger";
+import {
+    ChatMessageDto,
+} from "@main/chat/dto/chat.message.dto";
 
 export class GetChatroomDetailResponseDto {
     @ApiProperty({
@@ -10,48 +13,48 @@ export class GetChatroomDetailResponseDto {
     readonly id: string;
 
     @ApiProperty({
-        description: "상담사 닉네임",
+        description: "상대방 닉네임",
         example: "이춘식",
     })
-    readonly listenerNickname: string;
+    readonly nickname: string;
 
     @ApiProperty({
-        description: "상담사 프로필 사진 URL",
+        description: "상대방 프로필 이미지",
         example: "https://example.com/profile.jpg",
     })
-    readonly listenerProfile: string;
+    readonly profile: string;
 
     @ApiProperty({
-        description: "마지막 채팅 메시지",
-        example: "안녕하세요! 무엇을 도와드릴까요?",
+        description: "채팅 메시지 목록",
+        type: [ChatMessageDto,],
     })
-    readonly lastMessage: string;
+    readonly messages: ChatMessageDto[];
 
     @ApiProperty({
-        description: "마지막 메시지 전송 시간 (yyyy-MM-dd HH:mm)",
-        example: "2024-11-27 14:32",
-    })
-    readonly lastMessageTime: string;
-
-    @ApiProperty({
-        description: "채팅방 활성화 여부",
+        description: "채팅방 활성 상태",
         example: true,
     })
     readonly isEnabled: boolean;
 
+    @ApiProperty({
+        description: "채팅방 생성 시간 (타임스탬프)",
+        example: 1672531199000,
+    })
+    readonly timestamp: string;
+
     constructor(
-        id: string,
-        listenerNickname: string,
-        listenerProfile: string,
-        lastMessage: string,
-        lastMessageTime: string,
+        id: bigint,
+        nickname: string,
+        profile: string,
+        messages: ChatMessageDto[],
         isEnabled: boolean,
+        timestamp: string,
     ) {
-        this.id = id;
-        this.listenerNickname = listenerNickname;
-        this.listenerProfile = listenerProfile;
-        this.lastMessage = lastMessage;
-        this.lastMessageTime = lastMessageTime;
+        this.id = id.toString();
+        this.nickname = nickname;
+        this.profile = profile;
+        this.messages = messages;
         this.isEnabled = isEnabled;
+        this.timestamp = timestamp;
     }
 }

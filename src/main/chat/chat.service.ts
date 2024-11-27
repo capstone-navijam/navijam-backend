@@ -91,4 +91,24 @@ export class ChatService {
 
         return chat.id;
     }
+
+    /**
+     * 사용자 ID를 기반으로 상담사 여부 확인
+     */
+    async isListener(memberId: bigint): Promise<boolean> {
+        const member = await this.prisma.member.findUnique({
+            where: {
+                id: memberId,
+            },
+            select: {
+                role: true,
+            },
+        });
+
+        if (!member) {
+            throw new NotFoundMemberException;
+        }
+
+        return member.role === "LISTENER";
+    }
 }

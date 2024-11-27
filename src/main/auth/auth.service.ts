@@ -198,7 +198,7 @@ export class AuthService {
         });
 
         return new LoginResponseDto(
-            member.nickname, member.role, member.profile, accessToken, "Bearer"
+            member.id.toString(), member.nickname, member.role, member.profile, accessToken, "Bearer"
         );
     }
 

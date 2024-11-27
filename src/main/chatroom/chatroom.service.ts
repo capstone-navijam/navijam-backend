@@ -1,6 +1,6 @@
 import {
     ForbiddenException,
-    Injectable,
+    Injectable, UnauthorizedException,
 } from "@nestjs/common";
 import {
     Member, PrismaClient,
@@ -33,6 +33,9 @@ import {
 import {
     ChatroomAlreadyClosedException,
 } from "@main/exception/http/chatroom-already-closed.exception";
+import {
+    ActiveChatroomDeletionException,
+} from "@main/exception/http/active-chatroom-deletion.exception";
 
 @Injectable()
 export class ChatroomService {
@@ -263,6 +266,56 @@ export class ChatroomService {
                 isEnabled: false,
             },
         });
+    }
 
+    // 채팅방 삭제
+    async deleteChatRoom(roomId: bigint, memberId: bigint): Promise<void> {
+        const chatRoom = await this.prisma.chatRoom.findUnique({
+            where: {
+                id: roomId,
+            },
+            include: {
+                member: true,
+                listener: {
+                    include: {
+                        Member: true,
+                    },
+                },
+            },
+        });
+
+        // 1. 채팅방 존재 여부 확인
+        if (!chatRoom) {
+            throw new NotFoundChatroomException;
+        }
+
+        // 2. 채팅방 활성화 여부 확인
+        if (chatRoom.isEnabled) {
+            throw new ActiveChatroomDeletionException;
+        }
+
+        // 3. 사용자권한 확인
+        const isMemberAuthorized =
+            chatRoom.memberId === memberId ||
+            chatRoom.listener?.Member?.id === memberId;
+
+        if (!isMemberAuthorized) {
+            throw new ForbiddenException("권한이 존재하지 않습니다.");
+        }
+
+        // 4. 채팅방 및 관련 데이터 삭제
+        await this.prisma.$transaction(async (prisma) => {
+            await prisma.chat.deleteMany({
+                where: {
+                    roomId,
+                },
+            });
+
+            await prisma.chatRoom.delete({
+                where: {
+                    id: roomId,
+                },
+            });
+        });
     }
 }

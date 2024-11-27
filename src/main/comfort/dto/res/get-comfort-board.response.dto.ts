@@ -24,9 +24,17 @@ export class GetComfortBoardResponseDto {
     })
     readonly createdAt: string;
 
-    constructor(id: string, title: string, createdAt: string) {
+    @ApiProperty({
+        type: Boolean,
+        description: "게시글 답변 여부",
+        example: true,
+    })
+    readonly isAnswered: boolean;
+
+    constructor(id: string, title: string, createdAt: string, isAnswered: boolean) {
         this.id = id;
         this.title = title;
         this.createdAt = createdAt;
+        this.isAnswered = isAnswered;
     }
 }

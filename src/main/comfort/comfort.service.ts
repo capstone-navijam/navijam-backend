@@ -99,7 +99,7 @@ export class ComfortService {
         return boards.map((board) => {
             const timestamp = getTimestamp(board.createdAt, board.updatedAt, "date");
 
-            return new GetComfortBoardResponseDto(board.id.toString(), board.title, timestamp);
+            return new GetComfortBoardResponseDto(board.id.toString(), board.title, timestamp, board.isAnswered);
         });
     }
 

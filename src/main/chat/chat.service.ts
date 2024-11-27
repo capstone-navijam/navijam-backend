@@ -89,6 +89,16 @@ export class ChatService {
             },
         });
 
+        await this.prisma.chatRoom.update({
+            where: {
+                id: message.roomId,
+            },
+            data: {
+                recentMessageTime: new Date(),
+                recentMessage: message.message,
+            },
+        });
+
         return chat.id;
     }
 

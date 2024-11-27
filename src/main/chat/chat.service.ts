@@ -90,6 +90,9 @@ export class ChatService {
                     memberId: existsMember.id,
                     roomId: BigInt(message.roomId),
                 },
+                include: {
+                    member: true,
+                },
             });
 
             await tx.chatRoom.update({
@@ -102,7 +105,7 @@ export class ChatService {
                 },
             });
 
-            return chat.id;
+            return chat;
         });
     }
 

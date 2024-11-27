@@ -45,6 +45,9 @@ import {
 import {
     ChatroomAlreadyClosedException,
 } from "@main/exception/http/chatroom-already-closed.exception";
+import {
+    getTimestamp,
+} from "@main/util/timestamp.util";
 
 @UseFilters(WsExceptionFilter)
 @UseGuards(WebSocketJwtGuard)
@@ -99,13 +102,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
             }
 
             // 메시지 저장 로직
-            await this.chatService.saveChat(message, client.memberId);
+            const chat = await this.chatService.saveChat(message, client.memberId);
 
             // 실시간 메시지 이벤트
             this.server.to(message.roomId).emit("newMessage", {
-                sender: client.memberId,
-                message: message.message,
-                timestamp: new Date().toISOString(),
+                id: chat.id.toString(),
+                senderId: chat.member.id.toString(),
+                senderNickname: chat.member.nickname,
+                message: chat.message,
+                createdAt: getTimestamp(chat.createdAt, undefined, "datetime"),
             });
 
             // 채팅방 상태 업데이트

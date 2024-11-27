@@ -2,7 +2,7 @@ import {
     ApiOperation, ApiTags,
 } from "@nestjs/swagger";
 import {
-    Body, Controller, Get, Param, Post, Req, UseFilters, UseGuards,
+    Body, Controller, Delete, Get, Param, Post, Req, UseFilters, UseGuards,
 } from "@nestjs/common";
 import {
     CustomUnauthorizedExceptionFilter,
@@ -47,9 +47,6 @@ import {
 import {
     ParseBigIntPipe,
 } from "@main/auth/pipe/parse-bigint.pipe";
-import {
-    memoize,
-} from "@nestjs/passport/dist/utils/memoize.util";
 
 @ApiTags("채팅방")
 @Controller("/chatrooms")
@@ -123,5 +120,19 @@ export class ChatroomController {
         const chatroom = await this.chatroomService.getChatroomDetail(roomId, memberId);
 
         return new CustomResponse<GetChatroomDetailResponseDto>(chatroom, "채팅방 조회 성공");
+    }
+
+    // 채팅방 삭제 API
+    @ApiOperation({
+        summary: "채팅방 삭제 API",
+    })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Delete("/:roomId")
+    async deleteChatRoom(@Param("roomId", ParseBigIntPipe) roomId: bigint,
+                         @Req() req: AuthenticatedRequest,): Promise<CustomResponse<void>> {
+        const memberId = BigInt(req.member.id);
+        await this.chatroomService.deleteChatRoom(roomId, memberId);
+
+        return new CustomResponse<void>(undefined, "채팅방 삭제 성공");
     }
 }

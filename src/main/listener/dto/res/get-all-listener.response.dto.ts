@@ -104,6 +104,12 @@ export class GetAllListenerResponseDto {
     })
     readonly recentReview: string;
 
+    @ApiProperty({
+        description: "최근 리뷰 작성 시간",
+        example: "2024-01-02 15:30:00",
+    })
+    readonly recentReviewTimestamp: string;
+
     constructor(
         id: string,
         nickname: string,
@@ -119,6 +125,7 @@ export class GetAllListenerResponseDto {
         reviewCount: number,
         averageRating: string,
         recentReview: string,
+        recentReviewTimestamp: string,
     ) {
         this.id = id;
         this.nickname = nickname;
@@ -134,5 +141,6 @@ export class GetAllListenerResponseDto {
         this.reviewCount = reviewCount;
         this.averageRating = averageRating;
         this.recentReview = recentReview;
+        this.recentReviewTimestamp = recentReviewTimestamp;
     }
 }

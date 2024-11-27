@@ -13,6 +13,9 @@ import {
 import {
     formatPriceToKRW,
 } from "@main/util/format-price.utils";
+import {
+    getTimestamp,
+} from "@main/util/timestamp.util";
 
 @Injectable()
 export class ListenerService {
@@ -47,9 +50,10 @@ export class ListenerService {
         });
 
         return listeners.map((listener) => {
-            const categories = listener.listenerInfo!.categories.map(
-                (category: $Enums.Category) => prismaCategoryToCategory(category)
-            ) || [];
+            const categories =
+                listener.listenerInfo?.categories.map(
+                    (category: $Enums.Category) => prismaCategoryToCategory(category),
+                ) || [];
 
             const formattedPrice = formatPriceToKRW(listener.listenerInfo?.price || 0);
 
@@ -57,10 +61,15 @@ export class ListenerService {
             const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
             const reviewCount = reviews.length;
             const averageRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : "0";
-            const recentReview = reviews.length > 0 ? reviews[0].comment : "아직 리뷰가 없습니다.";
+
+            const recentReview = reviews.length <= 0 ? "아직 리뷰가 없습니다." : reviews[0].comment;
+            const recentReviewTimestamp =
+                reviews.length > 0
+                    ? getTimestamp(reviews[0].createdAt, undefined, "datetime")
+                    : "리뷰 없음";
 
             return new GetAllListenerResponseDto(
-                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.listenerInfo?.career || [], listener.listenerInfo?.education || [], listener.listenerInfo?.availableTime || [], formattedPrice, reviewCount, averageRating, recentReview,
+                listener.id.toString(), listener.nickname, listener.profile, categories, listener.listenerInfo?.description || "", listener.listenerInfo?.address || "", listener.listenerInfo?.contactNumber || "", listener.listenerInfo?.career || [], listener.listenerInfo?.education || [], listener.listenerInfo?.availableTime || [], formattedPrice, reviewCount, averageRating, recentReview, recentReviewTimestamp,
             );
         });
     }

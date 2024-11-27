@@ -67,6 +67,9 @@ import {
 import {
     formatPriceToKRW,
 } from "@main/util/format-price.utils";
+import {
+    GetListenerReviewsResponseDto,
+} from "@main/mypage/dto/res/get-listener-reviews.response.dto";
 
 @Injectable()
 export class MypageService {
@@ -338,7 +341,7 @@ export class MypageService {
         const formattedPrice = formatPriceToKRW(listenerInfo.price || 0);
 
         return new GetListenerProfileResponseDto(
-            member.id.toString(),  member.nickname, member.profile,listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || [], member.email, formattedPrice
+            member.id.toString(), member.nickname, member.profile, listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || [], member.email, formattedPrice
         );
     }
 
@@ -365,4 +368,29 @@ export class MypageService {
             );
         });
     }
+
+    async getListenerReviews(listenerId: bigint): Promise<GetListenerReviewsResponseDto[]> {
+        const reviews = await this.prisma.review.findMany({
+            where: {
+                listenerId,
+            },
+            select: {
+                comment: true,
+                createdAt: true,
+                rating: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        });
+
+        const reviewCount = reviews.length;
+        const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+        const averageRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : "0";
+
+        return reviews.map(review => new GetListenerReviewsResponseDto(
+            listenerId.toString(), averageRating, reviewCount, review.comment, getTimestamp(review.createdAt, undefined, "datetime"),
+        ));
+    }
+
 }

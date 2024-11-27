@@ -2,7 +2,7 @@ import {
     Body,
     Controller,
     FileTypeValidator,
-    Get,
+    Get, Param,
     ParseFilePipe,
     Patch,
     Req,
@@ -84,6 +84,12 @@ import {
 import {
     GetWaitingComfortBoardResponseDto,
 } from "@main/mypage/dto/res/get-waiting-comfort-board.response.dto";
+import {
+    GetListenerReviewsResponseDto,
+} from "@main/mypage/dto/res/get-listener-reviews.response.dto";
+import {
+    ParseBigIntPipe,
+} from "@main/auth/pipe/parse-bigint.pipe";
 
 @ApiTags("마이페이지")
 @Controller("/mypage")
@@ -179,6 +185,20 @@ export class MypageController {
         const data = await this.mypageService.getWaitingComfortBoards();
 
         return new CustomResponse<GetWaitingComfortBoardResponseDto[]>(data, "답변 대기 중인 게시글 조회 성공");
+    }
+
+    @ApiOperation({
+        summary: "상담사 리뷰 조회 API",
+    })
+    @UseGuards(JwtAuthGuard)
+    @ApiCustomResponseDecorator(GetListenerReviewsResponseDto)
+    @Get("/:listerId/reviews")
+    async getListenerReviews(@Param("listenerId", ParseBigIntPipe) listenerId: bigint): Promise<CustomResponse<GetListenerReviewsResponseDto>> {
+        const data = await this.mypageService.getListenerReviews(listenerId);
+
+        const firstReview = data[0] || new GetListenerReviewsResponseDto(listenerId.toString(), "0", 0, "리뷰가 없습니다.", "");
+
+        return new CustomResponse<GetListenerReviewsResponseDto>(firstReview, "리뷰 조회 성공");
     }
 
     @ApiOperation({

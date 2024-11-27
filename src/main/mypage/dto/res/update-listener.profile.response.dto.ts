@@ -58,11 +58,10 @@ export class UpdateListenerProfileResponseDto {
     @ApiProperty({
         description: "상담 가능 시간",
         required: true,
-        type: [String,],
-        example: ["AM 9:00 ~ AM 10:00",
-            "AM 11:00 ~ PM 7:00",],
+        type: String,
+        example: "AM 9:00 ~ AM 10:00",
     })
-    readonly availableTime: string[];
+    readonly availableTime: string;
 
     @ApiProperty({
         description: "이메일",
@@ -86,7 +85,7 @@ export class UpdateListenerProfileResponseDto {
         phoneNumber: string,
         contactNumber: string,
         category: Category[],
-        availableTime: string[],
+        availableTime: string,
         email: string,
         formattedPrice: string,
     ) {

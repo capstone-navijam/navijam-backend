@@ -3,6 +3,14 @@ import {
 } from "@nestjs/swagger";
 
 export class LoginResponseDto {
+
+    @ApiProperty({
+        type: String,
+        description: "Member Id",
+        example: "1",
+    })
+    readonly id: string;
+
     @ApiProperty({
         type: String,
         description: "닉네임",
@@ -37,7 +45,8 @@ export class LoginResponseDto {
     })
     readonly tokenType: string;
 
-    constructor(nickname: string, role: string, profile: string, accessToken: string, tokenType: string) {
+    constructor(id: string, nickname: string, role: string, profile: string, accessToken: string, tokenType: string) {
+        this.id = id;
         this.nickname = nickname;
         this.role = role;
         this.profile = profile;

@@ -338,7 +338,7 @@ export class MypageService {
         const formattedPrice = formatPriceToKRW(listenerInfo.price || 0);
 
         return new GetListenerProfileResponseDto(
-            member.id.toString(), member.profile, member.nickname, listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || [], member.email, formattedPrice
+            member.id.toString(),  member.nickname, member.profile,listenerInfo.address || "", listenerInfo.career || [], listenerInfo.education || [], listenerInfo.description || "", listenerInfo.phoneNumber || "", listenerInfo.contactNumber || "", categories, listenerInfo.availableTime || [], member.email, formattedPrice
         );
     }
 

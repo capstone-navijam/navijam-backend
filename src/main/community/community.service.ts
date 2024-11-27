@@ -173,7 +173,7 @@ export class CommunityService {
         await this.prisma.$transaction(async (prisma) => {
             await prisma.communityComment.deleteMany({
                 where: {
-                    id: communityBoardId,
+                    postId: communityBoardId,
                 },
             });
             await prisma.communityBoard.delete({

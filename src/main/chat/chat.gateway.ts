@@ -15,6 +15,9 @@ import {
     ChatService,
 } from "@main/chat/chat.service";
 import {
+    ChatroomService,
+} from "@main/chatroom/chatroom.service";
+import {
     UseGuards, UsePipes,
 } from "@nestjs/common";
 import {
@@ -33,9 +36,6 @@ import {
     WebSocketJwtGuard,
 } from "@main/chat/guard/websocket-jwt.guard";
 import {
-    ChatroomService,
-} from "@main/chatroom/chatroom.service";
-import {
     ParseBigIntPipe,
 } from "@main/auth/pipe/parse-bigint.pipe";
 
@@ -51,69 +51,106 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     @WebSocketServer()
     private readonly server: Server;
 
-    constructor(private readonly chatService: ChatService,
-                private readonly chatroomService: ChatroomService,) {
+    constructor(
+        private readonly chatService: ChatService,
+        private readonly chatroomService: ChatroomService,
+    ) {
     }
 
-    @SubscribeMessage("join")
-    async join(@MessageBody() message: JoinChatRoomMessage, @ConnectedSocket() client: ChatMember) {
+    /**
+     * 채팅방 참여
+     */
+    @SubscribeMessage("joinChatRoom")
+    async joinChatRoom(
+        @MessageBody() message: JoinChatRoomMessage,
+        @ConnectedSocket() client: ChatMember,
+    ) {
         await this.chatService.validateChatroomId(message.roomId, client.memberId);
 
         client.join(message.roomId.toString());
-        this.server.to(message.roomId.toString()).emit("joinSuccess", {
-            message: `${client.memberId} joined!`,
+        this.server.to(message.roomId.toString()).emit("userJoined", {
+            message: `${client.memberId} joined the room.`,
         });
     }
 
-    @SubscribeMessage("message")
-    async message(@MessageBody() message: SendChatMessage, @ConnectedSocket() client: ChatMember) {
+    /**
+     * 채팅 메시지 전송
+     */
+    @SubscribeMessage("sendMessage")
+    async handleSendMessage(
+        @MessageBody() message: SendChatMessage,
+        @ConnectedSocket() client: ChatMember,
+    ) {
         await this.chatService.saveChat(message, client.memberId);
 
-        this.server.to(message.roomId.toString()).emit("message", {
+        // 실시간 메시지 이벤트
+        this.server.to(message.roomId.toString()).emit("newMessage", {
             sender: client.memberId,
             message: message.message,
+            timestamp: new Date().toISOString(),
         });
-        await this.emitChatroomUpdate(message.roomId);
+
+        // 채팅방 상태 업데이트
+        await this.updateChatRoom(message.roomId, BigInt(client.memberId));
     }
 
-    private async emitChatroomUpdate(roomId: bigint) {
-        // **채팅방 데이터를 최신 상태로 조회**
-        const chatroomData = await this.chatroomService.getChatroomById(roomId);
+    /**
+     * 채팅방 상태 업데이트
+     */
+    private async updateChatRoom(roomId: bigint, memberId: bigint) {
+        const chatroomData = await this.chatroomService.getChatroomDetail(roomId, memberId);
 
-        // 해당 채팅방을 조회 중인 사용자들에게 실시간으로 업데이트
-        this.server.to(roomId.toString()).emit("updateChatroomList", chatroomData);
+        this.server.to(roomId.toString()).emit("updateChatRoom", chatroomData);
     }
 
-    @SubscribeMessage("getChatroomDetail")
-    async handleGetChatroomDetail(
+    /**
+     * 특정 채팅방 상세 조회
+     */
+    @SubscribeMessage("getChatRoomDetail")
+    async handleGetChatRoomDetail(
         @MessageBody("roomId", ParseBigIntPipe) roomId: bigint,
         @ConnectedSocket() client: ChatMember,
     ) {
-        const chatroom = await this.chatroomService.getChatroomById(roomId);
+        const memberId = BigInt(client.memberId);
+        const chatroom = await this.chatroomService.getChatroomDetail(roomId, memberId);
 
-        client.emit("chatroomDetail", chatroom);
+        client.emit("chatRoomDetail", chatroom);
     }
 
-    @SubscribeMessage("updateChatrooms")
-    async updateChatRooms(
-        @ConnectedSocket() client: ChatMember,
-    ) {
-        const listenerId = BigInt(client.memberId);
-        const chatRooms = await this.chatroomService.getAllListenerChatRooms(listenerId);
+    /**
+     * 전체 채팅방 목록 조회
+     */
+    @SubscribeMessage("getChatRooms")
+    async handleGetChatRooms(@ConnectedSocket() client: ChatMember) {
+        const memberId = BigInt(client.memberId);
 
-        client.emit("updateChatRooms", chatRooms);
+        // 사용자 기준으로 채팅방 목록 가져오기 (회원/상담사 구분)
+        const isListener = await this.chatService.isListener(memberId);
+        const chatRooms = isListener
+            ? await this.chatroomService.getAllListenerChatRooms(memberId)
+            : await this.chatroomService.getAllMemberChatRooms(memberId);
+
+        client.emit("chatRooms", chatRooms);
     }
 
+    /**
+     * WebSocket 초기화 이벤트
+     */
     afterInit(server: Server) {
-        console.log("init chat");
+        console.log("WebSocket initialized.");
     }
 
-    handleDisconnect(client: Socket): any {
-        console.log("disconnect");
+    /**
+     * WebSocket 연결 이벤트
+     */
+    handleConnection(client: Socket): void {
+        console.log(`Client connected: ${client.id}`);
     }
 
-    handleConnection(client: Socket, ...args: any[]): any {
-        console.log("connect");
+    /**
+     * WebSocket 연결 종료 이벤트
+     */
+    handleDisconnect(client: Socket): void {
+        console.log(`Client disconnected: ${client.id}`);
     }
-
 }

@@ -26,6 +26,12 @@ import {
 import {
     GetChatroomDetailResponseDto,
 } from "@main/chatroom/dto/res/get-chat-room-detail.response.dto";
+import {
+    NotFoundChatroomException,
+} from "@main/exception/websocket/not-found-chatroom.exception";
+import {
+    ChatMessageDto,
+} from "@main/chat/dto/chat.message.dto";
 
 @Injectable()
 export class ChatroomService {
@@ -158,13 +164,18 @@ export class ChatroomService {
 
     }
 
-    // 단일 채팅방 조회
-    async getChatroomById(roomId: bigint): Promise<GetChatroomDetailResponseDto> {
+    // 채팅방 상세 조회
+    async getChatroomDetail(roomId: bigint, memberId: bigint): Promise<GetChatroomDetailResponseDto> {
         const chatroom = await this.prisma.chatRoom.findUnique({
             where: {
                 id: roomId,
             },
-            include: {
+            select: {
+                id: true,
+                memberId: true,
+                listenerId: true,
+                isEnabled: true,
+                recentMessageTime: true,
                 member: {
                     select: {
                         nickname: true,
@@ -172,7 +183,7 @@ export class ChatroomService {
                     },
                 },
                 listener: {
-                    include: {
+                    select: {
                         Member: {
                             select: {
                                 nickname: true,
@@ -183,25 +194,42 @@ export class ChatroomService {
                 },
                 chats: {
                     select: {
+                        id: true,
                         message: true,
                         createdAt: true,
+                        memberId: true,
+                        member: {
+                            select: {
+                                id: true,
+                                nickname: true,
+                            },
+                        },
                     },
                     orderBy: {
-                        createdAt: "desc",
+                        createdAt: "asc",
                     },
                 },
             },
         });
 
-        if (!chatroom) throw new Error("Chatroom not found");
+        if (!chatroom) throw new NotFoundChatroomException;
 
-        const lastChat = chatroom.chats[0] || {
-            message: "대화 없음",
-            createdAt: new Date(),
-        };
+        const participant = chatroom.memberId === memberId
+            ? chatroom.listener?.Member
+            : chatroom.member;
+
+        const messages = chatroom.chats.map(chat => ({
+            id: chat.id.toString(),
+            senderId: chat.member.id.toString(),
+            senderNickname: chat.member.nickname,
+            message: chat.message,
+            createdAt: getTimestamp(chat.createdAt, undefined, "datetime"),
+        }));
+
+        const timestamp = getTimestamp(chatroom.recentMessageTime || new Date(0), undefined, "datetime");
 
         return new GetChatroomDetailResponseDto(
-            chatroom.id.toString(), chatroom.listener?.Member?.nickname || "", chatroom.listener?.Member?.profile || "", lastChat.message, getTimestamp(lastChat.createdAt, undefined, "datetime"), chatroom.isEnabled,
+            chatroom.id, participant?.nickname || "알 수 없음", participant?.profile || "", messages, chatroom.isEnabled, timestamp,
         );
     }
 }

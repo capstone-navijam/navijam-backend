@@ -47,6 +47,9 @@ import {
 import {
     ParseBigIntPipe,
 } from "@main/auth/pipe/parse-bigint.pipe";
+import {
+    memoize,
+} from "@nestjs/passport/dist/utils/memoize.util";
 
 @ApiTags("채팅방")
 @Controller("/chatrooms")
@@ -105,20 +108,20 @@ export class ChatroomController {
         return new CustomResponse<GetAllListenerChatroomsResponseDto[]>(data, "상담사 채팅방 목록 조회 성공");
     }
 
-    // 단일 채팅방 조회 API
+    // 채팅방 상세 조회 API
     @ApiOperation({
-        summary: "단일 채팅방 조회 API",
+        summary: "채팅방 상세 조회 API",
     })
     @UseGuards(JwtAuthGuard)
     @ApiCustomResponseDecorator(GetChatroomDetailResponseDto)
     @Get("/:roomId")
-    async getChatroomById(
+    async getChatroomDetail(
         @Req() req: AuthenticatedRequest,
         @Param("roomId", ParseBigIntPipe) roomId: bigint,
     ): Promise<CustomResponse<GetChatroomDetailResponseDto>> {
-        const chatroom = await this.chatroomService.getChatroomById(roomId);
+        const memberId = BigInt(req.member.id);
+        const chatroom = await this.chatroomService.getChatroomDetail(roomId, memberId);
 
         return new CustomResponse<GetChatroomDetailResponseDto>(chatroom, "채팅방 조회 성공");
     }
-
 }

@@ -46,5 +46,5 @@ export function getTimestamp(
 
     const formattedUpdatedAt = getFormattedTimestamp(updatedAt);
 
-    return `${formattedUpdatedAt} (수정됨)`;
+    return `${formattedUpdatedAt}`;
 }

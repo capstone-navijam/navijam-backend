@@ -126,7 +126,7 @@ export class ChatroomService {
     async getAllListenerChatRooms(listenerId: bigint): Promise<GetAllListenerChatroomsResponseDto[]> {
         const chatRooms = await this.prisma.chatRoom.findMany({
             where: {
-                id: listenerId,
+                listenerId,
             },
             include: {
                 member: {
